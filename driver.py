@@ -1,8 +1,13 @@
+from sklearn.datasets import make_multilabel_classification
 from surprise.model_selection import KFold, GridSearchCV
 from surprise import SVD, accuracy
 
+from sklearn.feature_extraction.text import CountVectorizer
+
 from dataset.amazon.loader import AmazonDatasetLoader
 from dataset.yelp.loader import YelpDatasetLoader
+
+from sklearn.decomposition import LatentDirichletAllocation
 
 
 def baseline_optimization_recommendation(data, recommender):
@@ -29,7 +34,21 @@ def baseline_recommendation(data, recommender):
         accuracy.mae(predictions, verbose=True)
 
 
+def lda_on_review_comments(data):
+    lda = LatentDirichletAllocation(n_components=7, random_state=42, n_jobs=6, verbose=True)
+    lda.fit(data['data'])
+
+    for index, topic in enumerate(lda.components_):
+        print(f'Top 15 words for Topic #{index}')
+        print([data['cv_features'][i] for i in topic.argsort()[-15:]])
+        print('\n')
+
+
 if __name__ == '__main__':
-    # _data = AmazonDatasetLoader(AmazonDatasetLoader.filename).read_recommender_data()
-    _data = YelpDatasetLoader(YelpDatasetLoader.filename).read_recommender_data()
-    baseline_optimization_recommendation(_data, SVD)
+    amazon_dataloader = AmazonDatasetLoader()
+    yelp_dataloader = YelpDatasetLoader()
+    yelp_dataloader.load_data()
+
+    #baseline_optimization_recommendation(yelp_dataloader.read_recommender_data(), SVD)
+
+    lda_on_review_comments(yelp_dataloader.read_review_data())
