@@ -1,37 +1,9 @@
-from sklearn.datasets import make_multilabel_classification
-from surprise.model_selection import KFold, GridSearchCV
-from surprise import SVD, accuracy
-
-from sklearn.feature_extraction.text import CountVectorizer
-
 from dataset.amazon.loader import AmazonDatasetLoader
 from dataset.yelp.loader import YelpDatasetLoader
 
 from sklearn.decomposition import LatentDirichletAllocation
 
-
-def baseline_optimization_recommendation(data, recommender):
-    param_grid = {'n_epochs': [5, 10], 'lr_all': [0.002, 0.005],
-                  'reg_all': [0.4, 0.6]}
-    gs = GridSearchCV(recommender, param_grid, measures=['rmse', 'mae'], cv=3, joblib_verbose=True, n_jobs=4)
-
-    gs.fit(data['data'])
-
-    # best RMSE score
-    print('RMSE:', gs.best_score['rmse'], 'MAE:', gs.best_score['mae'])
-
-    # combination of parameters that gave the best RMSE score
-    print(gs.best_params['mae'])
-
-
-def baseline_recommendation(data, recommender):
-    kf = KFold(n_splits=3)
-    for trainset, testset in kf.split(data['data']):
-        # train and test algorithm.
-        recommender.fit(trainset)
-        predictions = recommender.test(testset)
-
-        accuracy.mae(predictions, verbose=True)
+from models.nlp.yake import YakeExtractor
 
 
 def lda_on_review_comments(data):
@@ -47,8 +19,9 @@ def lda_on_review_comments(data):
 if __name__ == '__main__':
     amazon_dataloader = AmazonDatasetLoader()
     yelp_dataloader = YelpDatasetLoader()
-    yelp_dataloader.load_data()
 
-    #baseline_optimization_recommendation(yelp_dataloader.read_recommender_data(), SVD)
+    df = YakeExtractor().extract_keywords_of_items(amazon_dataloader.get_pandas_df())
+    print(df)
 
-    lda_on_review_comments(yelp_dataloader.read_review_data())
+    # [200 rows x 12 columns]
+    # KeyBERT 124.91261499999999 secs | Yake 1.6692570000000018 secs
