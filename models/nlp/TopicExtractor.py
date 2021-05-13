@@ -17,5 +17,5 @@ class TopicExtractor:
 
     def extract_keywords(self, df):
         df['topics'] = df['review']
-        df['topics'] = df['topics'].apply(lambda x: self.model.extract_keywords(x))
+        df['topics'] = df['topics'].apply(lambda x: self.model.extract_keywords(x, top_n=10))
         return df

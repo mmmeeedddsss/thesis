@@ -18,4 +18,5 @@ class YelpDatasetLoader(DatasetLoader):
     def get_pandas_df(self):
         df = self.df.rename(columns={'stars': 'rating', 'user_id': 'userID', 'business_id': 'itemID', 'text': 'review'})
         df = df.dropna(subset=['rating', 'userID', 'itemID', 'review'])
+        df['review'] = df['review'].str.lower()
         return df

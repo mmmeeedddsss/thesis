@@ -9,6 +9,6 @@ scikit-surprise==1.1.1
 ipdb==0.13.7
 # ref https://github.com/MaartenGr/KeyBERT
 keybert==0.3.0
-
 # pip install git+https://github.com/LIAAD/yake
 yake~=0.4.8
+gensim==4.0.1

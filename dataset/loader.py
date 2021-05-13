@@ -20,6 +20,7 @@ class DatasetLoader:
         print(self.df)
 
     def _get_df_multiline_json(self, filenames):
+        print(filenames)
         dfs = []
         for filename in filenames:
             dfs.append(pd.read_json(filename, lines=True, nrows=self.n_max_rows))

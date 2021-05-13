@@ -1,11 +1,11 @@
 from surprise import Reader, Dataset
-
+import pathlib
 from dataset.loader import DatasetLoader
 
 
 class AmazonDatasetLoader(DatasetLoader):
-    f1 = f'dataset/amazon/Digital_Music_5.json'
-    f2 = f'dataset/amazon/Kindle_Store_5.json'
+    f1 = f'{pathlib.Path(__file__).parent.absolute()}/Digital_Music_5.json'
+    f2 = f'{pathlib.Path(__file__).parent.absolute()}/Kindle_Store_5.json'
     filenames = [f1]
 
     def read_recommender_data(self):
@@ -22,4 +22,5 @@ class AmazonDatasetLoader(DatasetLoader):
                                      'asin': 'itemID',
                                      'reviewText': 'review'})
         df = df.dropna(subset=['rating', 'userID', 'itemID', 'review'])
+        df['review'] = df['review'].str.lower()
         return df
