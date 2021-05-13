@@ -2,7 +2,7 @@ import pandas as pd
 
 
 class DatasetLoader:
-    n_max_rows = 1000
+    n_max_rows = 1000000
 
     def __init__(self):
         self.__df = None

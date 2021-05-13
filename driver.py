@@ -4,6 +4,7 @@ from dataset.yelp.loader import YelpDatasetLoader
 from sklearn.decomposition import LatentDirichletAllocation
 
 from models.nlp.yake import YakeExtractor
+from models.reco.recommendations import baseline_recommendation_own
 
 
 def lda_on_review_comments(data):
@@ -20,8 +21,10 @@ if __name__ == '__main__':
     amazon_dataloader = AmazonDatasetLoader()
     yelp_dataloader = YelpDatasetLoader()
 
-    df = YakeExtractor().extract_keywords_of_items(amazon_dataloader.get_pandas_df())
-    print(df)
+    #df = YakeExtractor().extract_keywords_of_items(amazon_dataloader.get_pandas_df())
+    #print(df)
+
+    baseline_recommendation_own(amazon_dataloader.get_pandas_df())
 
     # [200 rows x 12 columns]
     # KeyBERT 124.91261499999999 secs | Yake 1.6692570000000018 secs

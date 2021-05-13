@@ -12,3 +12,4 @@ keybert==0.3.0
 # pip install git+https://github.com/LIAAD/yake
 yake~=0.4.8
 gensim==4.0.1
+spacy==3.0.6

@@ -1,5 +1,7 @@
 from surprise import accuracy
-from surprise.model_selection import KFold, GridSearchCV
+from surprise.model_selection import KFold, GridSearchCV, cross_validate
+
+from models.reco.TopicExtractorRecommender import TopicExtractorRecommender
 
 
 def baseline_optimization_recommendation(data, recommender):
@@ -24,3 +26,8 @@ def baseline_recommendation(data, recommender):
         predictions = recommender.test(testset)
 
         accuracy.mae(predictions, verbose=True)
+
+
+def baseline_recommendation_own(data):
+    recommender = TopicExtractorRecommender()
+    recommender.accuracy(data)
