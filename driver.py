@@ -6,6 +6,13 @@ from sklearn.decomposition import LatentDirichletAllocation
 from models.nlp.yake import YakeExtractor
 from models.reco.recommendations import baseline_recommendation_own
 
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+
 
 def lda_on_review_comments(data):
     lda = LatentDirichletAllocation(n_components=7, random_state=42, n_jobs=6, verbose=True)
