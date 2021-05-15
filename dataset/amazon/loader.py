@@ -2,11 +2,13 @@ from surprise import Reader, Dataset
 import pathlib
 from dataset.loader import DatasetLoader
 from models.preprocessing.preprocessing import preprocessing_pipeline
+import pandas as pd
 
 
 class AmazonDatasetLoader(DatasetLoader):
     f1 = f'{pathlib.Path(__file__).parent.absolute()}/Digital_Music_5.json'
     f2 = f'{pathlib.Path(__file__).parent.absolute()}/Musical_Instruments_5.json'
+    processed_f2 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Digital_Music_5_with_extracted_topics.gzip'
     filenames = [f1]
 
     def read_recommender_data(self):
@@ -28,3 +30,6 @@ class AmazonDatasetLoader(DatasetLoader):
             df['review'] = df['review'].apply(op)
 
         return df
+
+    def get_processed_pandas_df(self):
+        return pd.read_pickle(self.processed_f2)

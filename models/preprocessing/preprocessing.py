@@ -26,6 +26,6 @@ def trim_whitespaces(text):
 preprocessing_pipeline = [
     to_lower,
     clean_non_alphanumeric_and_nums,
-    clean_lemmatization,
+    #clean_lemmatization,
     trim_whitespaces,
 ]
