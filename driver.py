@@ -43,7 +43,9 @@ if __name__ == '__main__':
 
     #baseline_recommendation_surprise(dataset, SVD())
 
-    baseline_recommendation_own(amazon_dataloader.filenames[0], df)
+
+    dataset_name = amazon_dataloader.filenames[0].split('/')[-1].split('.')[0]
+    baseline_recommendation_own(dataset_name, df)
 
     # [200 rows x 12 columns]
     # KeyBERT 124.91261499999999 secs | Yake 1.6692570000000018 secs
