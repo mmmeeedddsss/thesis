@@ -32,6 +32,6 @@ def baseline_recommendation_surprise(data, recommender):
         accuracy.rmse(predictions, verbose=True)
 
 
-def baseline_recommendation_own(data):
-    recommender = TopicExtractorRecommender()
+def baseline_recommendation_own(dataset_name, data):
+    recommender = TopicExtractorRecommender(dataset_name)
     recommender.accuracy(data, recommender.get_default_params())

@@ -1,4 +1,8 @@
+import json
 import math
+import os
+import pickle
+import re
 
 import surprise
 from sklearn.model_selection import GridSearchCV
@@ -21,11 +25,23 @@ import gensim.downloader as api
 
 logger = logging.getLogger(__name__)
 
+DATA_CACHE_FOLDER = 'cached_data'
+
+
+def serialize_param_dict(params, prefix=''):
+    sparams = json.dumps(params, sort_keys=True)
+    return prefix + re.sub(r'{|}|\"| ', '', sparams) \
+        .replace(':', '_') \
+        .replace(',', '__')
+
 
 class TopicExtractorRecommender:
 
-    def __init__(self):
+    def __init__(self, dataset_name):
+        self.dataset_name = dataset_name
         self.train_df = None
+        self.user_property_map = None
+        self.item_property_map = None
 
     def get_default_params(self):
         return {
@@ -83,45 +99,66 @@ class TopicExtractorRecommender:
         sentences = self.train_df['review'].tolist()
         sentences = [x.split(' ') for x in sentences]
 
-        logger.info("Training w2v")
+        cached_model_name = serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
 
-        self.w2v_model = Word2Vec(sentences=sentences, min_count=1, workers=6, **params['model'])
+        if not os.path.isfile(f'{DATA_CACHE_FOLDER}/{cached_model_name}'):
+            logger.info("Training w2v")
+            self.w2v_model = Word2Vec(sentences=sentences, min_count=1, workers=6, **params['model'])
+            self.w2v_model.save(f'{DATA_CACHE_FOLDER}/{cached_model_name}.model')
+        else:
+            logger.info("Loading w2v from cache")
+            self.w2v_model = Word2Vec.load(f'{DATA_CACHE_FOLDER}/word2vec__{cached_model_name}.model')
 
     def _generate_user_item_maps(self, params):
-        self.user_property_map = {}
-        self.item_property_map = {}
+        def generate_map_from(col_name):
+            property_map = {}
+            for _, row in self.train_df.iterrows():
+                topics = [(x[1], x[0]) for x in row['topics']]
 
-        logger.info("Initializing user-item maps")
-        for _, row in self.train_df.iterrows():
-            topics = [(x[1], x[0]) for x in row['topics']]
+                o = row[col_name]
+                r = row['rating']
 
-            i = row['itemID']
-            u = row['userID']
-            r = row['rating']
+                if o not in property_map:
+                    property_map[o] = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], }
 
-            if u not in self.user_property_map:
-                self.user_property_map[u] = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], }
-            if i not in self.item_property_map:
-                self.item_property_map[i] = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], }
+                property_map[o][r] += topics
 
-            self.item_property_map[i][r] += (topics)
-            self.user_property_map[u][r] += (topics)
+            for _, object_map in property_map.items():
+                for rating in range(0, 6):
+                    if len(object_map[rating]) > 0:
+                        object_map[rating] = sorted(object_map[rating], reverse=True)[:params['num_features_in_dicts']]
+                        object_map[rating] = [x[1] for x in object_map[rating]]
+                    else:
+                        del object_map[rating]
 
-        for _, user_map in self.user_property_map.items():
-            for rating in range(0, 6):
-                if len(user_map[rating]) > 0:
-                    user_map[rating] = sorted(user_map[rating], reverse=True)[:params['num_features_in_dicts']]
-                    user_map[rating] = [x[1] for x in user_map[rating]]
-                else:
-                    del user_map[rating]
+            return property_map
+        # ---------------------------------------------------
 
-        for _, item_map in self.item_property_map.items():
-            for rating in range(0, 6):
-                if len(item_map[rating]) > 0:
-                    item_map[rating] = sorted(item_map[rating], reverse=True)[:params['num_features_in_dicts']]
-                    item_map[rating] = [x[1] for x in item_map[rating]]
-                else:
-                    del item_map[rating]
+        # For user
+        cached_obj_name = serialize_param_dict(params, prefix=f'user_property_map__{self.dataset_name}')
+        if not os.path.isfile(f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'):
+            logger.info("Initializing user map")
+            self.user_property_map = generate_map_from('userID')
+            with open(f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle', 'wb') as handle:
+                logger.info("Serializing user map")
+                pickle.dump(self.user_property_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            logger.info("Loading user map from cache")
+            with open(f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle', 'rb') as handle:
+                self.user_property_map = pickle.load(handle)
+
+        # For item
+        cached_obj_name = serialize_param_dict(params, prefix=f'item_property_map__{self.dataset_name}')
+        if not os.path.isfile(f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'):
+            logger.info("Initializing item map")
+            self.item_property_map = generate_map_from('itemID')
+            with open(f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle', 'wb') as handle:
+                logger.info("Serializing item map")
+                pickle.dump(self.item_property_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            logger.info("Loading item map from cache")
+            with open(f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle', 'rb') as handle:
+                self.item_property_map = pickle.load(handle)
 
     def _train_score_rating_mapper(self, params):
         lr_X = []
@@ -178,7 +215,7 @@ class TopicExtractorRecommender:
         return self.lr_model.predict(X)
 
     def balance_test_set(self, test, params):
-        min_group = params['max_group_size']*3
+        min_group = params['max_group_size'] * 3
         for i in range(1, 6):
             min_group = min(min_group, len(test[test["rating"] == i]))
 
