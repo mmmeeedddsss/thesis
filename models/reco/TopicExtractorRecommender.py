@@ -6,7 +6,9 @@ import re
 
 import mmh3
 import surprise
+from sklearn import tree
 from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from surprise import AlgoBase
 from surprise import Dataset
@@ -31,13 +33,6 @@ logger = logging.getLogger(__name__)
 DATA_CACHE_FOLDER = 'cached_data'
 
 
-def serialize_param_dict(params, prefix=''):
-    sparams = json.dumps(params, sort_keys=True)
-    return prefix + re.sub(r'{|}|\"| ', '', sparams) \
-        .replace(':', '_') \
-        .replace(',', '__')
-
-
 class TopicExtractorRecommender:
 
     def __init__(self, dataset_name):
@@ -60,6 +55,12 @@ class TopicExtractorRecommender:
     def update_state_hash(self, added_state):
         self.state_hash = str(mmh3.hash(self.state_hash + str(mmh3.hash(added_state, signed=False)), signed=False))
 
+    def serialize_param_dict(self, params, prefix=''):
+        sparams = json.dumps(params, sort_keys=True)
+        return prefix + re.sub(r'{|}|\"| ', '', sparams) \
+            .replace(':', '_') \
+            .replace(',', '__') + self.state_hash
+
     def get_default_params(self):
         return {
             'train_test_split': {
@@ -78,6 +79,7 @@ class TopicExtractorRecommender:
             },
             'user_item_maps_generation': {
                 'num_features_in_dicts': 6,
+                'high_score_better': True,  # True for bert, false for yake
             },
             'score_rating_mapper_model': {
             },
@@ -119,7 +121,7 @@ class TopicExtractorRecommender:
         sentences = self.train_df['review'].tolist()
         sentences = [x.split(' ') for x in sentences]
 
-        cached_model_name = serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
+        cached_model_name = self.serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_model_name}.model'
         if not os.path.isfile(cached_file_location):
             logger.info("Training w2v")
@@ -148,7 +150,8 @@ class TopicExtractorRecommender:
             for _, object_map in property_map.items():
                 for rating in range(0, 6):
                     if len(object_map[rating]) > 0:
-                        object_map[rating] = sorted(object_map[rating], reverse=True)[:params['num_features_in_dicts']]
+                        object_map[rating] = sorted(object_map[rating],
+                                                    reverse=params['high_score_better'])[:params['num_features_in_dicts']]
                         object_map[rating] = [x[1] for x in object_map[rating]]
                     else:
                         del object_map[rating]
@@ -158,7 +161,7 @@ class TopicExtractorRecommender:
         # ---------------------------------------------------
 
         # For user
-        cached_obj_name = serialize_param_dict(params, prefix=f'user_property_map__{self.dataset_name}')
+        cached_obj_name = self.serialize_param_dict(params, prefix=f'user_property_map__{self.dataset_name}')
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'
         if not os.path.isfile(cached_file_location):
             logger.info("Initializing user map")
@@ -172,7 +175,7 @@ class TopicExtractorRecommender:
                 self.user_property_map = pickle.load(handle)
 
         # For item
-        cached_obj_name = serialize_param_dict(params, prefix=f'item_property_map__{self.dataset_name}')
+        cached_obj_name = self.serialize_param_dict(params, prefix=f'item_property_map__{self.dataset_name}')
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'
         if not os.path.isfile(cached_file_location):
             logger.info("Initializing item map")
@@ -218,12 +221,16 @@ class TopicExtractorRecommender:
         logger.info(f'Training set size: {len(lr_X)}')
 
         logger.info("Training Decision Tree")
+        # {'criterion': 'entropy', 'min_samples_split': 5, 'splitter': 'best'}
         tree_param = {'criterion': ['gini', 'entropy'],
-                      'min_samples_split': [2, 5, 15]}
+                      'min_samples_split': [2, 5, 15],
+                      'splitter': ['best'],
+                      'random_state': [1]}
 
-        self.lr_model = GridSearchCV(DecisionTreeClassifier(random_state=42),
-                                     tree_param, cv=5, n_jobs=4, scoring='balanced_accuracy')
+        self.lr_model = GridSearchCV(DecisionTreeClassifier(),
+                                             tree_param, cv=5, n_jobs=4, scoring='balanced_accuracy')
         self.lr_model = self.lr_model.fit(lr_X, lr_y)
+        print(self.lr_model.best_params_)
 
     def fit(self, train_df, params):
 
@@ -270,9 +277,11 @@ class TopicExtractorRecommender:
             logger.info(f'------------------ {i} ------------------')
             # test = df.groupby('userID', as_index=False).nth(i)
             df = df.sample(frac=1, random_state=42)
-            self.reset_state_hash(f'42,{i}')
+            self.reset_state_hash(f'43,{i}')
 
-            test = self.balance_test_set(df, params['train_test_split'])
+            test = df[:7500]
+
+            # test = self.balance_test_set(df, params['train_test_split'])
 
             test_indexes = test.index
             train = df.loc[set(df.index) - set(test_indexes)]
