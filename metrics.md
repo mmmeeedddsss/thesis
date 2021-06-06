@@ -6,9 +6,9 @@
 
 ##### surprise.SVD
 ```
-MAE:  1.2799
-MSE: 2.7482
-RMSE: 1.6578
+MAE:  1.0725
+MSE: 2.22934761
+RMSE: 1.4931
 ```
 
 ##### My algorithm(KeyBert -> Word2vec -> DecisionTree):

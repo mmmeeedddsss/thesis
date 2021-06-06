@@ -5,17 +5,26 @@ from models.reco.TopicExtractorRecommender import TopicExtractorRecommender
 
 
 def baseline_optimization_recommendation(data, recommender):
-    param_grid = {'n_epochs': [5, 10], 'lr_all': [0.002, 0.005],
-                  'reg_all': [0.4, 0.6]}
-    gs = GridSearchCV(recommender, param_grid, measures=['rmse', 'mae'], cv=3, joblib_verbose=True, n_jobs=4)
+    param_grid = {'n_factors': [50, 100, 150, 250], 'n_epochs': [10, 20, 30], 'lr_all': [0.005, 0.01], 'reg_all': [0.02, 0.1]}
+    gs = GridSearchCV(recommender, param_grid, measures=['rmse', 'mae'], cv=3, joblib_verbose=True, n_jobs=6)
 
     gs.fit(data)
 
     # best RMSE score
-    print('RMSE:', gs.best_score['rmse'], 'MAE:', gs.best_score['mae'])
+    print('RMSE Train:', gs.best_score['rmse'], 'MAE Train:', gs.best_score['mae'])
+
+    # n_factors=100, n_epochs=30, lr_all=0.01, reg_all=0.02
+    params = gs.best_params['rmse']
+    svdtuned = SVD(n_factors=params['n_factors'], n_epochs=params['n_epochs'], lr_all=params['lr_all'],
+                   reg_all=params['reg_all'])
+
+    print(f"n_factors={params['n_factors']}, n_epochs={params['n_epochs']}, "
+          f"lr_all={params['lr_all']}, reg_all={params['reg_all']}")
+
+    return svdtuned
 
 
-def baseline_recommendation_surprise(data, recommender):
+def SVD_model_evaluate(data, recommender):
     kf = KFold(n_splits=3)
     for trainset, testset in kf.split(data):
         # train and test algorithm.

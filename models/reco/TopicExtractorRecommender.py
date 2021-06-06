@@ -227,6 +227,9 @@ class TopicExtractorRecommender:
                       'splitter': ['best'],
                       'random_state': [1]}
 
+        # TODO ordinal classification
+        # TODO mark missing numbers in X matrix
+        # TODO investigate if 0 is the best solution for unknown values
         self.lr_model = GridSearchCV(DecisionTreeClassifier(),
                                              tree_param, cv=5, n_jobs=4, scoring='balanced_accuracy')
         self.lr_model = self.lr_model.fit(lr_X, lr_y)
@@ -279,9 +282,9 @@ class TopicExtractorRecommender:
             df = df.sample(frac=1, random_state=42)
             self.reset_state_hash(f'43,{i}')
 
-            test = df[:7500]
+            #test = df[:7500]
 
-            # test = self.balance_test_set(df, params['train_test_split'])
+            test = self.balance_test_set(df, params['train_test_split'])
 
             test_indexes = test.index
             train = df.loc[set(df.index) - set(test_indexes)]
