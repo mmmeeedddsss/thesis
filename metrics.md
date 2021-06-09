@@ -20,9 +20,23 @@ RMSE for iter 0: 1.7299500781026234
 
 ##### My algorithm(Yake -> Word2vec -> DecisionTree):
 ```
-MAE for iter 0: 1.1711111111111112
-MSE for iter 0: 3.164
-RMSE for iter 0: 1.7787636155487327
+MAE for iter 0: 1.1556184316895715
+MSE for iter 0: 3.09498787388844
+RMSE for iter 0: 1.7592577622078125
+```
+
+##### My algorithm(Yake -> Word2vec -> OrdinalDecisionTree):
+```
+MAE for iter 0: 1.3172999191592563
+MSE for iter 0: 3.2809215844785773
+RMSE for iter 0: 1.8113314397090825
+```
+
+##### My algorithm(KeyBert -> Word2vec -> OrdinalDecisionTree):
+```
+MAE for iter 0: 1.3427647534357317
+MSE for iter 0: 3.2344381568310427
+RMSE for iter 0: 1.7984543799693788
 ```
 
 ##### Prediction as mean rating on train set:

@@ -3,10 +3,12 @@ import math
 import os
 import pickle
 import re
+from collections import OrderedDict
 
 import mmh3
 import surprise
 from sklearn import tree
+from sklearn.impute import SimpleImputer
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -25,6 +27,8 @@ from gensim.models import Word2Vec, FastText
 import logging
 
 import gensim.downloader as api
+
+from models.reco.OrdinalClassifier import OrdinalClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +50,10 @@ class TopicExtractorRecommender:
         # having an hash value that all dependent places changes to see if we can
         # use saved lr_X and lr_y values.
         self.state_hash = '42'
+
+        self.lr_model = None
+        self.ordinal_model = OrdinalClassifier()
+        self.imputer = None
 
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
@@ -134,6 +142,8 @@ class TopicExtractorRecommender:
         self.update_state_hash(cached_model_name)
 
     def _generate_user_item_maps(self, params):
+        self.update_state_hash('2')
+
         def generate_map_from(col_name):
             property_map = {}
             for _, row in self.train_df.iterrows():
@@ -147,16 +157,23 @@ class TopicExtractorRecommender:
 
                 property_map[o][r] += topics
 
-            for _, object_map in property_map.items():
+            filtered_property_map = {}
+            for key, object_map in property_map.items():
+                num_deleted = 0
                 for rating in range(0, 6):
                     if len(object_map[rating]) > 0:
                         object_map[rating] = sorted(object_map[rating],
-                                                    reverse=params['high_score_better'])[:params['num_features_in_dicts']]
+                                                    reverse=params['high_score_better'])
                         object_map[rating] = [x[1] for x in object_map[rating]]
+                        object_map[rating] = list(OrderedDict.fromkeys(object_map[rating]))[
+                                             :params['num_features_in_dicts']]
                     else:
+                        num_deleted += 1
                         del object_map[rating]
+                if True or not num_deleted == 5:
+                    filtered_property_map[key] = object_map
 
-            return property_map
+            return filtered_property_map
 
         # ---------------------------------------------------
 
@@ -191,6 +208,7 @@ class TopicExtractorRecommender:
         self.update_state_hash(cached_obj_name)
 
     def _train_score_rating_mapper(self, params):
+        # self.update_state_hash('v1')
         lr_X = []
         lr_y = []
 
@@ -198,14 +216,20 @@ class TopicExtractorRecommender:
         if not os.path.isfile(cached_file_location):
             logger.info("Creating lr_X and lr_y")
             for _, row in tqdm(self.train_df.iterrows(), total=len(self.train_df)):
-                user_interests = self.user_property_map[row['userID']]
-                item_features = self.item_property_map[row['itemID']]
+                try:
+                    user_interests = self.user_property_map[row['userID']]
+                    item_features = self.item_property_map[row['itemID']]
+                except KeyError:  # key removed because it has not enough features
+                    pass
 
                 score = self.calculate_score(user_interests, item_features)
                 x = self.convert_score_to_x(score)
 
                 lr_X.append(x)
                 lr_y.append(row['rating'])
+
+            self.imputer = SimpleImputer(missing_values=0, strategy='mean')
+            lr_X = self.imputer.fit_transform(lr_X)
 
             lr_X = np.asarray(lr_X, dtype=np.float32)
             lr_y = np.array(lr_y).ravel()
@@ -227,13 +251,15 @@ class TopicExtractorRecommender:
                       'splitter': ['best'],
                       'random_state': [1]}
 
-        # TODO ordinal classification
-        # TODO mark missing numbers in X matrix
-        # TODO investigate if 0 is the best solution for unknown values
+        self.imputer = SimpleImputer(missing_values=0, strategy='mean')
+        lr_X = self.imputer.fit_transform(lr_X)
+
         self.lr_model = GridSearchCV(DecisionTreeClassifier(),
-                                             tree_param, cv=5, n_jobs=4, scoring='balanced_accuracy')
+                                     tree_param, cv=5, n_jobs=4, scoring='balanced_accuracy')
         self.lr_model = self.lr_model.fit(lr_X, lr_y)
         print(self.lr_model.best_params_)
+
+        # self.ordinal_model.fit(lr_X, lr_y)
 
     def fit(self, train_df, params):
 
@@ -259,30 +285,46 @@ class TopicExtractorRecommender:
         score = self.calculate_score(user_interests, item_features)
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
+        X = self.imputer.transform(X)
+
+        return self.lr_model.predict(X)
+
+    def estimate_ordinal(self, u, i):
+        try:
+            user_interests = self.user_property_map[u]
+            item_features = self.item_property_map[i]
+        except:
+            return None
+
+        score = self.calculate_score(user_interests, item_features)
+        x = self.convert_score_to_x(score)
+        X = np.asarray(x, dtype=np.float32).reshape(1, -1)
+        X = self.imputer.transform(X)
 
         return self.lr_model.predict(X)
 
     def balance_test_set(self, test, params):
+        self.update_state_hash(f'{params["max_group_size"]}')
         min_group = params['max_group_size'] * 3
         for i in range(1, 6):
             min_group = min(min_group, len(test[test["rating"] == i]))
 
         min_group = int(min_group * 0.33)
 
-        return pd.concat([test[test["rating"] == 1][:min_group],
+        return pd.concat([test[test["rating"] == 5][:min_group],
+                          test[test["rating"] == 1][:min_group],
                           test[test["rating"] == 2][:min_group],
                           test[test["rating"] == 3][:min_group],
-                          test[test["rating"] == 4][:min_group],
-                          test[test["rating"] == 5][:min_group]])
+                          test[test["rating"] == 4][:min_group]])
 
     def accuracy(self, df, params):
         for i in range(1):
             logger.info(f'------------------ {i} ------------------')
             # test = df.groupby('userID', as_index=False).nth(i)
             df = df.sample(frac=1, random_state=42)
-            self.reset_state_hash(f'43,{i}')
+            self.reset_state_hash(f'42,{i}')
 
-            #test = df[:7500]
+            # test = df[:7500]
 
             test = self.balance_test_set(df, params['train_test_split'])
 
@@ -304,8 +346,8 @@ class TopicExtractorRecommender:
             for _, row in test.iterrows():
                 est = self.estimate(row['userID'], row['itemID'])
                 if est is not None:
-                    mae += abs(int(est) - row['rating'])
-                    mse += (int(est) - row['rating']) ** 2
+                    mae += abs(int(est[0]) - row['rating'])
+                    mse += (int(est[0]) - row['rating']) ** 2
 
                     baseline_mae += abs(int(self.baseline_5(_, _)) - row['rating'])
                     baseline_mse += (int(self.baseline_5(_, _)) - row['rating']) ** 2
@@ -326,3 +368,38 @@ class TopicExtractorRecommender:
             print(f'Baseline MAE for iter {i}: {baseline_mae}')
             print(f'Baseline MSE for iter {i}: {baseline_mse}')
             print(f'Baseline RMSE for iter {i}: {math.sqrt(baseline_mse)}')
+
+            logger.info("Explaining the recommendations")
+            num_good_examples = 0
+            num_bad_examples = 0
+            num_total = 20
+
+            for _, row in test.iterrows():
+                est = self.estimate(row['userID'], row['itemID'])
+                if est is not None:
+                    if int(est) - row['rating'] < mae and num_good_examples < num_total:
+                        user_interests = self.user_property_map[row['userID']]
+                        item_features = self.item_property_map[row['itemID']]
+                        logger.info(f'--------------------------------')
+                        logger.info(
+                            f"Generated a good prediction on the following (est: {int(est[0])}, reality:{row['rating']}):")
+                        #logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        #logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        logger.info(f'User: {user_interests}')
+                        logger.info(f'Item: {item_features}')
+                        logger.info(f'--------------------------------')
+                        logger.info('')
+                        num_good_examples += 1
+                    if abs(int(est) - row['rating']) > mae and num_bad_examples < num_total:
+                        logger.info(f'--------------------------------')
+                        user_interests = self.user_property_map[row['userID']]
+                        item_features = self.item_property_map[row['itemID']]
+                        logger.info(
+                            f"Generated a bad prediction on following (est: {int(est[0])}, reality:{row['rating']}): ")
+                        #logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        #logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        logger.info(f'User: {user_interests}')
+                        logger.info(f'Item: {item_features}')
+                        logger.info(f'--------------------------------')
+                        logger.info('')
+                        num_bad_examples += 1

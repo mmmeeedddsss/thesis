@@ -80,10 +80,10 @@ if __name__ == '__main__':
 
     df = amazon_dataloader.get_processed_pandas_df()
 
-    SVD_driver(df)
+    #SVD_driver(df)
 
-    #dataset_name = amazon_dataloader.filenames[0].split('/')[-1].split('.')[0]
-    #baseline_recommendation_own(dataset_name, df)
+    dataset_name = amazon_dataloader.filenames[0].split('/')[-1].split('.')[0]
+    baseline_recommendation_own(dataset_name, df)
 
     # [200 rows x 12 columns]
     # KeyBERT 124.91261499999999 secs | Yake 1.6692570000000018 secs
