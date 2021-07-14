@@ -25,6 +25,13 @@ MSE for iter 0: 3.09498787388844
 RMSE for iter 0: 1.7592577622078125
 ```
 
+##### My algorithm(TfIdf -> Word2vec -> DecisionTree):
+```
+MAE for iter 0: 1.2724333063864188
+MSE for iter 0: 3.0202101859337107
+RMSE for iter 0: 1.7378751928529594
+```
+
 ##### My algorithm(Yake -> Word2vec -> OrdinalDecisionTree):
 ```
 MAE for iter 0: 1.3172999191592563

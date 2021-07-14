@@ -8,6 +8,7 @@ from collections import OrderedDict
 import mmh3
 import surprise
 from sklearn import tree
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
@@ -55,6 +56,8 @@ class TopicExtractorRecommender:
         self.ordinal_model = OrdinalClassifier()
         self.imputer = None
 
+        self.tfidf = None
+
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
     def reset_state_hash(self, new_state):
@@ -72,7 +75,7 @@ class TopicExtractorRecommender:
     def get_default_params(self):
         return {
             'train_test_split': {
-                'max_group_size': 500,
+                'max_group_size': 600,
             },
             'topic_extraction': {
                 'extracted_topic_col':
@@ -87,10 +90,13 @@ class TopicExtractorRecommender:
             },
             'user_item_maps_generation': {
                 'num_features_in_dicts': 6,
-                'high_score_better': True,  # True for bert, false for yake
+                'high_score_better': True,  # True for bert & tfidf, false for yake
             },
             'score_rating_mapper_model': {
             },
+            'tf-idf': {
+                'enabled': True,
+            }
         }
 
     def calculate_score(self, user_interests, item_features):
@@ -98,7 +104,10 @@ class TopicExtractorRecommender:
         for rating, interests in user_interests.items():
             for interest in interests:
                 for _, features in item_features.items():  # omitting item ratings for its features ????
-                    distance = np.mean(self.w2v_model.wv.distances(interest, features))
+                    dists = []
+                    for feature in features:
+                        dists.append(self._calculate_distance(interest, feature))
+                    distance = np.mean(dists)
                     # old score:
                     # d += - abs(rating / 5 - np.mean(self.w2v_model.wv.distances(interest, features)))
                     # new one:
@@ -108,7 +117,33 @@ class TopicExtractorRecommender:
 
             score[rating] /= len(interests)
 
+        for i in range(6):
+            score[i] = np.mean(score)
+
         return score
+
+
+    idf_cache = {}
+    def _get_idf_weight(self, word):
+        try:
+            if word not in self.idf_cache:
+                idx = self.tfidf.vocabulary_[word]
+                weight = self.tfidf.idf_[idx]
+                self.idf_cache[word] = weight
+        except KeyError:
+            weight = self.idf_mean
+            self.idf_cache[word] = weight
+        return self.idf_cache[word]
+
+    def _calculate_distance(self, word1, word2):
+        weight1 = self._get_idf_weight(word1)
+        weight2 = self._get_idf_weight(word2)
+
+        # first try to calc distance on pretrained model, else go with the custom one
+        try:
+            return self.pretrained_w2v.distance(word1, word2) * weight1 * weight2
+        except:
+            return self.w2v_model.wv.distance(word1, word2) * weight1 * weight2
 
     def convert_score_to_x(self, score):
         return score[1:]
@@ -125,6 +160,14 @@ class TopicExtractorRecommender:
             self.train_df['topics'] = self.train_df['topics_YakeExtractor']
             self.update_state_hash('topics_YakeExtractor')
 
+    def _train_tf_idf(self, params):
+        if not params['enabled']:
+            return
+
+        self.tfidf = TfidfVectorizer()
+        self.tfidf.fit(self.train_df['review'])
+        self.idf_mean = np.mean(self.tfidf.idf_)
+
     def _train_word_vectorizer(self, params):
         sentences = self.train_df['review'].tolist()
         sentences = [x.split(' ') for x in sentences]
@@ -139,10 +182,12 @@ class TopicExtractorRecommender:
             logger.info("Loading w2v from cache")
             self.w2v_model = Word2Vec.load(cached_file_location)
 
+        self.pretrained_w2v = api.load("word2vec-google-news-300")
+
         self.update_state_hash(cached_model_name)
 
     def _generate_user_item_maps(self, params):
-        self.update_state_hash('2')
+        self.update_state_hash('3')
 
         def generate_map_from(col_name):
             property_map = {}
@@ -157,6 +202,7 @@ class TopicExtractorRecommender:
 
                 property_map[o][r] += topics
 
+            # todo think a better way to merge
             filtered_property_map = {}
             for key, object_map in property_map.items():
                 num_deleted = 0
@@ -208,7 +254,7 @@ class TopicExtractorRecommender:
         self.update_state_hash(cached_obj_name)
 
     def _train_score_rating_mapper(self, params):
-        # self.update_state_hash('v1')
+        self.update_state_hash('2')
         lr_X = []
         lr_y = []
 
@@ -266,7 +312,10 @@ class TopicExtractorRecommender:
         self.train_df = train_df
         self._generate_keywords(params['topic_extraction'])
         self._train_word_vectorizer(params['word_vectorizer'])
+        self.update_state_hash('1')
         self._generate_user_item_maps(params['user_item_maps_generation'])
+        self.update_state_hash('2')
+        self._train_tf_idf(params['tf-idf'])
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
         return self
@@ -374,10 +423,11 @@ class TopicExtractorRecommender:
             num_bad_examples = 0
             num_total = 20
 
+
             for _, row in test.iterrows():
                 est = self.estimate(row['userID'], row['itemID'])
                 if est is not None:
-                    if int(est) - row['rating'] < mae and num_good_examples < num_total:
+                    if int(est[0]) - row['rating'] < mae and num_good_examples < num_total:
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
                         logger.info(f'--------------------------------')
@@ -390,7 +440,7 @@ class TopicExtractorRecommender:
                         logger.info(f'--------------------------------')
                         logger.info('')
                         num_good_examples += 1
-                    if abs(int(est) - row['rating']) > mae and num_bad_examples < num_total:
+                    if abs(int(est[0]) - row['rating']) > mae and num_bad_examples < num_total:
                         logger.info(f'--------------------------------')
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
