@@ -124,15 +124,16 @@ class TopicExtractorRecommender:
 
 
     idf_cache = {}
+    # Returns 1/idf since the smaller distance means better correlation
     def _get_idf_weight(self, word):
         try:
             if word not in self.idf_cache:
                 idx = self.tfidf.vocabulary_[word]
                 weight = self.tfidf.idf_[idx]
-                self.idf_cache[word] = weight
+                self.idf_cache[word] = 1/weight
         except KeyError:
-            weight = self.idf_mean
-            self.idf_cache[word] = weight
+            weight = self.idf_mean * self.idf_mean
+            self.idf_cache[word] = 1/weight
         return self.idf_cache[word]
 
     def _calculate_distance(self, word1, word2):
@@ -140,10 +141,12 @@ class TopicExtractorRecommender:
         weight2 = self._get_idf_weight(word2)
 
         # first try to calc distance on pretrained model, else go with the custom one
+        # TODO check if the individual values are in the ranges we want
+        # TODO self.pretrained_w2v.distance(word1, word2) might be 0
         try:
-            return self.pretrained_w2v.distance(word1, word2) * weight1 * weight2
+            return self.pretrained_w2v.distance(word1, word2) * weight1 * weight1 * weight2 * weight2
         except:
-            return self.w2v_model.wv.distance(word1, word2) * weight1 * weight2
+            return self.w2v_model.wv.distance(word1, word2) * weight1 * weight1 * weight2 * weight2
 
     def convert_score_to_x(self, score):
         return score[1:]
@@ -254,7 +257,7 @@ class TopicExtractorRecommender:
         self.update_state_hash(cached_obj_name)
 
     def _train_score_rating_mapper(self, params):
-        self.update_state_hash('2')
+        self.update_state_hash('4')
         lr_X = []
         lr_y = []
 
@@ -329,14 +332,14 @@ class TopicExtractorRecommender:
             user_interests = self.user_property_map[u]
             item_features = self.item_property_map[i]
         except:
-            return None
+            return None, None
 
         score = self.calculate_score(user_interests, item_features)
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
         X = self.imputer.transform(X)
 
-        return self.lr_model.predict(X)
+        return x, self.lr_model.predict(X)
 
     def estimate_ordinal(self, u, i):
         try:
@@ -355,6 +358,7 @@ class TopicExtractorRecommender:
     def balance_test_set(self, test, params):
         self.update_state_hash(f'{params["max_group_size"]}')
         min_group = params['max_group_size'] * 3
+        test = test.drop_duplicates(subset=['review'])
         for i in range(1, 6):
             min_group = min(min_group, len(test[test["rating"] == i]))
 
@@ -391,10 +395,14 @@ class TopicExtractorRecommender:
             baseline_mse = 0
             baseline_mae = 0
             l = 0
+            all_dists = []
+
             logger.info('Starting test')
             for _, row in test.iterrows():
-                est = self.estimate(row['userID'], row['itemID'])
+                score, est = self.estimate(row['userID'], row['itemID'])
                 if est is not None:
+                    dist = np.mean(score)
+                    all_dists.append(dist)
                     mae += abs(int(est[0]) - row['rating'])
                     mse += (int(est[0]) - row['rating']) ** 2
 
@@ -423,16 +431,20 @@ class TopicExtractorRecommender:
             num_bad_examples = 0
             num_total = 20
 
-
+            all_dists.sort()
             for _, row in test.iterrows():
-                est = self.estimate(row['userID'], row['itemID'])
+                score, est = self.estimate(row['userID'], row['itemID'])
                 if est is not None:
-                    if int(est[0]) - row['rating'] < mae and num_good_examples < num_total:
+                    dist = np.mean(score)
+                    # TODO there is distance low high times est good bad cases(4 cases)
+                    if int(est[0]) - row['rating'] < mae and num_good_examples < num_total and dist in all_dists[:num_total*3]:
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
                         logger.info(f'--------------------------------')
                         logger.info(
                             f"Generated a good prediction on the following (est: {int(est[0])}, reality:{row['rating']}):")
+                        logger.info(
+                            f"Similarity order is {all_dists.index(dist)}")
                         #logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
                         #logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
                         logger.info(f'User: {user_interests}')
@@ -440,12 +452,14 @@ class TopicExtractorRecommender:
                         logger.info(f'--------------------------------')
                         logger.info('')
                         num_good_examples += 1
-                    if abs(int(est[0]) - row['rating']) > mae and num_bad_examples < num_total:
+                    if abs(int(est[0]) - row['rating']) > mae and num_bad_examples < num_total and dist in all_dists[-num_total*3:]:
                         logger.info(f'--------------------------------')
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
                         logger.info(
                             f"Generated a bad prediction on following (est: {int(est[0])}, reality:{row['rating']}): ")
+                        logger.info(
+                            f"Similarity order is -{len(all_dists) - all_dists.index(dist)}")
                         #logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
                         #logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
                         logger.info(f'User: {user_interests}')

@@ -1,4 +1,5 @@
 from tqdm import tqdm
+import swifter
 
 
 class TopicExtractor:

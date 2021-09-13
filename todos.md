@@ -19,13 +19,29 @@ Decided Action Items:
 
 1. Find a pretrained word2vec and try it
     1. Play with word2vec with common words and get most similars (seems like working?)
-    2. Transfer learning on pretrained word2vec (did a different thing)
+    2. Transfer learning on pretrained word2vec (did a different thing: used pretrained and go with custom as fallback strategy)
 2. Try tf-idf to eliminate common words like good song 
-    1. Try tf-idf with reducing the weights of words (Used idf values only, worked fine, used tfidf directly for keywords)
+    1. Try tf-idf with reducing the weights of words (Used idf values only, worked fine, used tfidf directly for keywords, bert and yake is better)
+        - Multiplying the distance coming from w2v with w1 * w2 where w's are 1/idf values
+        - Pipeline dramatically slowed down
     2. Aggregate words using keyword extraction weights (not done)
 3. KL Divergence 
 
 
+18 Aug 2021 Meeting notes
 
-Next meeting: 30 of June 12.00
-Delayed date: 14 of July 12.00
+----- Start to take notes -----
+
+Decided Action Items:
+
+- Entropy 
+    - Can we benefit from calculating some entropy for each user. 
+        Given rating, what is the probably of using the word w on review
+        - Entropy, conditional entropy
+    - we can both filter the users below a threshold(percentage) or weight them with entropy values
+    2. Aggregate words using keyword extraction weights (not done)
+    3. Try movie db, maybe use neo4j
+KL Divergence - apply to user - item similarity
+
+
+Next meeting: 8 Sept 2021
