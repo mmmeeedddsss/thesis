@@ -56,7 +56,9 @@ class TopicExtractorRecommender:
         self.ordinal_model = OrdinalClassifier()
         self.imputer = None
 
-        self.tfidf = None
+        self.tfidf_review = TfidfVectorizer()
+        self.tfidf_topics = [TfidfVectorizer(),TfidfVectorizer(),TfidfVectorizer(),TfidfVectorizer(),TfidfVectorizer()] # xd
+        self.idf_mean_topics = [None]*5
 
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
@@ -96,26 +98,30 @@ class TopicExtractorRecommender:
             },
             'tf-idf': {
                 'enabled': True,
+                'use_row': 'topics_KeyBERTExtractor',
             }
         }
 
     def calculate_score(self, user_interests, item_features):
         score = [0, 0, 0, 0, 0, 0]
-        for rating, interests in user_interests.items():
+        for interest_rating, interests in user_interests.items():
             for interest in interests:
-                for _, features in item_features.items():  # omitting item ratings for its features ????
+                for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
                     dists = []
                     for feature in features:
-                        dists.append(self._calculate_distance(interest, feature))
-                    distance = np.mean(dists)
+                        interest_idf = self._get_idf_weight(interest, interest_rating) * 100 # to scale a bit
+                        feature_idf = self._get_idf_weight(feature, feature_rating) * 100
+                        pair_distance = self._calculate_distance(interest, feature)
+                        dists.append(pair_distance * interest_idf * feature_idf)
+                    distance = np.mean(dists) + np.median(dists)  # TODO kind of a big change??
                     # old score:
                     # d += - abs(rating / 5 - np.mean(self.w2v_model.wv.distances(interest, features)))
                     # new one:
                     # avg_rating = 2.5
                     # d += (rating-avg_rating) * (1-distance)
-                    score[rating] += distance
+                    score[interest_rating] += distance
 
-            score[rating] /= len(interests)
+            score[interest_rating] /= len(interests)
 
         for i in range(6):
             score[i] = np.mean(score)
@@ -125,28 +131,26 @@ class TopicExtractorRecommender:
 
     idf_cache = {}
     # Returns 1/idf since the smaller distance means better correlation
-    def _get_idf_weight(self, word):
+    def _get_idf_weight(self, word, rating):
+        rating -= 1  # ratings are 1 based where indexes are 0
         try:
-            if word not in self.idf_cache:
-                idx = self.tfidf.vocabulary_[word]
-                weight = self.tfidf.idf_[idx]
-                self.idf_cache[word] = 1/weight
+            if word not in self.idf_cache[rating]:
+                idx = self.tfidf_topics[rating].vocabulary_[word]
+                weight = self.tfidf_topics[rating].idf_[idx]
+                self.idf_cache[rating][word] = 1/weight
         except KeyError:
-            weight = self.idf_mean * self.idf_mean
-            self.idf_cache[word] = 1/weight
-        return self.idf_cache[word]
+            weight = self.idf_mean_topics[rating] * self.idf_mean_topics[rating]
+            self.idf_cache[rating][word] = 1/weight
+        return self.idf_cache[rating][word]
 
     def _calculate_distance(self, word1, word2):
-        weight1 = self._get_idf_weight(word1)
-        weight2 = self._get_idf_weight(word2)
-
         # first try to calc distance on pretrained model, else go with the custom one
         # TODO check if the individual values are in the ranges we want
         # TODO self.pretrained_w2v.distance(word1, word2) might be 0
         try:
-            return self.pretrained_w2v.distance(word1, word2) * weight1 * weight1 * weight2 * weight2
+            return self.pretrained_w2v.distance(word1, word2)
         except:
-            return self.w2v_model.wv.distance(word1, word2) * weight1 * weight1 * weight2 * weight2
+            return self.w2v_model.wv.distance(word1, word2)
 
     def convert_score_to_x(self, score):
         return score[1:]
@@ -167,9 +171,19 @@ class TopicExtractorRecommender:
         if not params['enabled']:
             return
 
-        self.tfidf = TfidfVectorizer()
-        self.tfidf.fit(self.train_df['review'])
-        self.idf_mean = np.mean(self.tfidf.idf_)
+        self.tfidf_review.fit(self.train_df['review'])
+        self.idf_mean_review = np.mean(self.tfidf_review.idf_)
+
+        corpus = [None, [], [], [], [], []]
+        for user_id, v in self.user_property_map.items():
+            for rating, keys in v.items():
+                corpus[rating].append(' '.join(keys) + ' ')
+
+        corpus = corpus[1:]
+        for i in range(5):
+            self.tfidf_topics[i].fit(corpus)
+            self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)
+
 
     def _train_word_vectorizer(self, params):
         sentences = self.train_df['review'].tolist()
@@ -257,7 +271,7 @@ class TopicExtractorRecommender:
         self.update_state_hash(cached_obj_name)
 
     def _train_score_rating_mapper(self, params):
-        self.update_state_hash('4')
+        self.update_state_hash('5')
         lr_X = []
         lr_y = []
 
@@ -317,8 +331,8 @@ class TopicExtractorRecommender:
         self._train_word_vectorizer(params['word_vectorizer'])
         self.update_state_hash('1')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('2')
-        self._train_tf_idf(params['tf-idf'])
+        self.update_state_hash('3')
+        self._train_tf_idf(params['topics'])
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
         return self
