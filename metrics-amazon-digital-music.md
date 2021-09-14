@@ -18,6 +18,14 @@ MSE for iter 0: 2.9927272727272727
 RMSE for iter 0: 1.7299500781026234
 ```
 
+##### My algorithm(KeyBert -> Word2vec -> DecisionTree) + IDF Scale:
+```
+MAE for iter 0: 1.166595105195363
+MSE for iter 0: 3.1562902533276085
+RMSE for iter 0: 1.7765951292648554
+```
+
+
 ##### My algorithm(Yake -> Word2vec -> DecisionTree):
 ```
 MAE for iter 0: 1.1556184316895715

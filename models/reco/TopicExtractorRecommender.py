@@ -102,45 +102,93 @@ class TopicExtractorRecommender:
             }
         }
 
-    def calculate_score(self, user_interests, item_features):
+    # also change explain method, shares logic
+    def calculate_score(self, user_interests, item_features, verbose=False):
         score = [0, 0, 0, 0, 0, 0]
         for interest_rating, interests in user_interests.items():
             for interest in interests:
                 for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
                     dists = []
                     for feature in features:
-                        interest_idf = self._get_idf_weight(interest, interest_rating) * 100 # to scale a bit
-                        feature_idf = self._get_idf_weight(feature, feature_rating) * 100
+                        interest_idf = self._get_idf_weight(interest, interest_rating)  # to scale a bit
+                        feature_idf = self._get_idf_weight(feature, feature_rating)
                         pair_distance = self._calculate_distance(interest, feature)
-                        dists.append(pair_distance * interest_idf * feature_idf)
+                        pair_distance_sqr = pair_distance * pair_distance
+                        if verbose:
+                            print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
+                                  f'-> '
+                                  f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
+                                  f'mean_iidf={1/self.idf_mean_topics[interest_rating-1]:<5}')
+                        dists.append(pair_distance_sqr * interest_idf * feature_idf)
                     distance = np.mean(dists) + np.median(dists)  # TODO kind of a big change??
-                    # old score:
-                    # d += - abs(rating / 5 - np.mean(self.w2v_model.wv.distances(interest, features)))
-                    # new one:
-                    # avg_rating = 2.5
-                    # d += (rating-avg_rating) * (1-distance)
                     score[interest_rating] += distance
 
             score[interest_rating] /= len(interests)
 
+        mean_score = np.mean(score)
         for i in range(6):
-            score[i] = np.mean(score)
+            score[i] = mean_score
 
         return score
 
+    def explain(self, u, i, verbose=False, explain=False):
+        try:
+            user_interests = self.user_property_map[u]
+            item_features = self.item_property_map[i]
+        except:
+            return None, None
 
-    idf_cache = {}
-    # Returns 1/idf since the smaller distance means better correlation
+        all_dists = []
+        for interest_rating, interests in user_interests.items():
+            for interest in interests:
+                for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
+                    dists = []
+                    for feature in features:
+                        interest_idf = self._get_idf_weight(interest, interest_rating)  # to scale a bit
+                        feature_idf = self._get_idf_weight(feature, feature_rating)
+                        pair_distance = self._calculate_distance(interest, feature)
+                        pair_distance_sqr = pair_distance * pair_distance
+                        mean_iidf = 1/self.idf_mean_topics[interest_rating - 1]
+                        if verbose:
+                            print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
+                                  f'-> '
+                                  f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
+                                  f'mean_iidf={mean_iidf:<5}')
+
+                        if 0.75 > pair_distance > 0.001 and \
+                                interest_idf <= mean_iidf and feature_idf <= mean_iidf and \
+                                interest_rating >= 3:
+                            all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
+                                              f'You love {interest}, item is {feature}'))
+                        dists.append(pair_distance_sqr * interest_idf * feature_idf)
+
+        if explain:
+            all_dists.sort()
+            for i in range( min(3, len(all_dists)) ):
+                print(all_dists[i])
+
+        return len(all_dists) >= 2
+
+
+    idf_cache = {
+        0: {},
+        1: {},
+        2: {},
+        3: {},
+        4: {},
+    }
+    # Smaller distance means better correlation
+    # Bigger idf means more unique so returning 1/idf
     def _get_idf_weight(self, word, rating):
         rating -= 1  # ratings are 1 based where indexes are 0
         try:
             if word not in self.idf_cache[rating]:
                 idx = self.tfidf_topics[rating].vocabulary_[word]
                 weight = self.tfidf_topics[rating].idf_[idx]
-                self.idf_cache[rating][word] = 1/weight
+                self.idf_cache[rating][word] = 1 / weight
         except KeyError:
-            weight = self.idf_mean_topics[rating] * self.idf_mean_topics[rating]
-            self.idf_cache[rating][word] = 1/weight
+            weight = self.idf_mean_topics[rating]  #?? * self.idf_mean_topics[rating]
+            self.idf_cache[rating][word] = 1 / weight
         return self.idf_cache[rating][word]
 
     def _calculate_distance(self, word1, word2):
@@ -181,7 +229,7 @@ class TopicExtractorRecommender:
 
         corpus = corpus[1:]
         for i in range(5):
-            self.tfidf_topics[i].fit(corpus)
+            self.tfidf_topics[i].fit(corpus[i])
             self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)
 
 
@@ -271,11 +319,11 @@ class TopicExtractorRecommender:
         self.update_state_hash(cached_obj_name)
 
     def _train_score_rating_mapper(self, params):
-        self.update_state_hash('5')
+        self.update_state_hash('9')
         lr_X = []
         lr_y = []
 
-        cached_file_location = f'{DATA_CACHE_FOLDER}/rating_predictor_x_y_{self.state_hash}.pickle'
+        cached_file_location = f'{DATA_CACHE_FOLDER}/rating_predictor_{self.dataset_name}_x_y_{self.state_hash}.pickle'
         if not os.path.isfile(cached_file_location):
             logger.info("Creating lr_X and lr_y")
             for _, row in tqdm(self.train_df.iterrows(), total=len(self.train_df)):
@@ -331,8 +379,8 @@ class TopicExtractorRecommender:
         self._train_word_vectorizer(params['word_vectorizer'])
         self.update_state_hash('1')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('3')
-        self._train_tf_idf(params['topics'])
+        self.update_state_hash('4')
+        self._train_tf_idf(params['tf-idf'])
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
         return self
@@ -341,14 +389,15 @@ class TopicExtractorRecommender:
         # mean int of train ratings
         return 5
 
-    def estimate(self, u, i):
+    def estimate(self, u, i, verbose=False):
         try:
             user_interests = self.user_property_map[u]
             item_features = self.item_property_map[i]
         except:
             return None, None
 
-        score = self.calculate_score(user_interests, item_features)
+        score = self.calculate_score(user_interests, item_features, verbose=verbose)
+
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
         X = self.imputer.transform(X)
@@ -445,13 +494,23 @@ class TopicExtractorRecommender:
             num_bad_examples = 0
             num_total = 20
 
+            all_num_explanation = 0
+
             all_dists.sort()
             for _, row in test.iterrows():
                 score, est = self.estimate(row['userID'], row['itemID'])
                 if est is not None:
                     dist = np.mean(score)
                     # TODO there is distance low high times est good bad cases(4 cases)
-                    if int(est[0]) - row['rating'] < mae and num_good_examples < num_total and dist in all_dists[:num_total*3]:
+                    all_num_explanation += int(self.explain(row['userID'], row['itemID']))
+                    if int(est[0]) - row['rating'] < mae and num_total > 0:
+
+                        if self.explain(row['userID'], row['itemID']):
+                            num_total -= 1 if self.explain(row['userID'], row['itemID'], explain=True) == 1 else 0
+                        else:
+                            continue
+
+
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
                         logger.info(f'--------------------------------')
@@ -466,7 +525,7 @@ class TopicExtractorRecommender:
                         logger.info(f'--------------------------------')
                         logger.info('')
                         num_good_examples += 1
-                    if abs(int(est[0]) - row['rating']) > mae and num_bad_examples < num_total and dist in all_dists[-num_total*3:]:
+                    if False and abs(int(est[0]) - row['rating']) > mae and num_bad_examples < num_total and dist in all_dists[-num_total*3:]:
                         logger.info(f'--------------------------------')
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
@@ -481,3 +540,5 @@ class TopicExtractorRecommender:
                         logger.info(f'--------------------------------')
                         logger.info('')
                         num_bad_examples += 1
+
+            print(f'Able to generate explanation for {all_num_explanation}/{l} rows of test')
