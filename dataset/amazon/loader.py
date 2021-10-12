@@ -12,7 +12,7 @@ class AmazonDatasetLoader(DatasetLoader):
     processed_f1 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Digital_Music_5_with_extracted_topics.gzip'
     processed_f2 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Musical_Instruments_5_with_extracted_topics.gzip'
     processed_f3 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Arts_Crafts_and_Sewing_5_with_extracted_topics.gzip'
-    filenames = [f2]
+    filenames = [f1]
 
     def read_recommender_data(self):
         df = self.df.rename(columns={'overall': 'rating', 'reviewerID': 'userID', 'asin': 'itemID'})
@@ -35,4 +35,4 @@ class AmazonDatasetLoader(DatasetLoader):
         return df
 
     def get_processed_pandas_df(self):
-        return pd.read_pickle(self.processed_f2)
+        return pd.read_pickle(self.processed_f1)

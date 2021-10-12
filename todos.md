@@ -44,4 +44,16 @@ Decided Action Items:
 KL Divergence - apply to user - item similarity
 
 
-Next meeting: 8 Sept 2021
+Next meeting: 8 Sept 2021 (15 Sept is actual)
+
+
+
+----- Start to take notes -----
+
+Decided Action Items:
+
+- Formally write your pipeline, share the doc with handeo@gmail.com
+- Try movie db, maybe use neo4j try personal pc
+
+
+Next meeting: 6 Oct 2021
