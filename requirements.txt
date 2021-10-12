@@ -14,3 +14,4 @@ yake~=0.4.8
 gensim==4.0.1
 spacy==3.0.6
 swifter==1.0.9
+mmh3==3.0.0

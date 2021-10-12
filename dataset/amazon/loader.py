@@ -1,5 +1,8 @@
 from surprise import Reader, Dataset
 import pathlib
+
+from tqdm import tqdm
+
 from dataset.loader import DatasetLoader
 from models.preprocessing.preprocessing import preprocessing_pipeline
 import pandas as pd
@@ -23,14 +26,17 @@ class AmazonDatasetLoader(DatasetLoader):
         }
 
     def get_pandas_df(self):
+        self.df.drop(['reviewerName', 'verified', 'reviewTime', 'unixReviewTime', 'summary'], axis=1, inplace=True)
         df = self.df.rename(columns={'overall': 'rating',
                                      'reviewerID': 'userID',
                                      'asin': 'itemID',
                                      'reviewText': 'review'})
         df = df.dropna(subset=['rating', 'userID', 'itemID', 'review'])
 
+        tqdm.pandas()
         for op in preprocessing_pipeline:
-            df['review'] = df['review'].apply(op)
+            print(op.__name__)
+            df['review'] = df['review'].progress_apply(op)
 
         return df
 
