@@ -56,4 +56,16 @@ Decided Action Items:
 - Try movie db, maybe use neo4j try personal pc
 
 
-Next meeting: 6 Oct 2021
+Next meeting: 6(13) Oct 2021
+
+
+----- Start to take notes -----
+
+Decided Action Items:
+
+- ngram
+- reference
+
+
+
+

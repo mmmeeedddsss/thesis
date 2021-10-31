@@ -19,5 +19,5 @@ class TopicExtractor:
     def extract_keywords(self, df, kwargs={}):
         column_name = f'topics_{self.__class__.__name__}'
         df[column_name] = df['review']
-        df[column_name] = df[column_name].swifter.apply(lambda x: self.model.extract_keywords(x, **kwargs))
+        df[column_name] = df[column_name].swifter.progress_apply(lambda x: self.model.extract_keywords(x, **kwargs))
         return df
