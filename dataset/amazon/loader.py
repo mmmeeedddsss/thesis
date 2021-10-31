@@ -9,10 +9,10 @@ import pandas as pd
 
 
 class AmazonDatasetLoader(DatasetLoader):
-    f1 = f'{pathlib.Path(__file__).parent.absolute()}/Digital_Music_5.json'
+    f1 = f'{pathlib.Path(__file__).parent.absolute()}/Movies_and_TV_5.json'
     f2 = f'{pathlib.Path(__file__).parent.absolute()}/Musical_Instruments_5.json'
     f3 = f'{pathlib.Path(__file__).parent.absolute()}/Arts_Crafts_and_Sewing_5.json'
-    processed_f1 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Digital_Music_5_with_extracted_topics.gzip'
+    processed_f1 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Movies_and_TV_5_with_extracted_topics.gzip'
     processed_f2 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Musical_Instruments_5_with_extracted_topics.gzip'
     processed_f3 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Arts_Crafts_and_Sewing_5_with_extracted_topics.gzip'
     filenames = [f1]
@@ -41,4 +41,4 @@ class AmazonDatasetLoader(DatasetLoader):
         return df
 
     def get_processed_pandas_df(self):
-        return pd.read_pickle(self.processed_f1)
+        return pd.read_pickle(self.processed_f2)
