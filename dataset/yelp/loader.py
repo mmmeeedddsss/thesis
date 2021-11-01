@@ -6,7 +6,7 @@ from dataset.loader import DatasetLoader
 
 class YelpDatasetLoader(DatasetLoader):
     filenames = [f'dataset/yelp/yelp_academic_dataset_review.json']
-    processed_filename = 'dataset/yelp/processed/yelp_academic_dataset_review.gzip'
+    processed_filename = 'dataset/yelp/processed_1gram/yelp_academic_dataset_review.gzip'
 
     def read_recommender_data(self):
         df = self.df.rename(columns={'stars': 'rating', 'user_id': 'userID', 'business_id': 'itemID'})

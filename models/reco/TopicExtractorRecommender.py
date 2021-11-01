@@ -7,12 +7,14 @@ from collections import OrderedDict
 
 import mmh3
 import surprise
+from gensim.models.phrases import Phraser, Phrases, ENGLISH_CONNECTOR_WORDS
 from sklearn import tree
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+from spacy.lang.en import STOP_WORDS
 from surprise import AlgoBase
 from surprise import Dataset
 from surprise.model_selection import cross_validate
@@ -40,7 +42,7 @@ DATA_CACHE_FOLDER = 'cached_data'
 
 class TopicExtractorRecommender:
 
-    def __init__(self, dataset_name):
+    def __init__(self, dataset_name, params):
         self.dataset_name = dataset_name
         self.train_df = None
         self.user_property_map = None
@@ -56,9 +58,14 @@ class TopicExtractorRecommender:
         self.ordinal_model = OrdinalClassifier()
         self.imputer = None
 
-        self.tfidf_review = TfidfVectorizer()
-        self.tfidf_topics = [TfidfVectorizer(),TfidfVectorizer(),TfidfVectorizer(),TfidfVectorizer(),TfidfVectorizer()] # xd
-        self.idf_mean_topics = [None]*5
+        self.sentences = None
+
+        ngram = params['init']['ngram_n']
+        self.tfidf_review = TfidfVectorizer(ngram_range=(1, ngram))
+        self.tfidf_topics = [TfidfVectorizer(ngram_range=(1, ngram)), TfidfVectorizer(ngram_range=(1, ngram)),
+                             TfidfVectorizer(ngram_range=(1, ngram)), TfidfVectorizer(ngram_range=(1, ngram)),
+                             TfidfVectorizer(ngram_range=(1, ngram))]  # xd
+        self.idf_mean_topics = [None] * 5
 
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
@@ -73,34 +80,6 @@ class TopicExtractorRecommender:
         return prefix + re.sub(r'{|}|\"| ', '', sparams) \
             .replace(':', '_') \
             .replace(',', '__') + self.state_hash
-
-    def get_default_params(self):
-        return {
-            'train_test_split': {
-                'max_group_size': 600,
-            },
-            'topic_extraction': {
-                'extracted_topic_col':
-                    'topics_KeyBERTExtractor',
-            },
-            'word_vectorizer': {
-                'model': {
-                    'epochs': 100,
-                    'vector_size': 250,
-                    'window': 5,
-                }
-            },
-            'user_item_maps_generation': {
-                'num_features_in_dicts': 6,
-                'high_score_better': True,  # True for bert & tfidf, false for yake
-            },
-            'score_rating_mapper_model': {
-            },
-            'tf-idf': {
-                'enabled': True,
-                'use_row': 'topics_KeyBERTExtractor',
-            }
-        }
 
     # also change explain method, shares logic
     def calculate_score(self, user_interests, item_features, verbose=False):
@@ -118,9 +97,9 @@ class TopicExtractorRecommender:
                             print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
                                   f'-> '
                                   f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
-                                  f'mean_iidf={1/self.idf_mean_topics[interest_rating-1]:<5}')
+                                  f'mean_iidf={1 / self.idf_mean_topics[interest_rating - 1]:<5}')
                         dists.append(pair_distance_sqr * interest_idf * feature_idf)
-                    distance = np.mean(dists) + np.median(dists)  # TODO kind of a big change??
+                    distance = np.mean(dists) + np.median(dists)  # TODO try variance here
                     score[interest_rating] += distance
 
             score[interest_rating] /= len(interests)
@@ -148,7 +127,7 @@ class TopicExtractorRecommender:
                         feature_idf = self._get_idf_weight(feature, feature_rating)
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
-                        mean_iidf = 1/self.idf_mean_topics[interest_rating - 1]
+                        mean_iidf = 1 / self.idf_mean_topics[interest_rating - 1]
                         if verbose:
                             print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
                                   f'-> '
@@ -164,11 +143,10 @@ class TopicExtractorRecommender:
 
         if explain:
             all_dists.sort()
-            for i in range( min(3, len(all_dists)) ):
+            for i in range(min(3, len(all_dists))):
                 print(all_dists[i])
 
         return len(all_dists) >= 2
-
 
     idf_cache = {
         0: {},
@@ -177,6 +155,7 @@ class TopicExtractorRecommender:
         3: {},
         4: {},
     }
+
     # Smaller distance means better correlation
     # Bigger idf means more unique so returning 1/idf
     def _get_idf_weight(self, word, rating):
@@ -187,7 +166,7 @@ class TopicExtractorRecommender:
                 weight = self.tfidf_topics[rating].idf_[idx]
                 self.idf_cache[rating][word] = 1 / weight
         except KeyError:
-            weight = self.idf_mean_topics[rating]  #?? * self.idf_mean_topics[rating]
+            weight = self.idf_mean_topics[rating]  # ?? * self.idf_mean_topics[rating]
             self.idf_cache[rating][word] = 1 / weight
         return self.idf_cache[rating][word]
 
@@ -195,10 +174,15 @@ class TopicExtractorRecommender:
         # first try to calc distance on pretrained model, else go with the custom one
         # TODO check if the individual values are in the ranges we want
         # TODO self.pretrained_w2v.distance(word1, word2) might be 0
+        #print('xd')
         try:
             return self.pretrained_w2v.distance(word1, word2)
         except:
-            return self.w2v_model.wv.distance(word1, word2)
+            try:
+                return self.w2v_model.wv.distance(word1, word2)
+            except:
+                return 1
+
 
     def convert_score_to_x(self, score):
         return score[1:]
@@ -226,16 +210,37 @@ class TopicExtractorRecommender:
         for user_id, v in self.user_property_map.items():
             for rating, keys in v.items():
                 corpus[rating].append(' '.join(keys) + ' ')
-
         corpus = corpus[1:]
         for i in range(5):
             self.tfidf_topics[i].fit(corpus[i])
             self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)
 
-
     def _train_word_vectorizer(self, params):
         sentences = self.train_df['review'].tolist()
         sentences = [x.split(' ') for x in sentences]
+
+        #phrase_model = Phrases(sentences, min_count=1, threshold=1, connector_words=ENGLISH_CONNECTOR_WORDS)
+        #phrase_model.
+        if params['ngram_n'] > 1:
+            ngrams = []
+            for ind, list_of_words in enumerate(sentences):
+                new = []
+                for w in list_of_words:
+                    if w not in STOP_WORDS:
+                        new.append(w)
+                ngrams.append(new)
+
+            for ind, list_of_words in enumerate(ngrams):
+                new = []
+                for i in range(len(list_of_words) - 1):
+                    new.append(f'{list_of_words[i]} {list_of_words[i + 1]}')
+                ngrams[ind] = new
+            sentences = sentences + ngrams
+
+        print(sentences[:3])
+        self.sentences = sentences
+
+        # TODO should I use a phraser?
 
         cached_model_name = self.serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_model_name}.model'
@@ -315,6 +320,8 @@ class TopicExtractorRecommender:
             logger.info("Loading item map from cache")
             with open(cached_file_location, 'rb') as handle:
                 self.item_property_map = pickle.load(handle)
+
+        print(self.user_property_map)
 
         self.update_state_hash(cached_obj_name)
 
@@ -506,10 +513,9 @@ class TopicExtractorRecommender:
                     if int(est[0]) - row['rating'] < mae and num_total > 0:
 
                         if self.explain(row['userID'], row['itemID']):
-                            num_total -= 1 if self.explain(row['userID'], row['itemID'], explain=True) == 1 else 0
+                            num_total -= 1 if self.explain(row['userID'], row['itemID'], explain=True, verbose=True) == 1 else 0
                         else:
                             continue
-
 
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
@@ -518,14 +524,16 @@ class TopicExtractorRecommender:
                             f"Generated a good prediction on the following (est: {int(est[0])}, reality:{row['rating']}):")
                         logger.info(
                             f"Similarity order is {all_dists.index(dist)}")
-                        #logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
-                        #logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        # logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        # logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
                         logger.info(f'User: {user_interests}')
                         logger.info(f'Item: {item_features}')
                         logger.info(f'--------------------------------')
                         logger.info('')
                         num_good_examples += 1
-                    if False and abs(int(est[0]) - row['rating']) > mae and num_bad_examples < num_total and dist in all_dists[-num_total*3:]:
+                    if False and abs(
+                            int(est[0]) - row['rating']) > mae and num_bad_examples < num_total and dist in all_dists[
+                                                                                                            -num_total * 3:]:
                         logger.info(f'--------------------------------')
                         user_interests = self.user_property_map[row['userID']]
                         item_features = self.item_property_map[row['itemID']]
@@ -533,8 +541,8 @@ class TopicExtractorRecommender:
                             f"Generated a bad prediction on following (est: {int(est[0])}, reality:{row['rating']}): ")
                         logger.info(
                             f"Similarity order is -{len(all_dists) - all_dists.index(dist)}")
-                        #logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
-                        #logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        # logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                        # logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
                         logger.info(f'User: {user_interests}')
                         logger.info(f'Item: {item_features}')
                         logger.info(f'--------------------------------')

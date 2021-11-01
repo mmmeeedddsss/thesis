@@ -5,7 +5,8 @@ from models.reco.TopicExtractorRecommender import TopicExtractorRecommender
 
 
 def baseline_optimization_recommendation(data, recommender):
-    param_grid = {'n_factors': [50, 100, 150, 250], 'n_epochs': [10, 20, 30], 'lr_all': [0.005, 0.01], 'reg_all': [0.02, 0.1]}
+    param_grid = {'n_factors': [50, 100, 150, 250], 'n_epochs': [10, 20, 30], 'lr_all': [0.005, 0.01],
+                  'reg_all': [0.02, 0.1]}
     gs = GridSearchCV(recommender, param_grid, measures=['rmse', 'mae'], cv=3, joblib_verbose=True, n_jobs=6)
 
     gs.fit(data)
@@ -42,5 +43,38 @@ def SVD_model_evaluate(data, recommender):
 
 
 def baseline_recommendation_own(dataset_name, data):
-    recommender = TopicExtractorRecommender(dataset_name)
-    recommender.accuracy(data, recommender.get_default_params())
+    recommender = TopicExtractorRecommender(dataset_name, get_default_params())
+    recommender.accuracy(data, get_default_params())
+
+
+def get_default_params():
+    return {
+        'init': {
+            'ngram_n': 2
+        },
+        'train_test_split': {
+            'max_group_size': 600,
+        },
+        'topic_extraction': {
+            'extracted_topic_col':
+                'topics_KeyBERTExtractor_1-2gram',
+        },
+        'word_vectorizer': {
+            'model': {
+                'epochs': 100,
+                'vector_size': 250,
+                'window': 5,
+            },
+            'ngram_n': 2,
+        },
+        'user_item_maps_generation': {
+            'num_features_in_dicts': 6,
+            'high_score_better': True,  # True for bert & tfidf, false for yake
+        },
+        'score_rating_mapper_model': {
+        },
+        'tf-idf': {
+            'enabled': True,
+            'use_row': 'topics_KeyBERTExtractor',
+        }
+    }

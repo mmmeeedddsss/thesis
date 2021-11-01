@@ -6,7 +6,6 @@ class TopicExtractor:
 
     def __init__(self):
         self.model = None  # set by implementing classes
-        tqdm.pandas()
 
     def extract_keywords_of_items(self, df, kwargs={}):
         idf = df.groupby('itemID', as_index=False).agg({'review': ' '.join})
@@ -17,7 +16,7 @@ class TopicExtractor:
         return self.extract_keywords(udf, kwargs)
 
     def extract_keywords(self, df, kwargs={}):
-        column_name = f'topics_{self.__class__.__name__}'
+        column_name = f'topics_{self.__class__.__name__}_1-2gram'
         df[column_name] = df['review']
-        df[column_name] = df[column_name].swifter.progress_apply(lambda x: self.model.extract_keywords(x, **kwargs))
+        df[column_name] = df[column_name].swifter.apply(lambda x: self.model.extract_keywords(x, **kwargs))
         return df

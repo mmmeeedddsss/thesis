@@ -17,11 +17,11 @@ df = amazon_dataloader.get_pandas_df()
 
 #%%
 
-df = KeyBERTExtractor().extract_keywords(df, {'top_n':15})
+df = KeyBERTExtractor().extract_keywords(df, {'top_n': 15, 'keyphrase_ngram_range': (1, 2)})
 
 #%%
 
-df.to_pickle('Arts_Crafts_and_Sewing_5_with_extracted_topics.gzip')
+df.to_pickle('Digital_Music_5_with_extracted_topics.gzip')
 df = YakeExtractor().extract_keywords(df)
 
 
@@ -43,11 +43,10 @@ df = tfidfExtractor().extract_keywords(df)
 
 #%%
 
-df.to_pickle('Arts_Crafts_and_Sewing_5_with_extracted_topics.gzip')
+df.to_pickle('Digital_Music_5_with_extracted_topics.gzip')
 
 #%%
 
-df
 
 
 #%%
