@@ -216,6 +216,9 @@ class TopicExtractorRecommender:
             self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)
 
     def _train_word_vectorizer(self, params):
+        # todo try sent2vec doc2vec skipThoughtVectors
+        # for 2 word input https://arxiv.org/abs/1506.06726
+
         sentences = self.train_df['review'].tolist()
         sentences = [x.split(' ') for x in sentences]
 

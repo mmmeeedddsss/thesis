@@ -68,4 +68,16 @@ Decided Action Items:
 
 
 
+Next meeting: 24 Nov 2021
+
+
+----- Start to take notes -----
+
+- try new algorithms for the word vectorizer step
+ - sent2vec 
+ - doc2vec 
+ - skipThoughtVectors https://arxiv.org/abs/1506.0672
+- movie database
+
+
 
