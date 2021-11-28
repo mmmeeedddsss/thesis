@@ -50,14 +50,14 @@ def baseline_recommendation_own(dataset_name, data):
 def get_default_params():
     return {
         'init': {
-            'ngram_n': 2
+            'ngram_n': 1
         },
         'train_test_split': {
             'max_group_size': 600,
         },
         'topic_extraction': {
             'extracted_topic_col':
-                'topics_KeyBERTExtractor_1-2gram',
+                'topics_KeyBERTExtractor',
         },
         'word_vectorizer': {
             'model': {

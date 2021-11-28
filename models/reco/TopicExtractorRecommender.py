@@ -110,7 +110,7 @@ class TopicExtractorRecommender:
 
         return score
 
-    def explain(self, u, i, verbose=False, explain=False):
+    def explain(self, u, i, verbose=False, explain=False, verbose_context=False, user_rows=None, item_rows=None):
         try:
             user_interests = self.user_property_map[u]
             item_features = self.item_property_map[i]
@@ -127,7 +127,7 @@ class TopicExtractorRecommender:
                         feature_idf = self._get_idf_weight(feature, feature_rating)
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
-                        mean_iidf = 1 / self.idf_mean_topics[interest_rating - 1]
+                        mean_iidf = (1 / self.idf_mean_topics[interest_rating - 1]) * 3 / 2 # ??
                         if verbose:
                             print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
                                   f'-> '
@@ -138,13 +138,27 @@ class TopicExtractorRecommender:
                                 interest_idf <= mean_iidf and feature_idf <= mean_iidf and \
                                 interest_rating >= 3:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
-                                              f'You love {interest}, item is {feature}'))
+                                              interest, feature, pair_distance_sqr, interest_idf, feature_idf))
                         dists.append(pair_distance_sqr * interest_idf * feature_idf)
 
         if explain:
             all_dists.sort()
             for i in range(min(3, len(all_dists))):
-                print(all_dists[i])
+                interest = all_dists[i][1]
+                feature = all_dists[i][2]
+                pair_distance_sqr, interest_idf, feature_idf = tuple(all_dists[i][3:])
+                print(f'**** User mentioned {interest}, item is {feature} ***')
+                print(f'pair_distance_squared={pair_distance_sqr:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5}')
+                if verbose_context:
+                    print(f"User's context of mention(s):")
+                    for comment in user_rows[user_rows['review'].str.contains(interest) == True]['review'].values:
+                        print('--- ' + comment)
+                    print(f"Item's context of mention(s):")
+                    for comment in item_rows[item_rows['review'].str.contains(feature) == True]['review'].values:
+                        print('--- ' + comment)
+                    print('-----------')
+
+
 
         return len(all_dists) >= 2
 
@@ -170,17 +184,27 @@ class TopicExtractorRecommender:
             self.idf_cache[rating][word] = 1 / weight
         return self.idf_cache[rating][word]
 
+    f1 = [0,0]
+    f2 = [0,0]
+    f3 = [0,0]
+
     def _calculate_distance(self, word1, word2):
         # first try to calc distance on pretrained model, else go with the custom one
         # TODO check if the individual values are in the ranges we want
         # TODO self.pretrained_w2v.distance(word1, word2) might be 0
         #print('xd')
+        ind = len(word1.split(' ')) - 1
         try:
-            return self.pretrained_w2v.distance(word1, word2)
+            x = self.pretrained_w2v.distance(word1, word2)
+            self.f1[ind] += 1
+            return x
         except:
             try:
-                return self.w2v_model.wv.distance(word1, word2)
+                x = self.w2v_model.wv.distance(word1, word2)
+                self.f2[ind] += 1
+                return x
             except:
+                self.f3[ind] += 1
                 return 1
 
 
@@ -216,14 +240,9 @@ class TopicExtractorRecommender:
             self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)
 
     def _train_word_vectorizer(self, params):
-        # todo try sent2vec doc2vec skipThoughtVectors
-        # for 2 word input https://arxiv.org/abs/1506.06726
-
         sentences = self.train_df['review'].tolist()
-        sentences = [x.split(' ') for x in sentences]
+        sentences = [x.split() for x in sentences]
 
-        #phrase_model = Phrases(sentences, min_count=1, threshold=1, connector_words=ENGLISH_CONNECTOR_WORDS)
-        #phrase_model.
         if params['ngram_n'] > 1:
             ngrams = []
             for ind, list_of_words in enumerate(sentences):
@@ -231,19 +250,14 @@ class TopicExtractorRecommender:
                 for w in list_of_words:
                     if w not in STOP_WORDS:
                         new.append(w)
-                ngrams.append(new)
 
-            for ind, list_of_words in enumerate(ngrams):
-                new = []
-                for i in range(len(list_of_words) - 1):
-                    new.append(f'{list_of_words[i]} {list_of_words[i + 1]}')
-                ngrams[ind] = new
+                from nltk import ngrams as ng
+                ngrams.append(list(ng(new, params['ngram_n'])))
+
             sentences = sentences + ngrams
 
-        print(sentences[:3])
+        print(sentences[:10])
         self.sentences = sentences
-
-        # TODO should I use a phraser?
 
         cached_model_name = self.serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_model_name}.model'
@@ -258,6 +272,12 @@ class TopicExtractorRecommender:
         self.pretrained_w2v = api.load("word2vec-google-news-300")
 
         self.update_state_hash(cached_model_name)
+
+    def _train_doc_vectorizer(self):
+        # todo try sent2vec doc2vec skipThoughtVectors
+        # for 2 word input https://arxiv.org/abs/1506.06726
+
+        pass
 
     def _generate_user_item_maps(self, params):
         self.update_state_hash('3')
@@ -324,12 +344,10 @@ class TopicExtractorRecommender:
             with open(cached_file_location, 'rb') as handle:
                 self.item_property_map = pickle.load(handle)
 
-        print(self.user_property_map)
-
         self.update_state_hash(cached_obj_name)
 
     def _train_score_rating_mapper(self, params):
-        self.update_state_hash('9')
+        self.update_state_hash('10')
         lr_X = []
         lr_y = []
 
@@ -365,6 +383,12 @@ class TopicExtractorRecommender:
 
         logger.info(f'Training set size: {len(lr_X)}')
 
+        print('During training:')
+        print(self.f1, self.f2, self.f3, end='\n')
+        self.f1 = [0, 0]
+        self.f2 = [0, 0]
+        self.f3 = [0, 0]
+
         logger.info("Training Decision Tree")
         # {'criterion': 'entropy', 'min_samples_split': 5, 'splitter': 'best'}
         tree_param = {'criterion': ['gini', 'entropy'],
@@ -388,6 +412,8 @@ class TopicExtractorRecommender:
         self._generate_keywords(params['topic_extraction'])
         self._train_word_vectorizer(params['word_vectorizer'])
         self.update_state_hash('1')
+        # self._train_doc_vectorizer(params['doc_vectorizer'])
+        # self.update_state_hash('1')
         self._generate_user_item_maps(params['user_item_maps_generation'])
         self.update_state_hash('4')
         self._train_tf_idf(params['tf-idf'])
@@ -484,6 +510,12 @@ class TopicExtractorRecommender:
 
                     l += 1
 
+            print('during estimation with testset')
+            print(self.f1, self.f2, self.f3, end='\n')
+            self.f1 = [0, 0]
+            self.f2 = [0, 0]
+            self.f3 = [0, 0]
+
             mae /= l
             mse /= l
 
@@ -502,10 +534,11 @@ class TopicExtractorRecommender:
             logger.info("Explaining the recommendations")
             num_good_examples = 0
             num_bad_examples = 0
-            num_total = 20
+            num_total = 50
 
             all_num_explanation = 0
 
+            pd.set_option('display.max_colwidth', None)
             all_dists.sort()
             for _, row in test.iterrows():
                 score, est = self.estimate(row['userID'], row['itemID'])
@@ -513,10 +546,14 @@ class TopicExtractorRecommender:
                     dist = np.mean(score)
                     # TODO there is distance low high times est good bad cases(4 cases)
                     all_num_explanation += int(self.explain(row['userID'], row['itemID']))
-                    if int(est[0]) - row['rating'] < mae and num_total > 0:
+                    if int(est[0]) - row['rating'] < mae and num_total > 0 and row['rating'] > 3:
 
                         if self.explain(row['userID'], row['itemID']):
-                            num_total -= 1 if self.explain(row['userID'], row['itemID'], explain=True, verbose=True) == 1 else 0
+                            num_total -= 1 if self.explain(row['userID'], row['itemID'], explain=True, verbose=False,
+                                                           user_rows=df.loc[df['userID'] == row['userID']][['userID', 'itemID', 'review']],
+                                                           item_rows=df.loc[df['itemID'] == row['itemID']][['userID', 'itemID', 'review']],
+                                                           verbose_context=False,
+                                                           ) == 1 else 0
                         else:
                             continue
 
