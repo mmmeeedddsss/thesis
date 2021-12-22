@@ -16,6 +16,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
+    filename='music_2gram.out',
+    filemode='a',
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
@@ -75,14 +77,14 @@ if __name__ == '__main__':
     amazon_dataloader = AmazonDatasetLoader()
     yelp_dataloader = YelpDatasetLoader()
 
-    #df = YakeExtractor().extract_keywords_of_items(amazon_dataloader.get_pandas_df())
-    #print(df)
+    # df = YakeExtractor().extract_keywords_of_items(amazon_dataloader.get_pandas_df())
+    # print(df)
 
-    df = amazon_dataloader.get_processed_pandas_df()
+    dataset_path, df = amazon_dataloader.get_processed_pandas_df()
 
-    #SVD_driver(df)
+    # SVD_driver(df)
 
-    dataset_name = amazon_dataloader.filenames[0].split('/')[-1].split('.')[0]
+    dataset_name = dataset_path.split('/')[-1].split('.')[0]
     baseline_recommendation_own(dataset_name, df)
 
     # [200 rows x 12 columns]

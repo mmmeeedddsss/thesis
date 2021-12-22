@@ -1,0 +1,637 @@
+2021-11-30 23:44:21 INFO     ------------------ 0 ------------------
+2021-11-30 23:44:22 INFO     Starting model fit
+2021-11-30 23:44:22 INFO     Train set size: 167293
+2021-11-30 23:44:22 INFO     Test set size: 2330
+2021-11-30 23:44:22 INFO     Using previously generated topics_KeyBERTExtractor col for topics
+2021-11-30 23:44:24 INFO     Loading w2v from cache
+2021-11-30 23:44:24 INFO     loading Word2Vec object from cached_data/word2vec__Movies_and_TV_5model_epochs_100__vector_size_250__window_5__ngram_n_22152952241.model
+2021-11-30 23:44:25 INFO     loading wv recursively from cached_data/word2vec__Movies_and_TV_5model_epochs_100__vector_size_250__window_5__ngram_n_22152952241.model.wv.* with mmap=None
+2021-11-30 23:44:25 INFO     loading vectors from cached_data/word2vec__Movies_and_TV_5model_epochs_100__vector_size_250__window_5__ngram_n_22152952241.model.wv.vectors.npy with mmap=None
+2021-11-30 23:44:25 INFO     loading syn1neg from cached_data/word2vec__Movies_and_TV_5model_epochs_100__vector_size_250__window_5__ngram_n_22152952241.model.syn1neg.npy with mmap=None
+2021-11-30 23:44:26 INFO     setting ignored attribute cum_table to None
+2021-11-30 23:44:35 INFO     Word2Vec lifecycle event {'fname': 'cached_data/word2vec__Movies_and_TV_5model_epochs_100__vector_size_250__window_5__ngram_n_22152952241.model', 'datetime': '2021-11-30T23:44:35.359684', 'gensim': '4.0.1', 'python': '3.9.8 (main, Nov 10 2021, 06:03:50) \n[Clang 12.0.0 (clang-1200.0.32.29)]', 'platform': 'macOS-10.15.7-x86_64-i386-64bit', 'event': 'loaded'}
+2021-11-30 23:44:35 INFO     loading projection weights from /Users/mert.tunc/gensim-data/word2vec-google-news-300/word2vec-google-news-300.gz
+2021-11-30 23:45:16 INFO     KeyedVectors lifecycle event {'msg': 'loaded (3000000, 300) matrix of type float32 from /Users/mert.tunc/gensim-data/word2vec-google-news-300/word2vec-google-news-300.gz', 'binary': True, 'encoding': 'utf8', 'datetime': '2021-11-30T23:45:16.493970', 'gensim': '4.0.1', 'python': '3.9.8 (main, Nov 10 2021, 06:03:50) \n[Clang 12.0.0 (clang-1200.0.32.29)]', 'platform': 'macOS-10.15.7-x86_64-i386-64bit', 'event': 'load_word2vec_format'}
+2021-11-30 23:45:16 INFO     Loading user map from cache
+2021-11-30 23:45:17 INFO     Loading item map from cache
+2021-11-30 23:45:21 INFO     Loading lr_X and lr_y from cached values with suffix 3238705856
+2021-11-30 23:45:21 INFO     Training set size: 167293
+2021-11-30 23:45:21 INFO     Training Decision Tree
+2021-11-30 23:45:43 INFO     Starting test
+2021-11-30 23:46:10 INFO     Able to generate recommendations for 2329 cases(0.9995708154506437)
+2021-11-30 23:46:10 INFO     MAE for iter 0: 1.3898668956633748
+2021-11-30 23:46:10 INFO     MSE for iter 0: 3.9085444396736797
+2021-11-30 23:46:10 INFO     RMSE for iter 0: 1.9770039048200385
+2021-11-30 23:46:10 INFO     -----------------------------------------
+2021-11-30 23:46:10 INFO     Baseline MAE for iter 0: 2.0008587376556464
+2021-11-30 23:46:10 INFO     Baseline MSE for iter 0: 6.002576212966939
+2021-11-30 23:46:10 INFO     Baseline RMSE for iter 0: 2.4500155536173516
+2021-11-30 23:46:10 INFO     Explaining the recommendations
+2021-11-30 23:46:10 INFO     **** User mentioned shannon, item is woodstock ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.33989011698909977, interest_idf=0.09626074470122417, feature_idf=0.10896379287035904, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     **** User mentioned shannon, item is santana ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.3265061188444953, interest_idf=0.09626074470122417, feature_idf=0.12633408423013373, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     --------------------------------
+2021-11-30 23:46:10 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:10 INFO     Similarity order is 1222
+2021-11-30 23:46:10 INFO     User: {3: ['album', 'different', 'wanted', 'radio', 'purchase', 'listen'], 4: ['radio', 'great', 'heard', 'record', 'shannon', 'voice'], 5: ['kid', 'great', 'sounds', 'loved', 'love', 'eighties']}
+2021-11-30 23:46:10 INFO     Item: {4: ['thanks', 'woodstock', 'live', 'sacrifice', 'song', 'rhythm'], 5: ['great', 'clasico', 'fenomenal', 'santana', '70', 'music']}
+2021-11-30 23:46:10 INFO     --------------------------------
+2021-11-30 23:46:10 INFO
+2021-11-30 23:46:10 INFO     **** User mentioned cyrus, item is kool ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.27847685925451415, interest_idf=0.11549931281928626, feature_idf=0.10870904434683233, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     **** User mentioned cyrus, item is yup ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.38400358230845555, interest_idf=0.11549931281928626, feature_idf=0.10921433703801471, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     **** User mentioned cyrus, item is yep ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.35978791500389207, interest_idf=0.11549931281928626, feature_idf=0.11801316159963732, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     --------------------------------
+2021-11-30 23:46:10 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:10 INFO     Similarity order is 1932
+2021-11-30 23:46:10 INFO     User: {4: ['love', 'jesus', 'christ', 'song', 'warm', 'heart'], 5: ['soulful', 'resurrection', 'library', 'cyrus', 'jesus', 'christ']}
+2021-11-30 23:46:10 INFO     Item: {1: ['stupid', 'song', 'annoying', 'music', 'enjoy', 'love'], 2: ['song'], 3: ['tired', 'happy', 'annoys', 'song', 'good', 'bought'], 4: ['kool', 'good', 'thank', 'likes', 'love', 'happy'], 5: ['yup', 'yes', 'yep', 'wonderful', 'nice', 'motivational']}
+2021-11-30 23:46:10 INFO     --------------------------------
+2021-11-30 23:46:10 INFO
+2021-11-30 23:46:10 INFO     **** User mentioned sirius, item is verizon ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.2825288538525115, interest_idf=0.10525044477109068, feature_idf=0.09557891448969333, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     **** User mentioned iowa, item is verizon ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.3798823202450343, interest_idf=0.09626074470122417, feature_idf=0.09557891448969333, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     **** User mentioned sioux, item is verizon ***
+2021-11-30 23:46:10 INFO     pair_distance_squared=0.5094041847953577, interest_idf=0.0859016962559263, feature_idf=0.09557891448969333, mean_iidf=0.13297579703849008
+2021-11-30 23:46:10 INFO     --------------------------------
+2021-11-30 23:46:10 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:10 INFO     Similarity order is 1481
+2021-11-30 23:46:10 INFO     User: {4: ['concert', 'iowa', 'revenge', 'fun', 'song', 'video'], 5: ['granddaughter', 'week', 'talented', 'song', 'sirius', 'sioux']}
+2021-11-30 23:46:10 INFO     Item: {3: ['bad', 'great'], 4: ['free', 'liked', 'kid'], 5: ['good', 'song', 'fantastic', 'great', 'rock', 'verizon']}
+2021-11-30 23:46:10 INFO     --------------------------------
+2021-11-30 23:46:10 INFO
+2021-11-30 23:46:11 INFO     **** User mentioned livelier, item is jazzy ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.47345627769154763, interest_idf=0.09557891448969333, feature_idf=0.1325052795862688, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     **** User mentioned clever, item is jazzy ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.475728443806819, interest_idf=0.13272374944576756, feature_idf=0.1325052795862688, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     --------------------------------
+2021-11-30 23:46:11 INFO     Generated a good prediction on the following (est: 4, reality:5):
+2021-11-30 23:46:11 INFO     Similarity order is 1429
+2021-11-30 23:46:11 INFO     User: {1: ['amazon', 'guitar', 'album', 'jerk', 'awful', 'cheap'], 3: ['anxious', 'song', 'jumped', 'liked', 'spend', 'records'], 4: ['rap', 'catchy', 'funny', 'cold', 'clever', 'idols'], 5: ['livelier', 'juice', 'enjoyable', 'wedding', 'wife', 'romantic']}
+2021-11-30 23:46:11 INFO     Item: {3: ['memories', 'childhood', 'brings'], 5: ['music', 'best', 'jazzy', 'youth', 'like', 'good']}
+2021-11-30 23:46:11 INFO     --------------------------------
+2021-11-30 23:46:11 INFO
+2021-11-30 23:46:11 INFO     **** User mentioned chopin, item is russian ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.46860444169880466, interest_idf=0.11873187936624272, feature_idf=0.11235483370933552, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     **** User mentioned schubert, item is russian ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.4836519570719844, interest_idf=0.11901170005091584, feature_idf=0.11235483370933552, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     **** User mentioned liszt, item is russian ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.5258446678500981, interest_idf=0.10994227339243512, feature_idf=0.11235483370933552, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     --------------------------------
+2021-11-30 23:46:11 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:11 INFO     Similarity order is 98
+2021-11-30 23:46:11 INFO     User: {5: ['bach', 'schubert', 'liszt', 'puccini', 'chopin', 'beethoven']}
+2021-11-30 23:46:11 INFO     Item: {3: ['price', 'czar', 'ok', 'classical', 'nice', 'glad'], 4: ['itunes', 'library', 'google', 'interesting', 'composers', 'dancing'], 5: ['beautiful', 'enjoyable', 'lovely', 'russian', 'professional', 'finest']}
+2021-11-30 23:46:11 INFO     --------------------------------
+2021-11-30 23:46:11 INFO
+2021-11-30 23:46:11 INFO     **** User mentioned bluegrass, item is mariachi ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.27348180776175823, interest_idf=0.12484038866369104, feature_idf=0.08900163573869335, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     **** User mentioned lewis, item is texas ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.2485721886641592, interest_idf=0.12937965234629029, feature_idf=0.12300624977687376, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     **** User mentioned willie, item is latino ***
+2021-11-30 23:46:11 INFO     pair_distance_squared=0.33289717919189243, interest_idf=0.13068086692654465, feature_idf=0.09626074470122417, mean_iidf=0.13297579703849008
+2021-11-30 23:46:11 INFO     --------------------------------
+2021-11-30 23:46:11 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:11 INFO     Similarity order is 1173
+2021-11-30 23:46:11 INFO     User: {4: ['new', 'willie', 'like', 'christmas', 'sound', 'good'], 5: ['great', 'music', 'lewis', 'rap', 'sound', 'bluegrass']}
+2021-11-30 23:46:11 INFO     Item: {3: ['decade', 'mavericks', 'mariachi', 'albums', 'album', 'organ'], 4: ['better', 'albums', 'latino', 'fun', 'like', 'texas'], 5: ['excellent', 'country', 'good', 'enjoy', 'highly', 'nusic']}
+2021-11-30 23:46:11 INFO     --------------------------------
+2021-11-30 23:46:11 INFO
+2021-11-30 23:46:12 INFO     **** User mentioned busta, item is brazil ***
+2021-11-30 23:46:12 INFO     pair_distance_squared=0.4737277807166471, interest_idf=0.10736599486337546, feature_idf=0.09485324965217308, mean_iidf=0.13297579703849008
+2021-11-30 23:46:12 INFO     **** User mentioned nelly, item is brazil ***
+2021-11-30 23:46:12 INFO     pair_distance_squared=0.492247223155041, interest_idf=0.1121499415845592, feature_idf=0.09485324965217308, mean_iidf=0.13297579703849008
+2021-11-30 23:46:12 INFO     --------------------------------
+2021-11-30 23:46:12 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:12 INFO     Similarity order is 757
+2021-11-30 23:46:12 INFO     User: {3: ['free', 'nice', 'ok', 'like'], 4: ['old', 'vibe', 'nuts', 'joint', 'busta'], 5: ['hit', 'love', 'total', 'words', 'nelly', 'suckers']}
+2021-11-30 23:46:12 INFO     Item: {3: ['carnival', 'free', 'glad', 'brazil', 'redeeming', 'quality'], 5: ['excellent', 'easy', 'relax', 'festive', 'fun', 'love']}
+2021-11-30 23:46:12 INFO     --------------------------------
+2021-11-30 23:46:12 INFO
+2021-11-30 23:46:12 INFO     **** User mentioned britney, item is kool ***
+2021-11-30 23:46:12 INFO     pair_distance_squared=0.24367763049486157, interest_idf=0.12277913870908332, feature_idf=0.10870904434683233, mean_iidf=0.13297579703849008
+2021-11-30 23:46:12 INFO     **** User mentioned britney, item is kool ***
+2021-11-30 23:46:12 INFO     pair_distance_squared=0.24367763049486157, interest_idf=0.12277913870908332, feature_idf=0.10870904434683233, mean_iidf=0.13297579703849008
+2021-11-30 23:46:12 INFO     **** User mentioned groovy, item is kool ***
+2021-11-30 23:46:12 INFO     pair_distance_squared=0.302427699118212, interest_idf=0.1224335536898941, feature_idf=0.10870904434683233, mean_iidf=0.13297579703849008
+2021-11-30 23:46:12 INFO     --------------------------------
+2021-11-30 23:46:12 INFO     Generated a good prediction on the following (est: 4, reality:5):
+2021-11-30 23:46:12 INFO     Similarity order is 1758
+2021-11-30 23:46:12 INFO     User: {4: ['catchy', 'takes', 'britney', 'groovy', 'danceable', 'eighties'], 5: ['britney', 'addictive', '1980s', 'song', 'classic', 'catchy']}
+2021-11-30 23:46:12 INFO     Item: {1: ['stupid', 'song', 'annoying', 'music', 'enjoy', 'love'], 2: ['song'], 3: ['tired', 'happy', 'annoys', 'song', 'good', 'bought'], 4: ['kool', 'good', 'thank', 'likes', 'love', 'happy'], 5: ['yup', 'yes', 'yep', 'wonderful', 'nice', 'motivational']}
+2021-11-30 23:46:12 INFO     --------------------------------
+2021-11-30 23:46:12 INFO
+2021-11-30 23:46:12 INFO     **** User mentioned remy, item is drake ***
+2021-11-30 23:46:12 INFO     pair_distance_squared=0.47411250560103113, interest_idf=0.09324076327282688, feature_idf=0.12524920041683762, mean_iidf=0.13297579703849008
+2021-11-30 23:46:12 INFO     **** User mentioned remy, item is drake ***
+2021-11-30 23:46:12 INFO     pair_distance_squared=0.47411250560103113, interest_idf=0.09324076327282688, feature_idf=0.12524920041683762, mean_iidf=0.13297579703849008
+2021-11-30 23:46:12 INFO     --------------------------------
+2021-11-30 23:46:12 INFO     Generated a good prediction on the following (est: 4, reality:5):
+2021-11-30 23:46:12 INFO     Similarity order is 494
+2021-11-30 23:46:12 INFO     User: {3: ['ok'], 5: ['love', 'rihanna', 'awesome', 'remy', 'ma', 'said']}
+2021-11-30 23:46:12 INFO     Item: {3: ['drake', 'fan', 'huge', 'ok', 'rap', 'raps'], 4: ['ok'], 5: ['drake', 'love', 'album', 'phenomenal', 'recall', 'felling']}
+2021-11-30 23:46:12 INFO     --------------------------------
+2021-11-30 23:46:12 INFO
+2021-11-30 23:46:13 INFO     **** User mentioned rappers, item is reggae ***
+2021-11-30 23:46:13 INFO     pair_distance_squared=0.2608956671832141, interest_idf=0.1241049747319018, feature_idf=0.1297119818419081, mean_iidf=0.13297579703849008
+2021-11-30 23:46:13 INFO     **** User mentioned rappers, item is reggae ***
+2021-11-30 23:46:13 INFO     pair_distance_squared=0.2608956671832141, interest_idf=0.1241049747319018, feature_idf=0.1297119818419081, mean_iidf=0.13297579703849008
+2021-11-30 23:46:13 INFO     **** User mentioned rapper, item is reggae ***
+2021-11-30 23:46:13 INFO     pair_distance_squared=0.2711376226965436, interest_idf=0.12979430903312913, feature_idf=0.1297119818419081, mean_iidf=0.13297579703849008
+2021-11-30 23:46:13 INFO     --------------------------------
+2021-11-30 23:46:13 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:13 INFO     Similarity order is 1066
+2021-11-30 23:46:13 INFO     User: {4: ['gucci', 'favorite', 'album', 'pocketbook', 'songs', 'sings'], 5: ['rapper', 'rappers', 'rapping', 'itunes', 'favorites', 'blues']}
+2021-11-30 23:46:13 INFO     Item: {2: ['boring', 'vocals', 'album', 'solid', 'vocal', 'listen'], 3: ['funkiest', 'funk', 'soulful', 'blues', 'ballads', 'disco'], 4: ['john', 'cd', 'legend', 'listen', 'great', 'reggae'], 5: ['excellent', 'singer', 'beautiful', 'love', 'reggae', 'gifted']}
+2021-11-30 23:46:13 INFO     --------------------------------
+2021-11-30 23:46:13 INFO
+2021-11-30 23:46:13 INFO     **** User mentioned saxon, item is metallica ***
+2021-11-30 23:46:13 INFO     pair_distance_squared=0.24653079116064092, interest_idf=0.08758047466431705, feature_idf=0.1219632033590717, mean_iidf=0.13297579703849008
+2021-11-30 23:46:13 INFO     **** User mentioned saxon, item is excelente ***
+2021-11-30 23:46:13 INFO     pair_distance_squared=0.3612900014850631, interest_idf=0.08758047466431705, feature_idf=0.09557891448969333, mean_iidf=0.13297579703849008
+2021-11-30 23:46:13 INFO     --------------------------------
+2021-11-30 23:46:13 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:13 INFO     Similarity order is 133
+2021-11-30 23:46:13 INFO     User: {5: ['best', 'saxon', 'metal', 'peace', 'cd', 'enjoyable']}
+2021-11-30 23:46:13 INFO     Item: {4: ['metallica', 'metal', 'vocals', 'love', 'diamond', 'album'], 5: ['excelente', 'album', 'great', 'live', 'love', 'guys']}
+2021-11-30 23:46:13 INFO     --------------------------------
+2021-11-30 23:46:13 INFO
+2021-11-30 23:46:13 INFO     **** User mentioned sandra, item is anc ***
+2021-11-30 23:46:13 INFO     pair_distance_squared=0.3427647111779786, interest_idf=0.11334250511857041, feature_idf=0.0838300562183908, mean_iidf=0.13297579703849008
+2021-11-30 23:46:13 INFO     **** User mentioned sandra, item is fave ***
+2021-11-30 23:46:13 INFO     pair_distance_squared=0.48495696082916684, interest_idf=0.11334250511857041, feature_idf=0.12135898353108632, mean_iidf=0.13297579703849008
+2021-11-30 23:46:13 INFO     --------------------------------
+2021-11-30 23:46:13 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:13 INFO     Similarity order is 727
+2021-11-30 23:46:13 INFO     User: {2: ['buying', 'bought', 'money', 'friend', 'waste', 'song'], 3: ['mp3', 'gift', 'friend', 'song', 'music', 'thank'], 4: ['mellow', 'nice', 'song', 'easy', '80', 'heart'], 5: ['clapton', 'excellent', 'sandra', 'good', 'nice', 'country']}
+2021-11-30 23:46:13 INFO     Item: {5: ['great', 'vocals', 'song', 'nice', 'fave', 'anc']}
+2021-11-30 23:46:13 INFO     --------------------------------
+2021-11-30 23:46:13 INFO
+2021-11-30 23:46:14 INFO     **** User mentioned meditative, item is shamanic ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.23066662830218831, interest_idf=0.1023603112200896, feature_idf=0.08758047466431705, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     **** User mentioned meditation, item is shamanic ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.22139671713398457, interest_idf=0.12861348269783643, feature_idf=0.08758047466431705, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     **** User mentioned contemplative, item is shamanic ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.3462841525079199, interest_idf=0.10619555362628157, feature_idf=0.08758047466431705, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:14 INFO     Similarity order is 150
+2021-11-30 23:46:14 INFO     User: {4: ['meditation', 'meditative', 'album', 'contemplative', 'spiritual', 'thoughtful'], 5: ['romantic', 'passionate', 'warm', 'heartfelt', 'amazing', 'blues']}
+2021-11-30 23:46:14 INFO     Item: {4: ['drumbeat', 'flute', 'dance', 'drum', 'vocals', 'drums'], 5: ['percussion', 'drumming', 'reggae', 'drum', 'shamanic', 'pounding']}
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO
+2021-11-30 23:46:14 INFO     **** User mentioned shrek, item is eminem ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.20914368560207564, interest_idf=0.09864718929353784, feature_idf=0.12345291374072771, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     **** User mentioned superbowl, item is eminem ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.3192666903278365, interest_idf=0.09233368683771861, feature_idf=0.12345291374072771, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:14 INFO     Similarity order is 1590
+2021-11-30 23:46:14 INFO     User: {3: ['shrek', 'love', 'song', 'school', 'stupidest', 'old'], 4: ['love', 'bridesmaids', 'great', 'moood', 'sound', 'song'], 5: ['motivational', 'love', 'usually', 'oldie', 'superbowl', 'angels']}
+2021-11-30 23:46:14 INFO     Item: {4: ['good', 'album', 'song', 'like', 'really', 'stars'], 5: ['love', 'cd', 'great', 'music', '90', 'eminem']}
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO
+2021-11-30 23:46:14 INFO     **** User mentioned donald, item is susan ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.19716479946788468, interest_idf=0.10649715882646177, feature_idf=0.11616199718423201, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     **** User mentioned vietnam, item is susan ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.34087121343290594, interest_idf=0.11680059932928502, feature_idf=0.11616199718423201, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:14 INFO     Similarity order is 3
+2021-11-30 23:46:14 INFO     User: {5: ['cd', 'vietnam', 'live', 'musical', 'donald', 'susan']}
+2021-11-30 23:46:14 INFO     Item: {5: ['cd', 'live', 'musical', 'susan', 'reviewers', 'concur']}
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO
+2021-11-30 23:46:14 INFO     **** User mentioned fond, item is disturbed ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.4113448856556099, interest_idf=0.12887179416397382, feature_idf=0.11549931281928626, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     **** User mentioned fond, item is lazy ***
+2021-11-30 23:46:14 INFO     pair_distance_squared=0.3879249349989289, interest_idf=0.12887179416397382, feature_idf=0.12323081923140537, mean_iidf=0.13297579703849008
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:14 INFO     Similarity order is 602
+2021-11-30 23:46:14 INFO     User: {5: ['memories', 'song', 'love', 'fond', 'youth', 'playlist']}
+2021-11-30 23:46:14 INFO     Item: {3: ['lazy', 'disturbed', 'bobaflex', 'fart', 'biggest', 'hours'], 4: ['nice', 'sohg', 'like', 'really', 'song', 'difference'], 5: ['great', 'good', 'excellent', 'enjoyed', 'eeqhaunting', 'awesome']}
+2021-11-30 23:46:14 INFO     --------------------------------
+2021-11-30 23:46:14 INFO
+2021-11-30 23:46:15 INFO     **** User mentioned darker, item is ghost ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.5509382854129719, interest_idf=0.11915004504504531, feature_idf=0.12431778438848334, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     **** User mentioned darker, item is ghost ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.5509382854129719, interest_idf=0.11915004504504531, feature_idf=0.12431778438848334, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:15 INFO     Similarity order is 596
+2021-11-30 23:46:15 INFO     User: {5: ['love', 'radio', 'darker', 'tune', 'today', 'grammy']}
+2021-11-30 23:46:15 INFO     Item: {1: ['ghost', 'idol', 'fans', 'dance', 'cancelled', 'shame'], 2: ['latest', 'idol', 'ghost', 'album', 'new', 'songs'], 4: ['ty', 'dance', 'song', 'good', 'little', 'think'], 5: ['wow', 'nice', 'dynamic', 'expected', 'beautiful', 'fun']}
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO
+2021-11-30 23:46:15 INFO     **** User mentioned bride, item is taxi ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.5567168991967861, interest_idf=0.11353314758858825, feature_idf=0.10870904434683233, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     **** User mentioned bride, item is taxi ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.5567168991967861, interest_idf=0.11353314758858825, feature_idf=0.10870904434683233, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO     Generated a good prediction on the following (est: 4, reality:5):
+2021-11-30 23:46:15 INFO     Similarity order is 1961
+2021-11-30 23:46:15 INFO     User: {3: ['song', 'good', 'great'], 4: ['romantic', 'motivational', 'song', 'great', 'prince', 'bride'], 5: ['bridal', 'brides', 'bride', 'song', 'traditional', 'enterance']}
+2021-11-30 23:46:15 INFO     Item: {1: ['amazon', 'synth', 'meth', 'guitar', 'brutal', 'metal'], 4: ['band', 'song', 'music', 'kudos', 'stuck', 'nice'], 5: ['awesome', 'song', 'good', 'taxi', 'playlist', 'music']}
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO
+2021-11-30 23:46:15 INFO     **** User mentioned discoveredit, item is b00927g5ec ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.4109492813523765, interest_idf=0.08107432665586546, feature_idf=0.08107432665586546, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     **** User mentioned simpatico, item is b00927g5ec ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.5536128802899762, interest_idf=0.0859016962559263, feature_idf=0.08107432665586546, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     **** User mentioned nineties, item is 1990 ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.39816109056616344, interest_idf=0.1094608342749992, feature_idf=0.12208184536474943, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:15 INFO     Similarity order is 1215
+2021-11-30 23:46:15 INFO     User: {1: ['rihanna', 'annoying', 'sadder', 'beatles', 'rapping', 'zombie'], 2: ['jonas', 'elevator', 'lackluster', 'bros', 'terrible', 'rihanna'], 3: ['shabby', 'elvis', 'jazz', 'simpatico', 'rihanna', 'eighties'], 4: ['springsteen', 'hot', 'nineties', 'boom', 'early', 'song'], 5: ['elegant', 'lush', 'glad', 'song', 'great', 'discoveredit']}
+2021-11-30 23:46:15 INFO     Item: {4: ['diamonds', 'roses', '1990', 'cd', 'spring', 'b00927g5ec'], 5: ['loves', 'huge', 'fan', 'gift', 'concert', 'scoff']}
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO
+2021-11-30 23:46:15 INFO     **** User mentioned trance, item is dancehall ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.3423922605628258, interest_idf=0.11063753358953383, feature_idf=0.09917615318223506, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     **** User mentioned trance, item is reggae ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.28554767138848547, interest_idf=0.11063753358953383, feature_idf=0.1297119818419081, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     **** User mentioned trance, item is gangsta ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.5463948687770461, interest_idf=0.11063753358953383, feature_idf=0.11108449610664527, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:15 INFO     Similarity order is 906
+2021-11-30 23:46:15 INFO     User: {3: ['madonna', 'ballads', 'estefan', 'dance', 'singles', 'album'], 4: ['favorite', 'newest', 'pop', 'trance', 'dance', 'singles'], 5: ['ronstadt', 'jazz', 'sinatra', 'soprano', 'orchestra', 'lover']}
+2021-11-30 23:46:15 INFO     Item: {3: ['favorite', 'rap', 'love', 'queen', 'cd', 'honey'], 4: ['reggae', 'dancehall', 'rap', 'timbaland', 'raps', 'gangsta'], 5: ['rap', 'album', 'sophomore', 'girl', 'rapper', 'raps']}
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO
+2021-11-30 23:46:15 INFO     **** User mentioned newyork, item is marley ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.4311967070484366, interest_idf=0.08107432665586546, feature_idf=0.11372163524560039, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     **** User mentioned reagan, item is marley ***
+2021-11-30 23:46:15 INFO     pair_distance_squared=0.4754472439712041, interest_idf=0.09557891448969333, feature_idf=0.11372163524560039, mean_iidf=0.13297579703849008
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:15 INFO     Similarity order is 232
+2021-11-30 23:46:15 INFO     User: {4: ['thuglife', 'party', 'bass', 'newyork', 'song', 'new'], 5: ['ballads', 'funk', 'remix', 'reagan', 'cocaine', 'president']}
+2021-11-30 23:46:15 INFO     Item: {4: ['reggae', '200kbps', 'bath', 'rarely', 'salts', 'disappointing'], 5: ['reggae', 'marley', 'love', 'bob', 'penny', 'lyrics']}
+2021-11-30 23:46:15 INFO     --------------------------------
+2021-11-30 23:46:15 INFO
+2021-11-30 23:46:16 INFO     **** User mentioned pianist, item is ballerina ***
+2021-11-30 23:46:16 INFO     pair_distance_squared=0.28678245483323295, interest_idf=0.12135898353108632, feature_idf=0.0859016962559263, mean_iidf=0.13297579703849008
+2021-11-30 23:46:16 INFO     **** User mentioned pianists, item is ballerina ***
+2021-11-30 23:46:16 INFO     pair_distance_squared=0.41272967843284736, interest_idf=0.10275727404956712, feature_idf=0.0859016962559263, mean_iidf=0.13297579703849008
+2021-11-30 23:46:16 INFO     **** User mentioned pianists, item is tango ***
+2021-11-30 23:46:16 INFO     pair_distance_squared=0.40978917436442774, interest_idf=0.10275727404956712, feature_idf=0.10152846853028905, mean_iidf=0.13297579703849008
+2021-11-30 23:46:16 INFO     --------------------------------
+2021-11-30 23:46:16 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:16 INFO     Similarity order is 2
+2021-11-30 23:46:16 INFO     User: {4: ['choir', 'orchestral', 'vocals', 'composer', 'synthesizers', 'mystical'], 5: ['grammy', 'jazzier', 'jazz', 'pianists', 'pianist', 'bach']}
+2021-11-30 23:46:16 INFO     Item: {5: ['tango', 'piano', 'jazz', 'heartfelt', 'vermont', 'ballerina']}
+2021-11-30 23:46:16 INFO     --------------------------------
+2021-11-30 23:46:16 INFO
+2021-11-30 23:46:16 INFO     **** User mentioned weddings, item is limousines ***
+2021-11-30 23:46:16 INFO     pair_distance_squared=0.4416500021365586, interest_idf=0.11151920931255004, feature_idf=0.0838300562183908, mean_iidf=0.13297579703849008
+2021-11-30 23:46:16 INFO     **** User mentioned deserving, item is subjective ***
+2021-11-30 23:46:16 INFO     pair_distance_squared=0.5163826690078146, interest_idf=0.10619555362628157, feature_idf=0.12431778438848334, mean_iidf=0.13297579703849008
+2021-11-30 23:46:16 INFO     --------------------------------
+2021-11-30 23:46:16 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:16 INFO     Similarity order is 115
+2021-11-30 23:46:16 INFO     User: {5: ['fan', 'deserving', 'favorite', 'best', 'weddings', 'stars']}
+2021-11-30 23:46:16 INFO     Item: {1: ['miami', 'limousines', 'screech', 'beach', 'hate', 'download'], 5: ['mp3', 'great', 'tune', 'subjective', 'york', 'good']}
+2021-11-30 23:46:16 INFO     --------------------------------
+2021-11-30 23:46:16 INFO
+2021-11-30 23:46:17 INFO     **** User mentioned thailand, item is okey ***
+2021-11-30 23:46:17 INFO     pair_distance_squared=0.25232288888549537, interest_idf=0.0838300562183908, feature_idf=0.0859016962559263, mean_iidf=0.13297579703849008
+2021-11-30 23:46:17 INFO     **** User mentioned thailand, item is thx ***
+2021-11-30 23:46:17 INFO     pair_distance_squared=0.33005674987631384, interest_idf=0.0838300562183908, feature_idf=0.12565017967567738, mean_iidf=0.13297579703849008
+2021-11-30 23:46:17 INFO     **** User mentioned thailand, item is huh ***
+2021-11-30 23:46:17 INFO     pair_distance_squared=0.4555705420555114, interest_idf=0.0838300562183908, feature_idf=0.10423701777040086, mean_iidf=0.13297579703849008
+2021-11-30 23:46:17 INFO     --------------------------------
+2021-11-30 23:46:17 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:17 INFO     Similarity order is 406
+2021-11-30 23:46:17 INFO     User: {5: ['granddaughter', 'thailand', 'vietnam', 'elvis', 'christmas', 'presley']}
+2021-11-30 23:46:17 INFO     Item: {1: ['ok', 'mistake', 'huh', 'bad', 'hate', 'deleted'], 2: ['okey', 'ok', 'meh', 'song', 'good', 'comment'], 3: ['yes', 'simple', 'okay', 'ok', 'good', 'yeah'], 4: ['present', 'good', 'awesome', 'love', 'liked', 'like'], 5: ['yes', 'thx', 'perfect', 'ok', 'nice', 'love']}
+2021-11-30 23:46:17 INFO     --------------------------------
+2021-11-30 23:46:17 INFO
+2021-11-30 23:46:17 INFO     **** User mentioned girlfriend, item is actress ***
+2021-11-30 23:46:17 INFO     pair_distance_squared=0.3753921788703716, interest_idf=0.12524920041683762, feature_idf=0.10921433703801471, mean_iidf=0.13297579703849008
+2021-11-30 23:46:17 INFO     **** User mentioned broadway, item is actress ***
+2021-11-30 23:46:17 INFO     pair_distance_squared=0.5006154740147872, interest_idf=0.1194236946054966, feature_idf=0.10921433703801471, mean_iidf=0.13297579703849008
+2021-11-30 23:46:17 INFO     --------------------------------
+2021-11-30 23:46:17 INFO     Generated a good prediction on the following (est: 5, reality:5):
+2021-11-30 23:46:17 INFO     Similarity order is 761
+2021-11-30 23:46:17 INFO     User: {3: ['grammy', 'dolls', 'b00d4cf164', 'b001ns3t42', 'b00122izxo', 'broadway'], 4: ['sugary', 'beatles', 'girlfriend', 'mccartney', 'singer', 'ronstadt'], 5: ['brokenhearted', 'goodbye', 'soulfulness', 'cleverest', 'song', 'lyrics']}
+2021-11-30 23:46:17 INFO     Item: {4: ['pc', 'movie', 'cd', 'burning', 'difficult', 'purchase'], 5: ['great', 'love', 'song', 'actress', 'vocalist', 'music']}
+2021-11-30 23:46:17 INFO     --------------------------------
+2021-11-30 23:46:17 INFO
+2021-11-30 23:46:45 INFO     **** User mentioned wtg, item is rosalind ***
+2021-11-30 23:46:45 INFO     pair_distance_squared=0.36203117205479973, interest_idf=0.09134032952224821, feature_idf=0.0838300562183908, mean_iidf=0.13297579703849008
+2021-11-30 23:46:45 INFO     **** User mentioned wtg, item is rosalind ***
+2021-11-30 23:46:45 INFO     pair_distance_squared=0.36203117205479973, interest_idf=0.09134032952224821, feature_idf=0.0838300562183908, mean_iidf=0.13297579703849008
+2021-11-30 23:46:45 INFO     **** User mentioned null, item is void ***
+2021-11-30 23:46:45 INFO     pair_distance_squared=0.5197368136605016, interest_idf=0.09023969389703834, feature_idf=0.10679258079812423, mean_iidf=0.13297579703849008
+2021-11-30 23:46:45 INFO     --------------------------------
+2021-11-30 23:46:45 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:45 INFO     Similarity order is 1047
+2021-11-30 23:46:45 INFO     User: {3: ['void', 'ok', 'null'], 4: ['void', 'ok', 'null', 'wtg', 'haw', 'tunes'], 5: ['wtg', 'oldies', 'haw', 'hee', 'dislike', 'reviews']}
+2021-11-30 23:46:45 INFO     Item: {1: ['error', 'refund', 'replacement', 'bad', 'cds', 'cd'], 4: ['void', 'motown', 'rosalind', 'martha', 'gospel', 'millennium'], 5: ['good', 'best', 'quality', 'tunes', 'great', 'women']}
+2021-11-30 23:46:45 INFO     --------------------------------
+2021-11-30 23:46:45 INFO
+2021-11-30 23:46:45 INFO     **** User mentioned april, item is june ***
+2021-11-30 23:46:45 INFO     pair_distance_squared=0.10430852549021452, interest_idf=0.12022152757357568, feature_idf=0.12334217179446078, mean_iidf=0.13297579703849008
+2021-11-30 23:46:45 INFO     **** User mentioned april, item is june ***
+2021-11-30 23:46:45 INFO     pair_distance_squared=0.10430852549021452, interest_idf=0.12022152757357568, feature_idf=0.12334217179446078, mean_iidf=0.13297579703849008
+2021-11-30 23:46:45 INFO     **** User mentioned april, item is saturday ***
+2021-11-30 23:46:45 INFO     pair_distance_squared=0.21950561522467993, interest_idf=0.12022152757357568, feature_idf=0.11901170005091584, mean_iidf=0.13297579703849008
+2021-11-30 23:46:45 INFO     --------------------------------
+2021-11-30 23:46:45 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:45 INFO     Similarity order is 143
+2021-11-30 23:46:45 INFO     User: {4: ['concert', 'werewolves', 'june', 'april', 'seventies', 'party'], 5: ['concert', 'saxophone', 'goldmine', 'moon', 'uncle', 'decades']}
+2021-11-30 23:46:45 INFO     Item: {4: ['concert', 'june', 'saturday', 'lightning', 'wednesday', 'mississippi'], 5: ['cd', 'great', 'june', 'blues', 'boston', 'buffalo']}
+2021-11-30 23:46:45 INFO     --------------------------------
+2021-11-30 23:46:45 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned eminem, item is ty ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.3949843599417022, interest_idf=0.12345291374072771, feature_idf=0.1200908705017689, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned disney, item is ty ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.5252615001638539, interest_idf=0.12022152757357568, feature_idf=0.1200908705017689, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 3, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 2008
+2021-11-30 23:46:46 INFO     User: {3: ['niece', 'smitten', 'disney', 'tween', 'singing', 'song'], 4: ['song', 'wanting', 'joke', 'eminem', 'fan', 'rare'], 5: ['fairytale', 'youtube', 'gore', 'favorite', 'drug', 'glory']}
+2021-11-30 23:46:46 INFO     Item: {2: ['nice', 'song', 'singer', 'vocalists', 'year', 'new'], 3: ['good', 'song', 'taste', 'family', 'required', 'star'], 4: ['ty', 'great', 'okay', 'good', 'like', 'expected'], 5: ['super', 'nice', 'love', 'great', 'expected', 'eric']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned haters, item is idiotic ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.38006915126740726, interest_idf=0.10736599486337546, feature_idf=0.09557891448969333, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned poison, item is dandelion ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.5144010776956174, interest_idf=0.10423701777040086, feature_idf=0.08900163573869335, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned haters, item is chuck ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.5366025991375603, interest_idf=0.10736599486337546, feature_idf=0.11599866625423015, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 3, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 1470
+2021-11-30 23:46:46 INFO     User: {1: ['45', 'hits', 'retire', '50', 'motley', 'songs'], 4: ['hiphop', 'bluesy', 'blues', 'singer', 'ballad', 'guitars'], 5: ['cinderella', 'nirvana', 'remastered', 'deluxe', 'haters', 'poison']}
+2021-11-30 23:46:46 INFO     Item: {1: ['dandelion', 'rooster', '50', 'mother', '2000', 'idiotic'], 3: ['50', 'album', 'remake', 'hits', 'berry', 'chuck'], 4: ['excellent', 'problem', 'gift', 'cookies', 'songs', 'album'], 5: ['great', 'music', 'good', 'thing', 'band', 'best']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned gucci, item is monica ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.24534965948420506, interest_idf=0.09407680444589593, feature_idf=0.11255717951711877, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned cuban, item is monica ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.32202157424452427, interest_idf=0.10458312407673565, feature_idf=0.11255717951711877, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned rapping, item is dub ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.4878958487341558, interest_idf=0.12504579644078123, feature_idf=0.10557254143766408, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 1581
+2021-11-30 23:46:46 INFO     User: {3: ['rap', 'rappers', 'rapping', 'gucci', 'party', 'sextin'], 4: ['jadakiss', 'rap', 'rapper', 'godfather', 'brothers', 'cuban'], 5: ['heartfelt', 'ballads', 'ballad', 'husband', 'sunny', 'angelic']}
+2021-11-30 23:46:46 INFO     Item: {1: ['dub', 'best', 'song', 'free', 'man', 'family'], 3: ['ballads', 'talented', 'ipod', 'woman', 'rich', 'songs'], 4: ['good', 'expected', 'arrived', 'stuff', 'platinum', 'favorite'], 5: ['thanks', 'music', 'grammy', 'monica', 'love', 'great']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned rapper, item is rappers ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.05844044093663925, interest_idf=0.12979430903312913, feature_idf=0.1241049747319018, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned rapper, item is rappers ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.05844044093663925, interest_idf=0.12979430903312913, feature_idf=0.1241049747319018, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned kanye, item is nicki ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.11389315851397797, interest_idf=0.12060820923987067, feature_idf=0.1224335536898941, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 1405
+2021-11-30 23:46:46 INFO     User: {2: ['rap', 'brothers', 'favorite', 'champion', 'hottest', 'neptunes'], 3: ['lackluster', 'dreamgirls', 'favorite', 'slower', 'unfulfilled', 'jazzy'], 4: ['rap', 'jazz', 'kanye', 'favorite', 'rapper', 'lover'], 5: ['sophomore', 'chocolate', 'ballads', 'bubblegum', 'lover', 'favorite']}
+2021-11-30 23:46:46 INFO     Item: {1: ['rappers', 'trashji', 'lil', 'album', 'nicki', 'trina'], 2: ['rap', 'summer', 'baseball', 'rappers', 'missy', 'chick'], 3: ['rap', 'rapping', 'hardcore', 'dirty', 'baddest', 'hot'], 4: ['rap', 'hottest', 'catchy', 'hot', 'raps', 'sassiness']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned rappin, item is lil ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.20544571235533127, interest_idf=0.09626074470122417, feature_idf=0.13012067519138695, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned cats, item is kangaroo ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.4753123255220295, interest_idf=0.10679258079812423, feature_idf=0.0859016962559263, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 865
+2021-11-30 23:46:46 INFO     User: {3: ['fondness', 'tribute', 'contemporaries', 'joni', 'fan', 'personal'], 4: ['kangaroo', 'lil', 'songwriting', 'song', 'girl', 'ride'], 5: ['funk', 'hits', 'rappin', 'drummer', 'cats', 'drum']}
+2021-11-30 23:46:46 INFO     Item: {4: ['purple', 'dance', 'kangaroo', 'tune', 'lil', 'prince'], 5: ['love', 'awesome', 'good', 'fun', 'deliriously', 'song']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned eminem, item is kanye ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.08106415674866696, interest_idf=0.12345291374072771, feature_idf=0.12060820923987067, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned eminem, item is kanye ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.08106415674866696, interest_idf=0.12345291374072771, feature_idf=0.12060820923987067, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned eminem, item is kanye ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.08106415674866696, interest_idf=0.12345291374072771, feature_idf=0.12060820923987067, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 1475
+2021-11-30 23:46:46 INFO     User: {2: ['garbage', 'waste', 'die', 'cash', 'horrible', 'worst'], 3: ['eminem', 'rap', 'gangsta', 'remix', 'overrated', 'hardcore'], 4: ['kweli', 'eternal', 'b000067clq', 'b000067clt', '2008', 'b00002r0k9']}
+2021-11-30 23:46:46 INFO     Item: {1: ['rap', 'rapper', 'thuggette', 'gang', 'clown', 'hype'], 2: ['rapper', 'kanye', 'vinyl', 'raps', 'album', 'mediocre'], 3: ['rap', 'rapper', 'millionaire', 'mixtape', 'kanye', 'dj'], 4: ['wayne', 'eminem', 'rap', 'rapper', 'rappers', 'kanye'], 5: ['nice', 'great', 'cd', 'love', 'song', 'good']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned sonatas, item is concertos ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.03297926518763816, interest_idf=0.1121499415845592, feature_idf=0.11498515674231097, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned concerto, item is concertos ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.039032761093963586, interest_idf=0.12421165532614879, feature_idf=0.11498515674231097, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned concerto, item is concertos ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.039032761093963586, interest_idf=0.12421165532614879, feature_idf=0.11498515674231097, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 1
+2021-11-30 23:46:46 INFO     User: {4: ['mozart', 'beethoven', 'beethovens', 'concertos', 'symphonies', 'concerto'], 5: ['concertos', 'concerto', 'violin', 'orchestra', 'orchestral', 'sonatas']}
+2021-11-30 23:46:46 INFO     Item: {4: ['mozart', 'beethoven', 'beethovens', 'concertos', 'symphonies', 'concerto']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned soulfulness, item is bittersweet ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.546568782996034, interest_idf=0.1031427225271531, feature_idf=0.11427471905175826, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned lullaby, item is bittersweet ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.5464462866945405, interest_idf=0.11982682442097213, feature_idf=0.11427471905175826, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned jazzy, item is bittersweet ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.5166492882962395, interest_idf=0.1325052795862688, feature_idf=0.11427471905175826, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 1483
+2021-11-30 23:46:46 INFO     User: {2: ['synth', 'comeback', 'vocals', 'album', 'musical', 'cure'], 3: ['rapper', 'reggae', 'frenzied', 'remix', 'snazzier', 'annoying'], 4: ['soulful', 'soulfulness', 'jazzy', 'vocals', 'humming', 'album'], 5: ['lullaby', 'acoustic', 'vocals', 'operatic', 'singers', 'stellar']}
+2021-11-30 23:46:46 INFO     Item: {2: ['disappointment', 'love', 'cd'], 4: ['millennials', 'favorite', 'divorces', 'mum', 'bittersweet', 'latest'], 5: ['stellar', 'love', 'ballad', 'best', 'album', 'upbeat']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:46 INFO     **** User mentioned india, item is eminem ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.3230282800634976, interest_idf=0.1156673590663145, feature_idf=0.12345291374072771, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned india, item is eminem ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.3230282800634976, interest_idf=0.1156673590663145, feature_idf=0.12345291374072771, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     **** User mentioned india, item is eminem ***
+2021-11-30 23:46:46 INFO     pair_distance_squared=0.3230282800634976, interest_idf=0.1156673590663145, feature_idf=0.12345291374072771, mean_iidf=0.13297579703849008
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:46 INFO     Similarity order is 1300
+2021-11-30 23:46:46 INFO     User: {3: ['grammy', 'love', 'album', 'india', 'better', 'rushed'], 5: ['songwriters', 'singer', 'talented', 'cd', 'love', 'harmonies']}
+2021-11-30 23:46:46 INFO     Item: {1: ['trash', 'garbage', 'eminem', 'gangsta', 'total', 'rap'], 3: ['ok', 'eminem', 'rap', 'hyped', 'gangsta', 'remix'], 4: ['eminem', '50', 'cents', 'peace', 'rap', 'rapper'], 5: ['love', 'great', 'classic', 'good', 'product', 'service']}
+2021-11-30 23:46:46 INFO     --------------------------------
+2021-11-30 23:46:46 INFO
+2021-11-30 23:46:47 INFO     **** User mentioned coolest, item is funniest ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.13826392187274905, interest_idf=0.11130333500331444, feature_idf=0.09917615318223506, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned peppers, item is tasty ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.3924112278705003, interest_idf=0.11017748784108343, feature_idf=0.10736599486337546, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned cruel, item is hysterical ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.4959829333994472, interest_idf=0.1079178471128905, feature_idf=0.09751417546147981, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:47 INFO     Similarity order is 755
+2021-11-30 23:46:47 INFO     User: {3: ['coolest', 'bowie', 'glam', 'songs', 'cruel', 'john'], 4: ['rap', 'favorite', 'rappers', 'rapping', 'favorites', 'cadillacs'], 5: ['eminem', 'beatles', 'peppers', 'madonna', 'albums', 'singles']}
+2021-11-30 23:46:47 INFO     Item: {3: ['albums', 'funny', 'carefully', 'comedy', 'information', 'foul'], 4: ['tasty', 'supper', 'jokes', 'hot', 'laugh', 'hysterical'], 5: ['funny', 'laugh', 'great', 'funniest', 'comedian', 'popular']}
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO
+2021-11-30 23:46:47 INFO     **** User mentioned hawaiian, item is alicia ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.3796461742619437, interest_idf=0.10109165024863037, feature_idf=0.12266460846150429, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned rum, item is apple ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.454262454872012, interest_idf=0.0859016962559263, feature_idf=0.12323081923140537, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:47 INFO     Similarity order is 1245
+2021-11-30 23:46:47 INFO     User: {4: ['dance', 'girls', 'song', 'lyrics', 'female', 'woman'], 5: ['drinking', 'rum', 'download', 'fambo', 'bull', 'hawaiian']}
+2021-11-30 23:46:47 INFO     Item: {3: ['amazon', 'mp3', 'apple', 'liked', 'swing', 'danced'], 4: ['happy', 'better', 'live', 'good', 'alicia', 'napping'], 5: ['loved', 'awesome', 'love', 'song', 'great', 'best']}
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO
+2021-11-30 23:46:47 INFO     **** User mentioned metallica, item is basslines ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.45468022885231907, interest_idf=0.1219632033590717, feature_idf=0.09233368683771861, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned metallica, item is instrumentals ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.3776902307261345, interest_idf=0.1219632033590717, feature_idf=0.13083845405685643, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned metallica, item is evil ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.5061320699896896, interest_idf=0.1219632033590717, feature_idf=0.11928737070844699, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:47 INFO     Similarity order is 1065
+2021-11-30 23:46:47 INFO     User: {4: ['album', 'love', 'kisses', 'instrumental', 'nice', 'worth'], 5: ['metallica', 'passion', 'forever', 'metal', 'album', 'death']}
+2021-11-30 23:46:47 INFO     Item: {2: ['fanbase', 'reznor', 'instrumentals', 'indulgent', 'cash', 'industrial'], 3: ['ghosts', 'reznor', 'evil', 'album', 'bored', 'revenge'], 4: ['ghosts', 'b00001p4th', 'reznor', 'basslines', 'doomsdayer520', 'driving'], 5: ['beautifully', 'composed', 'artists', 'warm', 'music', 'love']}
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO
+2021-11-30 23:46:47 INFO     **** User mentioned dragons, item is brontosaurus ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.42569410746967495, interest_idf=0.11859036604406871, feature_idf=0.08107432665586546, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned experiments, item is discovery ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.5276495820408664, interest_idf=0.10351739486252559, feature_idf=0.11151920931255004, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:47 INFO     Similarity order is 490
+2021-11-30 23:46:47 INFO     User: {3: ['holiday', 'songs', 'new', 'journey', 'music', 'experiments'], 5: ['mp3', 'enjoying', 'dragons', 'enjoyed', 'liked', 'avid']}
+2021-11-30 23:46:47 INFO     Item: {4: ['japanese', 'brontosaurus', 'blues', 'discovery', 'rock', 'movie'], 5: ['excellent', 'soundtrack', 'good', 'movie', 'song', 'downloaded']}
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO
+2021-11-30 23:46:47 INFO     **** User mentioned freebee, item is dinner ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.5415510247007029, interest_idf=0.0838300562183908, feature_idf=0.11549931281928626, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned freebee, item is dinner ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.5415510247007029, interest_idf=0.0838300562183908, feature_idf=0.11549931281928626, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:47 INFO     Similarity order is 1267
+2021-11-30 23:46:47 INFO     User: {4: ['freebee', 'hard', 'worth', 'music', 'satisfied', 'cost'], 5: ['freebee', 'cruise', 'christmas', 'tune', 'pleasant', 'easy']}
+2021-11-30 23:46:47 INFO     Item: {2: ['bad', 'sound', 'quality'], 3: ['beatles', 'classical', 'dinner', 'party', 'soundtrack', 'flavor'], 4: ['orchestral', 'amazons', 'pop', 'latin', 'songs', 'music'], 5: ['instrumentals', 'music', 'great', 'easy', 'loves', 'album']}
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO
+2021-11-30 23:46:47 INFO     **** User mentioned misreading, item is interpretation ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.31054811502631097, interest_idf=0.08107432665586546, feature_idf=0.12671525594774852, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned haydn, item is mozart ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.2255711194261636, interest_idf=0.11830403531299104, feature_idf=0.13036243007801473, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned beethoven, item is mozart ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.28608674440209203, interest_idf=0.12861348269783643, feature_idf=0.13036243007801473, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:47 INFO     Similarity order is 946
+2021-11-30 23:46:47 INFO     User: {3: ['bach', 'beethoven', 'sonatas', 'sonata', 'choir', 'violin'], 4: ['bach', 'harpsichord', 'sonatas', 'sonata', 'fugue', 'cantatas'], 5: ['haydn', 'itunes', 'misreading', 'quartets', '1742', 'hoffmeister']}
+2021-11-30 23:46:47 INFO     Item: {2: ['computer', 'mp3', 'old', 'office', 'recordings', 'recording'], 4: ['pleasant', 'mozart', 'acceptable', 'good', 'bargain', 'listening'], 5: ['excellent', 'value', 'great', 'music', 'interpretation', 'fun']}
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO
+2021-11-30 23:46:47 INFO     **** User mentioned jazzy, item is reggae ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.20929036221852826, interest_idf=0.1325052795862688, feature_idf=0.1297119818419081, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned balladeer, item is reggae ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.3213336274267897, interest_idf=0.09023969389703834, feature_idf=0.1297119818419081, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     **** User mentioned balladeer, item is rapper ***
+2021-11-30 23:46:47 INFO     pair_distance_squared=0.3523042518612698, interest_idf=0.09023969389703834, feature_idf=0.12979430903312913, mean_iidf=0.13297579703849008
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:47 INFO     Similarity order is 1095
+2021-11-30 23:46:47 INFO     User: {3: ['latest', 'later', 'artist', 'better', 'break', 'performed'], 4: ['vocals', 'jazzy', 'vanilla', 'mellow', 'vocalist', 'balladeer'], 5: ['soulchild', 'ballerina', 'funkiest', 'blues', 'favorite', 'funk']}
+2021-11-30 23:46:47 INFO     Item: {3: ['album', 'live', 'vocals', 'duet', 'songs', 'car'], 4: ['reggae', 'sophomore', 'decades', 'rapper', 'rappers', 'ballads'], 5: ['love', 'forever', 'impress', 'album', 'artistry', 'voice']}
+2021-11-30 23:46:47 INFO     --------------------------------
+2021-11-30 23:46:47 INFO
+2021-11-30 23:46:48 INFO     **** User mentioned marvin, item is mariah ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.17073686782680753, interest_idf=0.1295464265743589, feature_idf=0.13068086692654465, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned gaye, item is mariah ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.27976682769136474, interest_idf=0.12266460846150429, feature_idf=0.13068086692654465, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO     Generated a good prediction on the following (est: 3, reality:4):
+2021-11-30 23:46:48 INFO     Similarity order is 944
+2021-11-30 23:46:48 INFO     User: {4: ['gaye', 'marvin', 'cute', 'song', 'singing', 'dance'], 5: ['song', 'great', 'beat', 'good']}
+2021-11-30 23:46:48 INFO     Item: {4: ['alright', 'mariah', 'singer', 'song', 'soul', 'chemistry'], 5: ['great', 'good', 'song', 'chemistry', 'sensual', 'goid']}
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO
+2021-11-30 23:46:48 INFO     **** User mentioned luke, item is ole ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.40225319676523785, interest_idf=0.12535016544643354, feature_idf=0.12604367595533922, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned bryan, item is ole ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.4268257562669584, interest_idf=0.12514774598421263, feature_idf=0.12604367595533922, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned grandfather, item is ole ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.5514005751480946, interest_idf=0.10458312407673565, feature_idf=0.12604367595533922, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:48 INFO     Similarity order is 1498
+2021-11-30 23:46:48 INFO     User: {3: ['catchy', 'fun', 'free', 'song', 'recommend', 'thought'], 4: ['fun', 'nice', 'album', 'song', 'grandfather', 'like'], 5: ['luke', 'happy', 'bryan', 'fun', 'song', 'love']}
+2021-11-30 23:46:48 INFO     Item: {4: ['song', 'ole', 'reminds', 'good', 'days', 'itunes'], 5: ['got', 'song', 'great', 'dad', 'love', 'laughed']}
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO
+2021-11-30 23:46:48 INFO     **** User mentioned noah, item is sl ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.3616010809090051, interest_idf=0.09809408414525841, feature_idf=0.09917615318223506, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned noah, item is thi ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.38734980165234933, interest_idf=0.09809408414525841, feature_idf=0.09809408414525841, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned google, item is sl ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.4024290769960581, interest_idf=0.1121499415845592, feature_idf=0.09917615318223506, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:48 INFO     Similarity order is 388
+2021-11-30 23:46:48 INFO     User: {4: ['future', 'album', 'decade', 'year', 'bibles', 'noah'], 5: ['google', 'love', 'surprises', 'fan', 'southern', 'rare']}
+2021-11-30 23:46:48 INFO     Item: {4: ['music', 'good', 'rap', 'rappers', 'christian', 'vocalists'], 5: ['love', 'realness', 'sl', 'christian', 'hop', 'thi']}
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO
+2021-11-30 23:46:48 INFO     **** User mentioned madonna, item is celtic ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.3054903171006096, interest_idf=0.1294631931824375, feature_idf=0.12565017967567738, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned canadian, item is celtic ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.36734069193529706, interest_idf=0.11498515674231097, feature_idf=0.12565017967567738, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:48 INFO     Similarity order is 962
+2021-11-30 23:46:48 INFO     User: {4: ['canadian', 'love', 'singer', 'songs', 'adele', 'fun'], 5: ['loved', 'classical', 'amazon', 'free', 'madonna', 'great']}
+2021-11-30 23:46:48 INFO     Item: {3: ['syrupy', 'disappointing', 'thunder', 'sentimental', 'trite', 'songs'], 4: ['singing', 'vocals', 'songwriters', 'sing', 'harmony', 'celtic'], 5: ['nice', 'fun', 'order', 'music', 'product', 'problems']}
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO
+2021-11-30 23:46:48 INFO     **** User mentioned nyc, item is js ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.23626309571236348, interest_idf=0.10970343301696629, feature_idf=0.08758047466431705, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned austin, item is js ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.2911504223281014, interest_idf=0.1094608342749992, feature_idf=0.08758047466431705, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned venus, item is js ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.3811303102776984, interest_idf=0.10017043413480682, feature_idf=0.08758047466431705, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO     Generated a good prediction on the following (est: 5, reality:4):
+2021-11-30 23:46:48 INFO     Similarity order is 435
+2021-11-30 23:46:48 INFO     User: {3: ['favorite', 'nyc', 'live', 'musicom', 'austin', 'venus'], 5: ['stellar', 'guitar', 'phenomenal', 'stars', 'eccentric', 'engineered']}
+2021-11-30 23:46:48 INFO     Item: {3: ['supernova', 'peregrine', 'black', 'zebra', 'bewildering', 'unstoppable'], 4: ['good', 'axe', 'grind', 'new', 'disappointed', 'guitars'], 5: ['perfect', 'awesome', 'js', 'concert', 'stunning', 'cd']}
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO
+2021-11-30 23:46:48 INFO     **** User mentioned cop, item is raps ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.4402478860266976, interest_idf=0.11040920167505924, feature_idf=0.11549931281928626, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned stale, item is horrid ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.5040190159662297, interest_idf=0.11063753358953383, feature_idf=0.10195101415157821, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     **** User mentioned stale, item is scrapped ***
+2021-11-30 23:46:48 INFO     pair_distance_squared=0.5520364238391915, interest_idf=0.11063753358953383, feature_idf=0.09626074470122417, mean_iidf=0.13297579703849008
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:48 INFO     Similarity order is 1731
+2021-11-30 23:46:48 INFO     User: {3: ['stale', 'bad', 'average', 'smoke', 'cop', 'pretty'], 4: ['weed', 'girls', 'star', 'best', 'album', 'stars'], 5: ['bulls', 'dope', 'album', 'hop', 'matured', 'shorter']}
+2021-11-30 23:46:48 INFO     Item: {1: ['rap', 'detox', 'brothels', 'profane', 'scrapped', 'horrid'], 2: ['rap', 'raps', 'years', 'itunes', 'better', 'beats'], 3: ['ok', 'eminem', 'rap', 'rapper', 'eminems', 'billionaire'], 4: ['good', 'worth', '2001', 'chronic', 'eminem', 'dj'], 5: ['better', 'listen', 'long', 'waited', 'album', 'gets']}
+2021-11-30 23:46:48 INFO     --------------------------------
+2021-11-30 23:46:48 INFO
+2021-11-30 23:46:49 INFO     **** User mentioned serene, item is tranquil ***
+2021-11-30 23:46:49 INFO     pair_distance_squared=0.03461435771647814, interest_idf=0.10458312407673565, feature_idf=0.10423701777040086, mean_iidf=0.13297579703849008
+2021-11-30 23:46:49 INFO     **** User mentioned meditation, item is yoga ***
+2021-11-30 23:46:49 INFO     pair_distance_squared=0.09635353113015199, interest_idf=0.12861348269783643, feature_idf=0.10736599486337546, mean_iidf=0.13297579703849008
+2021-11-30 23:46:49 INFO     **** User mentioned restful, item is tranquil ***
+2021-11-30 23:46:49 INFO     pair_distance_squared=0.15145170456074553, interest_idf=0.09917615318223506, feature_idf=0.10423701777040086, mean_iidf=0.13297579703849008
+2021-11-30 23:46:49 INFO     --------------------------------
+2021-11-30 23:46:49 INFO     Generated a good prediction on the following (est: 4, reality:4):
+2021-11-30 23:46:49 INFO     Similarity order is 869
+2021-11-30 23:46:49 INFO     User: {2: ['just', 'style', 'good', 'expected'], 3: ['expected', 'style', 'just', 'meditation', 'satisfied', 'sleep'], 4: ['nice', 'restful', 'enjoyable', 'spiritually', 'satisfied', 'serene'], 5: ['spiritually', 'stirring', 'good', 'christmas', 'gospel', 'surf']}
+2021-11-30 23:46:49 INFO     Item: {4: ['like', 'massage', 'favorite', 'meditation', 'inexpensive', 'ideal'], 5: ['described', 'yoga', 'tranquil', 'stretching', 'massage', 'peaceful']}
+2021-11-30 23:46:49 INFO     --------------------------------
+2021-11-30 23:46:49 INFO

@@ -50,14 +50,14 @@ def baseline_recommendation_own(dataset_name, data):
 def get_default_params():
     return {
         'init': {
-            'ngram_n': 1
+            'ngram_n': 2
         },
         'train_test_split': {
             'max_group_size': 600,
         },
         'topic_extraction': {
             'extracted_topic_col':
-                'topics_KeyBERTExtractor',
+                'topics_KeyBERTExtractor_1-2gram', # topics_KeyBERTExtractor_1-2gram, topics_KeyBERTExtractor
         },
         'word_vectorizer': {
             'model': {
@@ -65,10 +65,10 @@ def get_default_params():
                 'vector_size': 250,
                 'window': 5,
             },
-            'ngram_n': 2,
+            'ngram_n': 1,
         },
         'user_item_maps_generation': {
-            'num_features_in_dicts': 6,
+            'num_features_in_dicts': 15,
             'high_score_better': True,  # True for bert & tfidf, false for yake
         },
         'score_rating_mapper_model': {

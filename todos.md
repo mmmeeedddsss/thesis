@@ -81,3 +81,21 @@ Next meeting: 24 Nov 2021
 
 
 
+Next meeting: 22 Dec 2021 - 12.00
+
+----- Start to take notes -----
+
+- word2vec with averaging set of two words
+- write your thesis
+
+
+
+Next meeting: 12 Jan 2022 - 12.00
+
+----- Start to take notes -----
+
+- check why 2 word features cannot be recommended
+- start using same words on explanations
+- literature search/survey
+
+

@@ -8,4 +8,6 @@ __pycache__
 *.pickle
 *.model
 *.npy
+*.out
+*.txt
 
