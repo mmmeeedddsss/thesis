@@ -62,12 +62,13 @@ class TopicExtractorRecommender:
         self.sentences = None
 
         ngram = params['init']['ngram_n']
-        self.tfidf_review = TfidfVectorizer(ngram_range=(1, ngram))
+        self.tfidf_review = TfidfVectorizer(ngram_range=(1, 1))
         self.idf_mean_review = None
 
-        self.tfidf_topics = [TfidfVectorizer(ngram_range=(1, ngram)), TfidfVectorizer(ngram_range=(1, ngram)),
-                             TfidfVectorizer(ngram_range=(1, ngram)), TfidfVectorizer(ngram_range=(1, ngram)),
-                             TfidfVectorizer(ngram_range=(1, ngram))]  # xd
+        # not used in current setup
+        self.tfidf_topics = [TfidfVectorizer(ngram_range=(1, 1)), TfidfVectorizer(ngram_range=(1, 1)),
+                             TfidfVectorizer(ngram_range=(1, 1)), TfidfVectorizer(ngram_range=(1, 1)),
+                             TfidfVectorizer(ngram_range=(1, 1))]  # xd
         self.idf_mean_topics = [None] * 5
 
         self.glove_dict = {}
@@ -139,7 +140,7 @@ class TopicExtractorRecommender:
                                   f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
                                   f'mean_iidf={mean_iidf:<5}')
 
-                        if 0.75 > pair_distance > 0.001 and \
+                        if 0.75 > pair_distance and \
                                 interest_idf <= mean_iidf and feature_idf <= mean_iidf and \
                                 interest_rating >= 3:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
@@ -193,8 +194,7 @@ class TopicExtractorRecommender:
         return self.idf_cache[rating][word]
 
     def _get_idf_weight_reviews(self, word, rating):
-        wds = word.split(' ')
-        return min([self.__get_idf_weight_reviews(w, rating) for w in wds])
+        return min([self.__get_idf_weight_reviews(w, rating) for w in word])
 
     # Smaller distance means better correlation
     # Bigger idf means more unique so returning 1/idf
@@ -217,7 +217,7 @@ class TopicExtractorRecommender:
     def find_similarity_glove(self, word1, word2):
         return np.dot(self.glove_dict[word1], self.glove_dict[word2])
 
-    def _calculate_distance(self, word1, word2):
+    def _calculate_distance_words(self, word1, word2):
         # first try to calc distance on pretrained model, else go with the custom one
         # TODO check if the individual values are in the ranges we want
         # TODO self.pretrained_w2v.distance(word1, word2) might be 0
@@ -225,7 +225,7 @@ class TopicExtractorRecommender:
         ind = len(word1.split(' ')) - 1
         try:
             x = self.pretrained_w2v.distance(word1, word2)
-            #x = self.find_similarity_glove(word1, word2)
+            # x = self.find_similarity_glove(word1, word2)
             self.f1[ind] += 1
             return x
         except:
@@ -236,6 +236,13 @@ class TopicExtractorRecommender:
             except:
                 self.f3[ind] += 1
                 return 1
+
+    def _calculate_distance(self, word1, word2):
+        d = []
+        for w1 in word1:
+            for w2 in word2:
+                d.append(self._calculate_distance_words(w1, w2))
+        return np.max(d)
 
     def convert_score_to_x(self, score):
         return score[1:]
@@ -255,18 +262,19 @@ class TopicExtractorRecommender:
     def _train_tf_idf(self, params):
         if not params['enabled']:
             return
+        logger.info(f'Training TF-IDF')
 
         self.tfidf_review.fit(self.train_df['review'])
         self.idf_mean_review = np.mean(self.tfidf_review.idf_)
 
-        corpus = [None, [], [], [], [], []]
+        """corpus = [None, [], [], [], [], []]
         for user_id, v in self.user_property_map.items():
             for rating, keys in v.items():
                 corpus[rating].append(' '.join(keys) + ' ')
         corpus = corpus[1:]
         for i in range(5):
             self.tfidf_topics[i].fit(corpus[i])
-            self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)
+            self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)"""
 
     def _train_word_vectorizer(self, params):
         logger.info('Importing glove vectors :')
@@ -281,7 +289,7 @@ class TopicExtractorRecommender:
         sentences = self.train_df['review'].tolist()
         sentences = [x.split() for x in sentences]
 
-        if params['ngram_n'] > 1:
+        """if params['ngram_n'] > 1:
             ngrams = []
             for ind, list_of_words in enumerate(sentences):
                 new = []
@@ -293,6 +301,7 @@ class TopicExtractorRecommender:
                 ngrams.append(list(ng(new, params['ngram_n'])))
 
             sentences = sentences + ngrams
+        """
 
         print(sentences[:10])
         self.sentences = sentences
@@ -312,7 +321,9 @@ class TopicExtractorRecommender:
         self.update_state_hash(cached_model_name)
 
     def _generate_user_item_maps(self, params):
-        self.update_state_hash('3')
+        self.update_state_hash('4')
+
+        print(self.state_hash)
 
         def generate_map_from(col_name):
             property_map = {}
@@ -338,6 +349,7 @@ class TopicExtractorRecommender:
                         object_map[rating] = [x[1] for x in object_map[rating]]
                         object_map[rating] = list(OrderedDict.fromkeys(object_map[rating]))[
                                              :params['num_features_in_dicts']]
+                        object_map[rating] = [tuple(e.split(' ')) for e in object_map[rating]]
                     else:
                         num_deleted += 1
                         del object_map[rating]
@@ -376,6 +388,15 @@ class TopicExtractorRecommender:
             with open(cached_file_location, 'rb') as handle:
                 self.item_property_map = pickle.load(handle)
 
+        # TODO ADDED TRIMMING FOR FAST ITERATIONS(5 hr to 25 mins)
+        logger.info("Trimming user and item property maps")
+        for user, rating_keywords in self.item_property_map.items():
+            for rating, keyword in rating_keywords.items():
+                rating_keywords[rating] = keyword[:5]
+        for user, rating_keywords in self.user_property_map.items():
+            for rating, keyword in rating_keywords.items():
+                rating_keywords[rating] = keyword[:5]
+
         self.update_state_hash(cached_obj_name)
 
     def _train_score_rating_mapper(self, params):
@@ -384,7 +405,7 @@ class TopicExtractorRecommender:
 
         cached_file_location = f'{DATA_CACHE_FOLDER}/rating_predictor_{self.dataset_name}_x_y_{self.state_hash}.pickle'
         if not os.path.isfile(cached_file_location):
-            logger.info("Creating lr_X and lr_y")
+            logger.info("Creating lr_X and lr_y for score mapper")
             for _, row in tqdm(self.train_df.iterrows(), total=len(self.train_df)):
                 try:
                     user_interests = self.user_property_map[row['userID']]
@@ -438,7 +459,7 @@ class TopicExtractorRecommender:
         # self.ordinal_model.fit(lr_X, lr_y)
 
     def fit(self, train_df, params):
-        #self.update_state_hash('movies_db')
+        self.update_state_hash('8')
         self.train_df = train_df
         self._generate_keywords(params['topic_extraction'])
         self._train_word_vectorizer(params['word_vectorizer'])
@@ -446,7 +467,7 @@ class TopicExtractorRecommender:
         self._generate_user_item_maps(params['user_item_maps_generation'])
         self.update_state_hash('4')
         self._train_tf_idf(params['tf-idf'])
-        self.update_state_hash('13')
+        self.update_state_hash('15')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
         return self
@@ -584,7 +605,7 @@ class TopicExtractorRecommender:
                                                                ['userID', 'itemID', 'review']],
                                                            item_rows=df.loc[df['itemID'] == row['itemID']][
                                                                ['userID', 'itemID', 'review']],
-                                                           verbose_context=True,
+                                                           verbose_context=False,
                                                            ) == 1 else 0
                         else:
                             continue

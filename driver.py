@@ -16,8 +16,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
-    filename='music_2gram.out',
-    filemode='a',
+    #filename='music_2gram.out',
+    #filemode='a',
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
