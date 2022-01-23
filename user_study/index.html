@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SA</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+
+    <script>
+        function getSearchParameters() {
+            var prmstr = window.location.search.substr(1);
+            return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+        }
+
+        function transformToAssocArray(prmstr) {
+            var params = {};
+            var prmarr = prmstr.split("&");
+            for (var i = 0; i < prmarr.length; i++) {
+                var tmparr = prmarr[i].split("=");
+                params[tmparr[0]] = tmparr[1];
+            }
+            return params;
+        }
+
+        let params = getSearchParameters();
+
+        const myStorage = window.localStorage;
+
+        function broofa() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function initialize_user() {
+            let id = localStorage.getItem('user_id');
+            if (!id) {
+                id = broofa();
+                localStorage.setItem('user_id', id);
+            }
+            $('#user_info').text('You are the user ' + id);
+        }
+
+        function get_page_state() {
+            let state = localStorage.getItem('page_state');
+            if (!state) {
+                state = "reviewing"
+                localStorage.setItem('state', state);
+            }
+            $('#page_state').text('Currently ' + state);
+            return state;
+        }
+
+        function buildHtmlTable(selector, content) {
+            var columns = addAllColumnHeaders(content, selector);
+
+            for (var i = 0; i < content.length; i++) {
+                var row$ = $('<tr/>');
+                for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                    var cellValue = content[i][columns[colIndex]];
+                    if (cellValue == null) cellValue = "";
+                    row$.append($('<td/>').html(cellValue));
+                }
+                $(selector).append(row$);
+            }
+
+            $(selector).each(function () {
+                var $this = $(this);
+                var newrows = [];
+                $this.find("tr").each(function (rowToColIndex) {
+                    $(this).find("td, th").each(function (colToRowIndex) {
+                        if (newrows[colToRowIndex] === undefined) {
+                            newrows[colToRowIndex] = $("<tr></tr>");
+                        }
+                        while (newrows[colToRowIndex].find("td, th").length < rowToColIndex) {
+                            newrows[colToRowIndex].append($("<td></td>"));
+                        }
+                        newrows[colToRowIndex].append($(this));
+                    });
+                });
+                $this.find("tr").remove();
+                $.each(newrows, function () {
+                    $this.append(this);
+                });
+            });
+        }
+
+        // Adds a header row to the table and returns the set of columns.
+        // Need to do union of keys from all records as some records may not contain
+        // all records.
+        function addAllColumnHeaders(content, selector) {
+            var columnSet = [];
+            var headerTr$ = $('<tr/>');
+
+            for (var i = 0; i < content.length; i++) {
+                var rowHash = content[i];
+                for (var key in rowHash) {
+                    if ($.inArray(key, columnSet) == -1) {
+                        columnSet.push(key);
+                        headerTr$.append($('<th/>').html(key));
+                    }
+                }
+            }
+            $(selector).append(headerTr$);
+
+            return columnSet;
+        }
+
+
+        $(window).on('load', function () {
+            initialize_user();
+            let state = get_page_state();
+            if (state === 'reviewing') {
+                if (params.item) {
+                    $.get('/get_item?asin=' + params.item,  // url
+                        function (data, textStatus, jqXHR) {  // success callback
+                            //alert('status: ' + textStatus + ', data:' + data['content']);
+                            // read data here
+                            data = jQuery.parseJSON(data);
+
+
+                            for (var i = 0; i < data[0]['imageURLHighRes'].length; i++) {
+                                data[0]['imageURLHighRes'][i] = '<img src=' + data[0]['imageURLHighRes'][i] + '>';
+                            }
+                            $('#asin').val(data[0]['asin']);
+                            data[0]['asin'] = data[0]['asin'] + ', <a href=\"http://www.amazon.com/dp/' + data[0]['asin'] + '\">Link</a>';
+
+                            $('input#user_id').val(localStorage.getItem('user_id'));
+
+                            console.log(data);
+                            buildHtmlTable('#content', data);
+                        });
+                } else {
+                    $.get('/data_sample',  // url
+                        function (data, textStatus, jqXHR) {  // success callback
+                            //alert('status: ' + textStatus + ', data:' + data['content']);
+                            // read data here
+                            data = jQuery.parseJSON(data);
+
+
+                            for (var i = 0; i < data[0]['imageURLHighRes'].length; i++) {
+                                data[0]['imageURLHighRes'][i] = '<img src=' + data[0]['imageURLHighRes'][i] + '>';
+                            }
+                            $('#asin').val(data[0]['asin']);
+                            data[0]['asin'] = data[0]['asin'] + ', <a href=\"http://www.amazon.com/dp/' + data[0]['asin'] + '\">Link</a>';
+
+                            $('input#user_id').val(localStorage.getItem('user_id'));
+
+                            console.log(data);
+                            buildHtmlTable('#content', data);
+                        });
+                }
+            }
+
+        });
+
+        function setUserId() {
+            let newUserId = $('#reset_user_id').val()
+            localStorage.setItem('user_id', newUserId);
+            document.location.reload(true);
+        }
+
+
+    </script>
+</head>
+<body>
+
+<center><h1>User Study for the Thesis, Explanable Recommendations using extracted topics</h1></center>
+
+<div>
+    <div id="user_info"></div>
+    <button onclick="localStorage.removeItem('user_id');document.location.reload(true);">Reset</button>
+
+    <form id="form_reset_user_id">
+        <input id="reset_user_id" type="text" name="reset_user_id">
+    </form>
+
+    <button onclick="setUserId()">Set User Id</button>
+</div>
+
+<div>
+    <div id="page_state"></div>
+    <br/>
+    <hr>
+    <br/>
+
+    <div id="search">Search
+        <form action="search" id="search_form" method="get" target="/">
+            <input type="text" name="q" id="search_query">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <br/>
+    <hr>
+    <br/>
+
+    <div id="content"></div>
+
+    <br/>
+    <hr>
+    <br/>
+
+
+    <center>
+        <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+        <div id="user_input_reviewing">
+            <form action="user_review" id="usrform" method="post" target="dummyframe">
+                Rating([1,5]): <input type="number" id="rating" name="rating" min="1" max="500000">
+                <input type="reset"
+                       onclick='document.forms["usrform"].submit();window.history.pushState({}, document.title, "/");document.location.reload(true);'
+                       value="Submit">
+                <input type="hidden" value="asin" name="asin" id="asin">
+                <input type="hidden" value="user_id" name="user_id" id="user_id">
+            </form>
+            <br>
+            <textarea rows="6" cols="150" name="comment" form="usrform"></textarea>
+        </div>
+    </center>
+
+
+</div>
+
+
+</body>
+</html>

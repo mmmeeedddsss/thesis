@@ -1,4 +1,6 @@
 import json
+import pathlib
+
 import math
 import os
 import pickle
@@ -38,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 # CACHING IS DEPENDENT ON THE DATASET SPLIT
 # so delete cache files if you change the split
-DATA_CACHE_FOLDER = 'cached_data'
+DATA_CACHE_FOLDER = f'{pathlib.Path(__file__).parent.parent.parent.absolute()}/cached_data'
 
 
 class TopicExtractorRecommender:
@@ -72,6 +74,14 @@ class TopicExtractorRecommender:
         self.idf_mean_topics = [None] * 5
 
         self.glove_dict = {}
+
+        self.idf_cache = {
+            0: {},
+            1: {},
+            2: {},
+            3: {},
+            4: {},
+        }
 
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
@@ -123,11 +133,14 @@ class TopicExtractorRecommender:
         except:
             return None, None
 
+        return self.explain_api(user_interests, item_features, verbose, explain, verbose_context, user_rows, item_rows)
+
+    def explain_api(self, user_interests, item_features, verbose=False, explain=False,
+                    verbose_context=False, user_rows=None, item_rows=None, return_dict=False):
         all_dists = []
         for interest_rating, interests in user_interests.items():
             for interest in interests:
                 for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
-                    dists = []
                     for feature in features:
                         interest_idf = self._get_idf_weight_reviews(interest, interest_rating)  # to scale a bit
                         feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
@@ -135,17 +148,16 @@ class TopicExtractorRecommender:
                         pair_distance_sqr = pair_distance * pair_distance
                         mean_iidf = (1 / self.idf_mean_review) * 3 / 2  # ??
                         if verbose:
-                            print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
+                            print(f'({interest}, {feature}, {interest_rating}) '
                                   f'-> '
                                   f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
                                   f'mean_iidf={mean_iidf:<5}')
 
-                        if 0.75 > pair_distance and \
+                        if 0.5 > pair_distance and \
                                 interest_idf <= mean_iidf and feature_idf <= mean_iidf and \
                                 interest_rating >= 3:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
                                               interest, feature, pair_distance_sqr, interest_idf, feature_idf))
-                        dists.append(pair_distance_sqr * interest_idf * feature_idf)
 
         if explain:
             all_dists.sort()
@@ -165,15 +177,21 @@ class TopicExtractorRecommender:
                         logger.info('--- ' + comment)
                     logger.info('-----------')
 
-        return len(all_dists) >= 2
+        if return_dict:
+            ret = []
+            all_dists.sort()
+            for i in range(min(5, len(all_dists))):
+                score = all_dists[i][0]
+                feature = all_dists[i][2]
+                ret.append(
+                    {
+                        'item_feature': feature,
+                        'score': score
+                    }
+                )
+            return ret
 
-    idf_cache = {
-        0: {},
-        1: {},
-        2: {},
-        3: {},
-        4: {},
-    }
+        return len(all_dists) >= 2
 
     def _get_idf_weight_topics(self, word, rating):
         wds = word.split(' ')
@@ -222,27 +240,20 @@ class TopicExtractorRecommender:
         # TODO check if the individual values are in the ranges we want
         # TODO self.pretrained_w2v.distance(word1, word2) might be 0
 
-        ind = len(word1.split(' ')) - 1
         try:
-            x = self.pretrained_w2v.distance(word1, word2)
-            # x = self.find_similarity_glove(word1, word2)
-            self.f1[ind] += 1
-            return x
+            return self.pretrained_w2v.distance(word1, word2)
         except:
             try:
-                x = self.w2v_model.wv.distance(word1, word2)
-                self.f2[ind] += 1
-                return x
+                return self.pretrained_w2v_2.distance(word1, word2)
             except:
-                self.f3[ind] += 1
-                return 1
+                return self.w2v_model.wv.distance(word1, word2)
 
     def _calculate_distance(self, word1, word2):
         d = []
         for w1 in word1:
             for w2 in word2:
                 d.append(self._calculate_distance_words(w1, w2))
-        return np.max(d)
+        return np.mean(d)
 
     def convert_score_to_x(self, score):
         return score[1:]
@@ -316,7 +327,8 @@ class TopicExtractorRecommender:
             logger.info("Loading w2v from cache")
             self.w2v_model = Word2Vec.load(cached_file_location)
 
-        self.pretrained_w2v = api.load("word2vec-google-news-300")
+        self.pretrained_w2v = api.load("glove-twitter-200")
+        self.pretrained_w2v_2 = api.load("glove-wiki-gigaword-200")
 
         self.update_state_hash(cached_model_name)
 
@@ -459,6 +471,7 @@ class TopicExtractorRecommender:
         # self.ordinal_model.fit(lr_X, lr_y)
 
     def fit(self, train_df, params):
+        print('Fitting ..')
         self.update_state_hash('8')
         self.train_df = train_df
         self._generate_keywords(params['topic_extraction'])
@@ -483,6 +496,9 @@ class TopicExtractorRecommender:
         except:
             return None, None
 
+        return self.estimate_api(user_interests, item_features, verbose)
+
+    def estimate_api(self, user_interests, item_features, verbose=False):
         score = self.calculate_score(user_interests, item_features, verbose=verbose)
 
         x = self.convert_score_to_x(score)
@@ -490,6 +506,20 @@ class TopicExtractorRecommender:
         X = self.imputer.transform(X)
 
         return x, self.lr_model.predict(X)
+
+    def get_top_n_recommendations_for_user(self, *, user_interests, n):
+        print('get_top_n_recommendations_for_user')
+        dists = []
+        for item_asin, item_features in tqdm(self.item_property_map.items()):
+            score, est = self.estimate_api(user_interests, item_features)
+            if est >= 4:
+                dists.append((score, item_asin))
+
+        dists.sort()
+
+        dists = dists[:n]
+
+        return [x[1] for x in dists]
 
     def estimate_ordinal(self, u, i):
         try:

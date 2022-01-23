@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SA</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+
+    <script>
+        function getSearchParameters() {
+            var prmstr = window.location.search.substr(1);
+            return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+        }
+
+        function transformToAssocArray(prmstr) {
+            var params = {};
+            var prmarr = prmstr.split("&");
+            for (var i = 0; i < prmarr.length; i++) {
+                var tmparr = prmarr[i].split("=");
+                params[tmparr[0]] = tmparr[1];
+            }
+            return params;
+        }
+
+        let params = getSearchParameters();
+
+        const myStorage = window.localStorage;
+
+        function broofa() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function initialize_user() {
+            let id = localStorage.getItem('user_id');
+            if (!id) {
+                id = broofa();
+                localStorage.setItem('user_id', id);
+            }
+            $('#user_info').text('You are the user ' + id);
+        }
+
+        function get_page_state() {
+            let state = localStorage.getItem('page_state');
+            if (!state) {
+                state = "reviewing"
+                localStorage.setItem('state', state);
+            }
+            $('#page_state').text('Currently ' + state);
+            return state;
+        }
+
+        function buildHtmlTable(selector, content, transpose) {
+            var columns = addAllColumnHeaders(content, selector);
+            $(selector).html('<span></span>');
+
+            for (var i = 0; i < content.length; i++) {
+                var row$ = $('<tr/>');
+                for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                    var cellValue = content[i][columns[colIndex]];
+                    if (cellValue == null) cellValue = "";
+                    row$.append($('<td/>').html(cellValue));
+                }
+                $(selector).append(row$);
+            }
+
+            if (transpose) {
+                $(selector).each(function () {
+                    var $this = $(this);
+                    var newrows = [];
+                    $this.find("tr").each(function (rowToColIndex) {
+                        $(this).find("td, th").each(function (colToRowIndex) {
+                            if (newrows[colToRowIndex] === undefined) {
+                                newrows[colToRowIndex] = $("<tr></tr>");
+                            }
+                            while (newrows[colToRowIndex].find("td, th").length < rowToColIndex) {
+                                newrows[colToRowIndex].append($("<td></td>"));
+                            }
+                            newrows[colToRowIndex].append($(this));
+                        });
+                    });
+                    $this.find("tr").remove();
+                    $.each(newrows, function () {
+                        $this.append(this);
+                    });
+                });
+            }
+        }
+
+        // Adds a header row to the table and returns the set of columns.
+        // Need to do union of keys from all records as some records may not contain
+        // all records.
+        function addAllColumnHeaders(content, selector) {
+            var columnSet = [];
+            var headerTr$ = $('<tr/>');
+
+            for (var i = 0; i < content.length; i++) {
+                var rowHash = content[i];
+                for (var key in rowHash) {
+                    if ($.inArray(key, columnSet) == -1) {
+                        columnSet.push(key);
+                        headerTr$.append($('<th/>').html(key));
+                    }
+                }
+            }
+            $(selector).append(headerTr$);
+
+            return columnSet;
+        }
+
+
+        $(window).on('load', function () {
+            initialize_user();
+            let state = get_page_state();
+            $('#content').html('<center><img width="300" src="https://c.tenor.com/tEBoZu1ISJ8AAAAC/spinning-loading.gif"></center>');
+            $.get('/recommend_api?user_id=' + localStorage.getItem('user_id'),  // url
+                function (data, textStatus, jqXHR) {  // success callback
+                    data = jQuery.parseJSON(data);
+
+                    for (let k = 0; k < data.length; k++) {
+                        data[k]['Review Link'] = '<a href="/?item=' + data[k]['asin'] + '">Review!</a>';
+                        for (let i = 0; i < data[k]['imageURLHighRes'].length; i++) {
+                            data[k]['imageURLHighRes'][i] = '<img src=' + data[k]['imageURLHighRes'][i] + '>';
+                        }
+                        data[k]['asin'] = data[k]['asin'] + ', <a href=\"http://www.amazon.com/dp/' + data[k]['asin'] + '\">Link</a>';
+                    }
+
+                    buildHtmlTable('#content', data, false);
+                });
+        });
+
+
+    </script>
+</head>
+<body>
+
+<center><h1>User Study for the Thesis, Explanable Recommendations using extracted topics</h1></center>
+
+<div>
+    <div id="user_info"></div>
+    <button onclick="localStorage.removeItem('user_id');document.location.reload(true);">Reset</button>
+</div>
+
+<div>
+    <div id="page_state"></div>
+    <br/>
+    <hr>
+    <br/>
+
+    <div id="search">Search
+        <form action="search" id="search_form" method="get" target="/">
+            <input type="text" name="q" id="search_query">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <br/>
+    <hr>
+    <br/>
+
+    <div id="content"></div>
+    <br/>
+    <hr>
+    <br/>
+    <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+
+</div>
+
+
+</body>
+</html>

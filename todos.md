@@ -99,3 +99,12 @@ Next meeting: 12 Jan 2022 - 12.00
 - literature search/survey
 
 
+Next meeting: 26 Jan 2022 - 12.00
+
+----- Start to take notes -----
+
+- review how other do user studies, and do a small user study for testing
+    - give a multiple choice of recommendations and ask what you would recommend to a person
+- try to continue literature review part
+
+

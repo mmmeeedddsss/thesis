@@ -42,8 +42,15 @@ def SVD_model_evaluate(data, recommender):
         accuracy.rmse(predictions, verbose=True)
 
 
-def baseline_recommendation_own(dataset_name, data):
+def get_recommender_own(dataset_name, fit=False, df_to_fit=None) -> TopicExtractorRecommender:
     recommender = TopicExtractorRecommender(dataset_name, get_default_params())
+    if fit:
+        recommender.fit(df_to_fit, get_default_params())
+    return recommender
+
+
+def baseline_recommendation_own(dataset_name, data):
+    recommender = get_recommender_own(dataset_name, fit=False)
     recommender.accuracy(data, get_default_params())
 
 
