@@ -19,6 +19,7 @@ logging.basicConfig(
 app = Flask(__name__)
 
 
+
 # The route() function of the Flask class is a decorator,
 # which tells the application which URL should call
 # the associated function.
@@ -70,7 +71,6 @@ def recommend():
 @app.route('/recommend_api')
 def recommend_api():
     user_id = request.args.get('user_id')
-    recommender.generate_recommendations_async(user_id)
     print(recommender.get_recommendations_of(user_id))
     return recommender.get_recommendations_of(user_id)
 
@@ -85,4 +85,4 @@ def submit_user_evaluation():
 if __name__ == '__main__':
     # run() method of Flask class runs the application
     # on the local development server.
-    app.run()
+    app.run(debug=True)

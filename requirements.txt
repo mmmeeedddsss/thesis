@@ -12,8 +12,8 @@ keybert==0.5.0
 sentence-transformers==2.1.0
 # pip install git+https://github.com/LIAAD/yake
 yake~=0.4.8
-gensim==4.0.1
+gensim==4.1.2 # was 4.0.1
 spacy==3.0.6
 swifter==1.0.9
 mmh3==3.0.0
-nltk~=3.6.2
+nltk~=3.6.7 # was 3.6.2

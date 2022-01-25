@@ -5,7 +5,7 @@ import pandas as pd
 
 
 class MetadataLoader:
-    n_max_rows = 100
+    n_max_rows = 1000000000
 
     def __init__(self):
         self.__df = None

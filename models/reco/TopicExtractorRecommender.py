@@ -1,5 +1,6 @@
 import json
 import pathlib
+from typing import Tuple
 
 import math
 import os
@@ -43,7 +44,10 @@ logger = logging.getLogger(__name__)
 DATA_CACHE_FOLDER = f'{pathlib.Path(__file__).parent.parent.parent.absolute()}/cached_data'
 
 
+UNIQUE_WORD = 'hggf1fmasd2hb1a2dyawn1asdy21awe2nsd'
+
 class TopicExtractorRecommender:
+    INVERSE_IDF_SCALING_CONSTANT = 2
 
     def __init__(self, dataset_name, params):
         self.dataset_name = dataset_name
@@ -66,6 +70,7 @@ class TopicExtractorRecommender:
         ngram = params['init']['ngram_n']
         self.tfidf_review = TfidfVectorizer(ngram_range=(1, 1))
         self.idf_mean_review = None
+        self.idf_min_review = None
 
         # not used in current setup
         self.tfidf_topics = [TfidfVectorizer(ngram_range=(1, 1)), TfidfVectorizer(ngram_range=(1, 1)),
@@ -76,7 +81,7 @@ class TopicExtractorRecommender:
         self.glove_dict = {}
 
         self.idf_cache = {
-            0: {},
+            0: {},  # we dont use idf per rating now, so only the 0th is used
             1: {},
             2: {},
             3: {},
@@ -101,28 +106,25 @@ class TopicExtractorRecommender:
     def calculate_score(self, user_interests, item_features, verbose=False):
         score = [0, 0, 0, 0, 0, 0]
         for interest_rating, interests in user_interests.items():
+            if len(interests) == 0:
+                score[interest_rating] = 0
+                continue
             for interest in interests:
                 for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
                     dists = []
                     for feature in features:
-                        interest_idf = self._get_idf_weight_reviews(interest, interest_rating)  # to scale a bit
-                        feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
                         if verbose:
                             print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
                                   f'-> '
-                                  f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
-                                  f'mean_iidf={1 / self.idf_mean_topics[interest_rating - 1]:<5}')
-                        dists.append(pair_distance_sqr * interest_idf * feature_idf)
-                    distance = np.mean(dists) + np.median(dists)  # TODO try variance here
+                                  f'pair_distance={pair_distance:<5}')
+                        dists.append(pair_distance_sqr)
+                    m = np.mean(dists) if len(dists) else 1
+                    distance = m + np.mean((dists + [1, 1, 1])[:3])
                     score[interest_rating] += distance
 
             score[interest_rating] /= len(interests)
-
-        mean_score = np.mean(score)
-        for i in range(6):
-            score[i] = mean_score
 
         return score
 
@@ -139,6 +141,9 @@ class TopicExtractorRecommender:
                     verbose_context=False, user_rows=None, item_rows=None, return_dict=False):
         all_dists = []
         for interest_rating, interests in user_interests.items():
+            if interest_rating < 3:
+                continue
+
             for interest in interests:
                 for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
                     for feature in features:
@@ -146,16 +151,15 @@ class TopicExtractorRecommender:
                         feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
-                        mean_iidf = (1 / self.idf_mean_review) * 3 / 2  # ??
+                        mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
                         if verbose:
                             print(f'({interest}, {feature}, {interest_rating}) '
                                   f'-> '
                                   f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
                                   f'mean_iidf={mean_iidf:<5}')
 
-                        if 0.5 > pair_distance and \
-                                interest_idf <= mean_iidf and feature_idf <= mean_iidf and \
-                                interest_rating >= 3:
+                        if 0.6 > pair_distance and \
+                                interest_idf <= mean_iidf and feature_idf <= mean_iidf:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
                                               interest, feature, pair_distance_sqr, interest_idf, feature_idf))
 
@@ -193,37 +197,18 @@ class TopicExtractorRecommender:
 
         return len(all_dists) >= 2
 
-    def _get_idf_weight_topics(self, word, rating):
-        wds = word.split(' ')
-        return min([self.__get_idf_weight_topics(w, rating) for w in wds])
-
-    # Smaller distance means better correlation
-    # Bigger idf means more unique so returning 1/idf
-    def __get_idf_weight_topics(self, word, rating):
-        rating -= 1  # ratings are 1 based where indexes are 0
-        try:
-            if word not in self.idf_cache[rating]:
-                idx = self.tfidf_topics[rating].vocabulary_[word]
-                weight = self.tfidf_topics[rating].idf_[idx]
-                self.idf_cache[rating][word] = 1 / weight
-        except KeyError:
-            weight = self.idf_mean_topics[rating]  # ?? * self.idf_mean_topics[rating]
-            self.idf_cache[rating][word] = 1 / weight
-        return self.idf_cache[rating][word]
-
-    def _get_idf_weight_reviews(self, word, rating):
+    def _get_idf_weight_reviews(self, word: Tuple[str], rating):
         return min([self.__get_idf_weight_reviews(w, rating) for w in word])
 
     # Smaller distance means better correlation
     # Bigger idf means more unique so returning 1/idf
     def __get_idf_weight_reviews(self, word, rating):
-        rating -= 1  # ratings are 1 based where indexes are 0
         try:
             if word not in self.idf_cache[0]:
                 idx = self.tfidf_review.vocabulary_[word]
                 weight = self.tfidf_review.idf_[idx]
                 self.idf_cache[0][word] = 1 / weight
-        except KeyError:
+        except KeyError as e:
             weight = self.idf_mean_review
             self.idf_cache[0][word] = 1 / weight
         return self.idf_cache[0][word]
@@ -271,12 +256,14 @@ class TopicExtractorRecommender:
             self.update_state_hash('topics_YakeExtractor')
 
     def _train_tf_idf(self, params):
-        if not params['enabled']:
-            return
         logger.info(f'Training TF-IDF')
 
-        self.tfidf_review.fit(self.train_df['review'])
+        self.tfidf_review.fit(self.train_df['review'].append(
+            pd.Series([UNIQUE_WORD, UNIQUE_WORD, UNIQUE_WORD]), ignore_index=True))
         self.idf_mean_review = np.mean(self.tfidf_review.idf_)
+        self.idf_min_review = self._get_idf_weight_reviews((UNIQUE_WORD, ), -1)
+
+        print('Min idf value is :', 1/self.idf_min_review)
 
         """corpus = [None, [], [], [], [], []]
         for user_id, v in self.user_property_map.items():
@@ -288,14 +275,14 @@ class TopicExtractorRecommender:
             self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)"""
 
     def _train_word_vectorizer(self, params):
-        logger.info('Importing glove vectors :')
+        """logger.info('Importing glove vectors :')
         # https://nlp.stanford.edu/projects/glove/
         with open('cached_data/glove.6B.200d.txt', 'r') as f:
             for line in tqdm(f):
                 values = line.split()
                 word = values[0]
                 vector = np.asarray(values[1:], 'float32')
-                self.glove_dict[word] = vector
+                self.glove_dict[word] = vector"""
 
         sentences = self.train_df['review'].tolist()
         sentences = [x.split() for x in sentences]
@@ -313,12 +300,11 @@ class TopicExtractorRecommender:
 
             sentences = sentences + ngrams
         """
-
-        print(sentences[:10])
         self.sentences = sentences
 
         cached_model_name = self.serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_model_name}.model'
+        # TODO check https://code.google.com/archive/p/word2vec/ for accuracy test of word2vec
         if not os.path.isfile(cached_file_location):
             logger.info("Training w2v")
             self.w2v_model = Word2Vec(sentences=sentences, min_count=1, workers=6, **params['model'])
@@ -327,17 +313,21 @@ class TopicExtractorRecommender:
             logger.info("Loading w2v from cache")
             self.w2v_model = Word2Vec.load(cached_file_location)
 
+        logger.info("Loading pretrained w2v vectors")
         self.pretrained_w2v = api.load("glove-twitter-200")
         self.pretrained_w2v_2 = api.load("glove-wiki-gigaword-200")
 
         self.update_state_hash(cached_model_name)
 
     def _generate_user_item_maps(self, params):
-        self.update_state_hash('4')
-
-        print(self.state_hash)
+        self.update_state_hash('14')
 
         def generate_map_from(col_name):
+            def filter_func(w):
+                w_tfidf = self._get_idf_weight_reviews(w, -1)
+                return self.idf_min_review <= w_tfidf <= (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
+
+
             property_map = {}
             for _, row in self.train_df.iterrows():
                 topics = [(x[1], x[0]) for x in row['topics']]
@@ -352,22 +342,21 @@ class TopicExtractorRecommender:
 
             # todo think a better way to merge
             filtered_property_map = {}
-            for key, object_map in property_map.items():
+            for key, object_map in tqdm(property_map.items()):
                 num_deleted = 0
                 for rating in range(0, 6):
                     if len(object_map[rating]) > 0:
                         object_map[rating] = sorted(object_map[rating],
                                                     reverse=params['high_score_better'])
                         object_map[rating] = [x[1] for x in object_map[rating]]
-                        object_map[rating] = list(OrderedDict.fromkeys(object_map[rating]))[
-                                             :params['num_features_in_dicts']]
+                        object_map[rating] = list(OrderedDict.fromkeys(object_map[rating]))
                         object_map[rating] = [tuple(e.split(' ')) for e in object_map[rating]]
+                        object_map[rating] = list(filter(filter_func, object_map[rating]))
+                        object_map[rating] = object_map[rating][:params['num_features_in_dicts']]
                     else:
                         num_deleted += 1
                         del object_map[rating]
-                if True or not num_deleted == 5:
-                    filtered_property_map[key] = object_map
-
+                filtered_property_map[key] = object_map
             return filtered_property_map
 
         # ---------------------------------------------------
@@ -404,10 +393,10 @@ class TopicExtractorRecommender:
         logger.info("Trimming user and item property maps")
         for user, rating_keywords in self.item_property_map.items():
             for rating, keyword in rating_keywords.items():
-                rating_keywords[rating] = keyword[:5]
+                rating_keywords[rating] = keyword[:8]
         for user, rating_keywords in self.user_property_map.items():
             for rating, keyword in rating_keywords.items():
-                rating_keywords[rating] = keyword[:5]
+                rating_keywords[rating] = keyword[:8]
 
         self.update_state_hash(cached_obj_name)
 
@@ -423,7 +412,7 @@ class TopicExtractorRecommender:
                     user_interests = self.user_property_map[row['userID']]
                     item_features = self.item_property_map[row['itemID']]
                 except KeyError:  # key removed because it has not enough features
-                    pass
+                    continue
 
                 score = self.calculate_score(user_interests, item_features)
                 x = self.convert_score_to_x(score)
@@ -447,12 +436,6 @@ class TopicExtractorRecommender:
 
         logger.info(f'Training set size: {len(lr_X)}')
 
-        print('During training:')
-        print(self.f1, self.f2, self.f3, end='\n')
-        self.f1 = [0, 0]
-        self.f2 = [0, 0]
-        self.f3 = [0, 0]
-
         logger.info("Training Decision Tree")
         # {'criterion': 'entropy', 'min_samples_split': 5, 'splitter': 'best'}
         tree_param = {'criterion': ['gini', 'entropy'],
@@ -466,7 +449,6 @@ class TopicExtractorRecommender:
         self.lr_model = GridSearchCV(DecisionTreeClassifier(),
                                      tree_param, cv=5, n_jobs=4, scoring='balanced_accuracy')
         self.lr_model = self.lr_model.fit(lr_X, lr_y)
-        print(self.lr_model.best_params_)
 
         # self.ordinal_model.fit(lr_X, lr_y)
 
@@ -476,11 +458,11 @@ class TopicExtractorRecommender:
         self.train_df = train_df
         self._generate_keywords(params['topic_extraction'])
         self._train_word_vectorizer(params['word_vectorizer'])
-        self.update_state_hash('1')
-        self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('4')
+        self.update_state_hash('8')
         self._train_tf_idf(params['tf-idf'])
-        self.update_state_hash('15')
+        self.update_state_hash('10')
+        self._generate_user_item_maps(params['user_item_maps_generation'])
+        self.update_state_hash('16')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
         return self
@@ -520,20 +502,6 @@ class TopicExtractorRecommender:
         dists = dists[:n]
 
         return [x[1] for x in dists]
-
-    def estimate_ordinal(self, u, i):
-        try:
-            user_interests = self.user_property_map[u]
-            item_features = self.item_property_map[i]
-        except:
-            return None
-
-        score = self.calculate_score(user_interests, item_features)
-        x = self.convert_score_to_x(score)
-        X = np.asarray(x, dtype=np.float32).reshape(1, -1)
-        X = self.imputer.transform(X)
-
-        return self.lr_model.predict(X)
 
     def balance_test_set(self, test, params):
         self.update_state_hash(f'{params["max_group_size"]}')
