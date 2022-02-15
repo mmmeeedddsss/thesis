@@ -10,7 +10,7 @@ class MetadataLoader:
     def __init__(self):
         self.__df = None
         self.filename = f'{pathlib.Path(__file__).parent.parent.absolute()}' \
-                        f'/dataset/amazon/meta_CDs_and_Vinyl.json'
+                        f'/dataset/amazon/meta_Digital_Music.json'
         self.df
 
     @property
@@ -18,11 +18,12 @@ class MetadataLoader:
         if self.__df is None:
             # filename is set on extending classes
             self.__df = self._get_df_multiline_json([self.filename])
-            self.dataset_stats()
             self.__df = self.__df.drop(['tech1', 'tech2', 'feature', 'also_buy', 'also_view',
                                         'date', 'main_cat', 'price', 'similar_item', 'fit', 'imageURL'], axis=1)
             self.__df = self.__df[self.__df['imageURLHighRes'].map(lambda d: len(d)) > 0]
             self.__df = self.__df[self.__df['description'].map(lambda d: len(d)) > 0]
+
+            self.dataset_stats()
 
         return self.__df
 

@@ -30,6 +30,9 @@
         }
 
         let params = getSearchParameters();
+        let page = 0
+        if (params.p)
+            page = params.p
 
         const myStorage = window.localStorage;
 
@@ -121,21 +124,45 @@
         $(window).on('load', function () {
             initialize_user();
             let state = get_page_state();
-            $('#content').html('<center><img width="300" src="https://c.tenor.com/tEBoZu1ISJ8AAAAC/spinning-loading.gif"></center>');
             $.get('/recommend_api?user_id=' + localStorage.getItem('user_id'),  // url
-                function (data, textStatus, jqXHR) {  // success callback
+                function (data, textStatus, jqXHR) {
                     data = jQuery.parseJSON(data);
 
-                    for (let k = 0; k < data.length; k++) {
-                        data[k]['Review Link'] = '<a href="/?item=' + data[k]['asin'] + '">Review!</a>';
-                        for (let i = 0; i < data[k]['imageURLHighRes'].length; i++) {
-                            data[k]['imageURLHighRes'][i] = '<img src=' + data[k]['imageURLHighRes'][i] + '>';
+                    let asin = data['recommendations'][page]['asin'];
+                    let explanations = data['recommendations'][page]['explanations'];
+                    $('#content_amazon_link').attr('href', 'https://www.amazon.com/dp/' + asin + '/');
+                    //$('#explanations').text('' + JSON.stringify(data['recommendations'][page]['explanations']));
+                    $('#content_amazon_embed').attr('src', 'https://music.amazon.com/embed/' + asin + '/?id=1KtKydB3pR&marketplaceId=' + asin + '&musicTerritory=US');
+
+                    for (let i = 1; i < 6; i++) {
+                        if (data['users_interests'][i]) {
+                            let user_interest_str = ''
+                            for (let item_key in data['users_interests'][i]) {
+                                let item = data['users_interests'][i][item_key];
+                                user_interest_str += '\"' + item.join(" ") + '\", ';
+                            }
+                            $('#users_properties_' + i).append('<h4 style="padding-left: 35px;"> ' + user_interest_str + ' </h4>');
+                        } else {
+                            $('#users_properties_' + i).text('');
                         }
-                        data[k]['asin'] = data[k]['asin'] + ', <a href=\"http://www.amazon.com/dp/' + data[k]['asin'] + '\">Link</a>';
                     }
 
-                    buildHtmlTable('#content', data, false);
+                    let item_explanation_str = ''
+                    for (let item_key in data['recommendations'][page]['explanations']) {
+                        let item = data['recommendations'][page]['explanations'][item_key];
+                        console.log(item)
+                        item_explanation_str += '\"' + item['item_feature'].join(" ") + '\", ';
+                    }
+                    $('#explanations').append('<b>' + item_explanation_str + '</b>');
+
+
+                    $('#next_button').attr('href', '/recommend?p=' + (parseInt(page) + 1));
+                    $('#prev_button').attr('href', '/recommend?p=' + (parseInt(page) - 1));
+
+                    $('input#user_id').val(localStorage.getItem('user_id'));
+                    $('input#asin').val(asin);
                 });
+
         });
 
 
@@ -166,11 +193,72 @@
     <hr>
     <br/>
 
-    <div id="content"></div>
+
+    <div id="what_we_know_about_you">
+        <center><h2>What we know about you ?!</h2></center>
+        <div id="users_properties">
+            <span id="users_properties_1">You really don't like</span>
+            <span id="users_properties_2">You are not a fan of</span>
+            <span id="users_properties_3">You are meeh when you hear</span>
+            <span id="users_properties_4">You love to hear about</span>
+            <span id="users_properties_5">You are dying for</span>
+        </div>
+    </div>
     <br/>
     <hr>
     <br/>
-    <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+    <div id="content">
+        <center>
+            <h2> Here is what we found for you: </h2>
+            <div id="explanations">
+                <i>
+                    We thought that you might like the item since the properties of the item are similar to your taste:
+                </i>
+            </div>
+            <br/>
+            <br/>
+        </center>
+        <br/>
+        <center>
+            <iframe id='content_amazon_embed' width='80%' height='350px'
+                    style='border:1px solid rgba(0, 0, 0, 0.12);max-width:'></iframe>
+        </center>
+        <br/>
+        <br/>
+
+        <a id="content_amazon_link" href="https://www.amazon.com/dp/xdd">Amazon Marketplace link of the recommended
+            item</a>
+
+
+    </div>
+    <br/>
+    <hr>
+    <br/>
+
+    <center>
+        <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+        <div id="recommendations_review">
+            <form action="recommendations_review" id="usrform" method="post" target="dummyframe">
+                Rating to the recommended item([1,5]): <input type="number" id="recommendation_rating"
+                                                              name="recommendation_rating" min="1" max="500000">
+                <br/><br/>
+                Rating to the explanation words([1,5]): <input type="number" id="explanation_rating"
+                                                               name="explanation_rating" min="1" max="500000">
+                <br/><br/>
+                <button><a id="prev_button" href="xd">Prev</a></button>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="reset"
+                       onclick='document.forms["usrform"].submit();window.history.pushState({}, document.title, "/recommend?p=" + (parseInt(page) + 1)); document.location.reload(true);'
+                       value="Submit">
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button><a id="next_button" href="xd">Next</a></button>
+                <input type="hidden" value="asin" name="asin" id="asin">
+                <input type="hidden" value="user_id" name="user_id" id="user_id">
+            </form>
+        </div>
+    </center>
 
 
 </div>

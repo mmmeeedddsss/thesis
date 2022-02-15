@@ -57,6 +57,7 @@ class Recommender:
                 recommendations = json.load(f)
             return json.dumps(recommendations)
         else:
+            self.generate_recommendations_async(user_id)
             return '[]'
 
 
@@ -120,21 +121,18 @@ class UserReviewLoader:
     def _get_df_multiline_json(self, filenames):
         dfs = []
         for filename in filenames:
-            print('xdd', filename)
             dfs.append(pd.read_json(filename, lines=True, nrows=self.n_max_rows))
         return pd.concat(dfs)
 
     def get_top_n_recommendation(self, n=20):
         print('Starting to create recommendations')
-        KeyBERTExtractor().extract_keywords(self.df, {'top_n': 5, 'keyphrase_ngram_range': (1, 2)})
-
+        KeyBERTExtractor().extract_keywords(self.df, {'top_n': 7, 'keyphrase_ngram_range': (1, 2)})
         property_map = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], }
         for _, row in self.df.iterrows():
             topics = [(x[1], x[0]) for x in row['topics_KeyBERTExtractor']]
             r = row['rating']
             property_map[r] += topics
 
-        # todo think a better way to merge
         filtered_property_map = {}
         for rating in range(0, 6):
             if len(property_map[rating]) > 0:
@@ -152,7 +150,6 @@ class UserReviewLoader:
         for item_id in tqdm(item_ids):
             explanations = self.recommender_own.explain_api(users_interests,
                                                             self.recommender_own.item_property_map[item_id],
-                                                            verbose=True,
                                                             explain=True, return_dict=True)
             print(explanations)
             if len(explanations) >= 2:

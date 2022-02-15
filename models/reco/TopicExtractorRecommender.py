@@ -47,7 +47,7 @@ DATA_CACHE_FOLDER = f'{pathlib.Path(__file__).parent.parent.parent.absolute()}/c
 UNIQUE_WORD = 'hggf1fmasd2hb1a2dyawn1asdy21awe2nsd'
 
 class TopicExtractorRecommender:
-    INVERSE_IDF_SCALING_CONSTANT = 2
+    INVERSE_IDF_SCALING_CONSTANT = 1.75
 
     def __init__(self, dataset_name, params):
         self.dataset_name = dataset_name
@@ -104,10 +104,9 @@ class TopicExtractorRecommender:
 
     # also change explain method, shares logic
     def calculate_score(self, user_interests, item_features, verbose=False):
-        score = [0, 0, 0, 0, 0, 0]
+        score = [[1], [1], [1], [1], [1], [1]]
         for interest_rating, interests in user_interests.items():
             if len(interests) == 0:
-                score[interest_rating] = 0
                 continue
             for interest in interests:
                 for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
@@ -122,9 +121,10 @@ class TopicExtractorRecommender:
                         dists.append(pair_distance_sqr)
                     m = np.mean(dists) if len(dists) else 1
                     distance = m + np.mean((dists + [1, 1, 1])[:3])
-                    score[interest_rating] += distance
+                    score[interest_rating].append(distance)
 
-            score[interest_rating] /= len(interests)
+        for i in range(6):
+            score[i] = np.min(score[i])
 
         return score
 
@@ -183,22 +183,28 @@ class TopicExtractorRecommender:
 
         if return_dict:
             ret = []
+            features = {}
             all_dists.sort()
             for i in range(min(5, len(all_dists))):
                 score = all_dists[i][0]
                 feature = all_dists[i][2]
-                ret.append(
-                    {
-                        'item_feature': feature,
-                        'score': score
-                    }
-                )
+                if f"{feature}" not in features:
+                    ret.append(
+                        {
+                            'item_feature': feature,
+                            'score': score
+                        }
+                    )
+                    features[f"{feature}"] = 1
+            if len(all_dists) > 0:
+                logger.info('-----------')
+                logger.info('-----------')
             return ret
 
         return len(all_dists) >= 2
 
     def _get_idf_weight_reviews(self, word: Tuple[str], rating):
-        return min([self.__get_idf_weight_reviews(w, rating) for w in word])
+        return np.mean([self.__get_idf_weight_reviews(w, rating) for w in word])
 
     # Smaller distance means better correlation
     # Bigger idf means more unique so returning 1/idf
@@ -236,8 +242,10 @@ class TopicExtractorRecommender:
     def _calculate_distance(self, word1, word2):
         d = []
         for w1 in word1:
+            dd = []
             for w2 in word2:
-                d.append(self._calculate_distance_words(w1, w2))
+                dd.append(self._calculate_distance_words(w1, w2))
+            d.append(np.min(dd))
         return np.mean(d)
 
     def convert_score_to_x(self, score):
@@ -462,7 +470,7 @@ class TopicExtractorRecommender:
         self._train_tf_idf(params['tf-idf'])
         self.update_state_hash('10')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('16')
+        self.update_state_hash('17')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
         return self
@@ -495,10 +503,9 @@ class TopicExtractorRecommender:
         for item_asin, item_features in tqdm(self.item_property_map.items()):
             score, est = self.estimate_api(user_interests, item_features)
             if est >= 4:
-                dists.append((score, item_asin))
+                dists.append((np.mean(list(filter(lambda x: x > 0.0001, score[1:]))), item_asin))
 
         dists.sort()
-
         dists = dists[:n]
 
         return [x[1] for x in dists]

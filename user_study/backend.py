@@ -45,10 +45,18 @@ def get_item():
 def user_review():
     data = request.form.to_dict()
     print(data)
-    with open("user_study_reviews.json", "a") as f:
+    with open("user_study/user_study_reviews.json", "a") as f:
         f.write(json.dumps(data) + '\n')
     user_id = data['user_id']
     recommender.generate_recommendations_async(user_id)
+    return Response(status=200)
+
+@app.route('/recommendations_review', methods=['POST'])
+def recommendations_review():
+    data = request.form.to_dict()
+    print(data)
+    with open("user_study/recommendations_review.json", "a") as f:
+        f.write(json.dumps(data) + '\n')
     return Response(status=200)
 
 
@@ -71,7 +79,6 @@ def recommend():
 @app.route('/recommend_api')
 def recommend_api():
     user_id = request.args.get('user_id')
-    print(recommender.get_recommendations_of(user_id))
     return recommender.get_recommendations_of(user_id)
 
 
@@ -85,4 +92,4 @@ def submit_user_evaluation():
 if __name__ == '__main__':
     # run() method of Flask class runs the application
     # on the local development server.
-    app.run(debug=True)
+    app.run()
