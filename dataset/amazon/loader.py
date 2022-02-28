@@ -12,13 +12,14 @@ class AmazonDatasetLoader(DatasetLoader):
     f1 = f'{pathlib.Path(__file__).parent.absolute()}/Movies_and_TV_5.json'
     f2 = f'{pathlib.Path(__file__).parent.absolute()}/Digital_Music_5.json'
     f3 = f'{pathlib.Path(__file__).parent.absolute()}/Arts_Crafts_and_Sewing_5.json'
+    f4 = f'{pathlib.Path(__file__).parent.absolute()}/CDs_and_Vinyl_5.json'
     processed_f1 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Movies_and_TV_5_with_extracted_topics.gzip'
     processed_f2 = f'{pathlib.Path(__file__).parent.absolute()}/processed_1-2gram/Digital_Music_5_with_extracted_topics.gzip'
     processed_f3 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Arts_Crafts_and_Sewing_5_with_extracted_topics.gzip'
     processed_f4 = f'{pathlib.Path(__file__).parent.absolute()}/processed_1gram/Digital_Music_5_with_extracted_topics.gzip'
     processed_f5 = f'{pathlib.Path(__file__).parent.absolute()}/processed_1gram/Movies_and_TV_5_unified_02inc.gzip'
 
-    filenames = [f2]
+    filenames = [f4]
 
     def read_recommender_data(self):
         df = self.df.rename(columns={'overall': 'rating', 'reviewerID': 'userID', 'asin': 'itemID'})

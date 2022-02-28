@@ -237,7 +237,11 @@ class TopicExtractorRecommender:
             try:
                 return self.pretrained_w2v_2.distance(word1, word2)
             except:
-                return self.w2v_model.wv.distance(word1, word2)
+                try:
+                    return self.w2v_model.wv.distance(word1, word2)
+                except:
+                    logger.error(f'Key {word1} or {word2} is not present in any w2v models')
+                    return 1
 
     def _calculate_distance(self, word1, word2):
         d = []

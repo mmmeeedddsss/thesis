@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, send_from_directory, Response
 
 from user_study.metadata import metadata_loader
-from user_study.recommender import recommender
+from user_study.recommender import recommenders
 
 import logging
 
@@ -48,7 +48,8 @@ def user_review():
     with open("user_study/user_study_reviews.json", "a") as f:
         f.write(json.dumps(data) + '\n')
     user_id = data['user_id']
-    recommender.generate_recommendations_async(user_id)
+    topic_extractor = data['recommender']
+    recommenders[topic_extractor].generate_recommendations_async(user_id)
     return Response(status=200)
 
 @app.route('/recommendations_review', methods=['POST'])
@@ -79,7 +80,8 @@ def recommend():
 @app.route('/recommend_api')
 def recommend_api():
     user_id = request.args.get('user_id')
-    return recommender.get_recommendations_of(user_id)
+    topic_extractor = request.args.get('recommender')
+    return recommenders[topic_extractor].get_recommendations_of(user_id)
 
 
 @app.route('/submit_user_evaluation', methods=['POST'])

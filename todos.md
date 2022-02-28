@@ -108,3 +108,8 @@ Next meeting: 26 Jan 2022 - 12.00
 - try to continue literature review part
 
 
+Next meeting: ?? March 2022 - 12.00
+
+- make bert versus yake on user study with the same commands
+- change the ratings to sliders, look for likert scale
+

@@ -49,6 +49,14 @@
             $('#user_info').text('You are the user ' + id);
         }
 
+        function initialize_recommender() {
+            let recommender = localStorage.getItem('recommender');
+            if (!recommender) {
+                localStorage.setItem('recommender', 'bert');
+            }
+            $('#recommender_info').text('Using recommender ' + recommender);
+        }
+
         function get_page_state() {
             let state = localStorage.getItem('page_state');
             if (!state) {
@@ -117,6 +125,7 @@
 
         $(window).on('load', function () {
             initialize_user();
+            initialize_recommender();
             let state = get_page_state();
             if (state === 'reviewing') {
                 if (params.item) {
@@ -134,6 +143,7 @@
                             data[0]['asin'] = data[0]['asin'] + ', <a href=\"http://www.amazon.com/dp/' + data[0]['asin'] + '\">Link</a>';
 
                             $('input#user_id').val(localStorage.getItem('user_id'));
+                            $('input#recommender').val(localStorage.getItem('recommender'));
 
                             console.log(data);
                             buildHtmlTable('#content', data);
@@ -153,6 +163,8 @@
                             data[0]['asin'] = data[0]['asin'] + ', <a href=\"http://www.amazon.com/dp/' + data[0]['asin'] + '\">Link</a>';
 
                             $('input#user_id').val(localStorage.getItem('user_id'));
+                            $('input#recommender').val(localStorage.getItem('recommender'));
+
 
                             console.log(data);
                             buildHtmlTable('#content', data);
@@ -168,12 +180,32 @@
             document.location.reload(true);
         }
 
+        function toggleRecommender() {
+            let currentRecommender = localStorage.getItem('recommender');
+            if (currentRecommender === 'bert')
+                localStorage.setItem('recommender', 'yake');
+            else
+                localStorage.setItem('recommender', 'bert')
+            document.location.reload(true);
+        }
+
 
     </script>
 </head>
 <body>
 
 <center><h1>User Study for the Thesis, Explanable Recommendations using extracted topics</h1></center>
+
+
+<div>
+    <div id="recommender_info"></div>
+    <button onclick="toggleRecommender()">Switch Recommender</button>
+
+</div>
+
+<br/>
+<hr>
+<br/>
 
 <div>
     <div id="user_info"></div>
@@ -185,6 +217,7 @@
 
     <button onclick="setUserId()">Set User Id</button>
 </div>
+
 
 <div>
     <div id="page_state"></div>
@@ -220,6 +253,7 @@
                        value="Submit">
                 <input type="hidden" value="asin" name="asin" id="asin">
                 <input type="hidden" value="user_id" name="user_id" id="user_id">
+                <input type="hidden" value="recommender" name="recommender" id="recommender">
             </form>
             <br>
             <textarea rows="6" cols="150" name="comment" form="usrform"></textarea>

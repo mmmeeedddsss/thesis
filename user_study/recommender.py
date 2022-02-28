@@ -5,12 +5,14 @@ import pathlib
 import pickle
 from collections import OrderedDict
 from threading import Thread
+from time import sleep
 
 import pandas as pd
 from tqdm import tqdm
 
 from dataset.amazon.loader import AmazonDatasetLoader
 from models.nlp.KeyBERT import KeyBERTExtractor
+from models.nlp.yake import YakeExtractor
 from models.reco.TopicExtractorRecommender import TopicExtractorRecommender
 from models.reco.recommendations import get_recommender_own
 from user_study.metadata import metadata_loader
@@ -23,16 +25,18 @@ DATA_CACHE_FOLDER = f'{pathlib.Path(__file__).parent.parent.absolute()}/cached_d
 
 
 class Recommender:
-    def __init__(self):
+    def __init__(self, keyword_extractor):
         self.user_worker_mapping = {}
+        self.keyword_extractor_name = keyword_extractor
 
         amazon_dataloader = AmazonDatasetLoader()
         dataset_path, train_df = amazon_dataloader.get_processed_pandas_df()
         dataset_name = dataset_path.split('/')[-1].split('.')[0]
-        cached_obj_name = f'user_property_map__user_study'
+        cached_obj_name = f'user_property_map__user_study_{keyword_extractor}'
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'
         if not os.path.isfile(cached_file_location):
-            self.recommender_own = get_recommender_own(dataset_name, fit=True, df_to_fit=train_df)
+            self.recommender_own = get_recommender_own(dataset_name, fit=True, df_to_fit=train_df,
+                                                       keyword_extractor=keyword_extractor)
             with open(cached_file_location, 'wb') as handle:
                 logger.info("Serializing user map")
                 pickle.dump(self.recommender_own, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -49,9 +53,8 @@ class Recommender:
         self.user_worker_mapping[user_id] = RecommendationGeneratorWorker(user_id, self.recommender_own)
         self.user_worker_mapping[user_id].start()
 
-
     def get_recommendations_of(self, user_id):
-        filename = user_id + '_recommendations.json'
+        filename = f'{self.keyword_extractor_name}_{user_id}_recommendations.json'
         if os.path.isfile(filename):
             with open(filename, 'r') as f:
                 recommendations = json.load(f)
@@ -126,10 +129,11 @@ class UserReviewLoader:
 
     def get_top_n_recommendation(self, n=20):
         print('Starting to create recommendations')
+        YakeExtractor().extract_keywords(self.df)
         KeyBERTExtractor().extract_keywords(self.df, {'top_n': 7, 'keyphrase_ngram_range': (1, 2)})
         property_map = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], }
         for _, row in self.df.iterrows():
-            topics = [(x[1], x[0]) for x in row['topics_KeyBERTExtractor']]
+            topics = [(x[1], x[0]) for x in row['topics_YakeExtractor']]
             r = row['rating']
             property_map[r] += topics
 
@@ -144,8 +148,10 @@ class UserReviewLoader:
                 del property_map[rating]
 
         users_interests = property_map
+        print(users_interests)
+        sleep(10)
 
-        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n*2)
+        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 2)
         item_recommendations = []
         for item_id in tqdm(item_ids):
             explanations = self.recommender_own.explain_api(users_interests,
@@ -165,4 +171,7 @@ class UserReviewLoader:
         return {'recommendations': item_recommendations, 'users_interests': users_interests}
 
 
-recommender = Recommender()
+recommenders = {
+    'bert': Recommender('bert'),
+    'yake': Recommender('yake'),
+}

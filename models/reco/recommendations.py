@@ -42,8 +42,13 @@ def SVD_model_evaluate(data, recommender):
         accuracy.rmse(predictions, verbose=True)
 
 
-def get_recommender_own(dataset_name, fit=False, df_to_fit=None) -> TopicExtractorRecommender:
-    recommender = TopicExtractorRecommender(dataset_name, get_default_params())
+def get_recommender_own(dataset_name, fit=False, df_to_fit=None, keyword_extractor='bert') -> TopicExtractorRecommender:
+    params = get_default_params()
+    params['topic_extraction']['extracted_topic_col'] = \
+        'topics_KeyBERTExtractor_1-2gram' if keyword_extractor == 'bert' else 'topics_YakeExtractor_1-2gram'
+    params['user_item_maps_generation']['high_score_better'] = \
+        True if keyword_extractor == 'bert' else False
+    recommender = TopicExtractorRecommender(dataset_name, params)
     if fit:
         recommender.fit(df_to_fit, get_default_params())
     return recommender
@@ -64,7 +69,7 @@ def get_default_params():
         },
         'topic_extraction': {
             'extracted_topic_col':
-                'topics_KeyBERTExtractor_1-2gram', # topics_KeyBERTExtractor_1-2gram, topics_KeyBERTExtractor
+                'topics_KeyBERTExtractor_1-2gram',  # topics_KeyBERTExtractor_1-2gram, topics_KeyBERTExtractor
         },
         'word_vectorizer': {
             'model': {

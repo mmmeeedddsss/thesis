@@ -17,3 +17,4 @@ spacy==3.0.6
 swifter==1.0.9
 mmh3==3.0.0
 nltk~=3.6.7 # was 3.6.2
+acryl-datahub[datahub-rest]==0.8.24.0
