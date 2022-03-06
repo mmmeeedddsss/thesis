@@ -469,13 +469,17 @@ class TopicExtractorRecommender:
         print('Fitting ..')
         self.update_state_hash('8')
         self.train_df = train_df
+        print('Generating keywords and w2v')
         self._generate_keywords(params['topic_extraction'])
         self._train_word_vectorizer(params['word_vectorizer'])
         self.update_state_hash('8')
+        print('TfIdf fitting')
         self._train_tf_idf(params['tf-idf'])
         self.update_state_hash('10')
+        print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
         self.update_state_hash('17')
+        print('The best ML model')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
         return self
@@ -531,6 +535,7 @@ class TopicExtractorRecommender:
                           test[test["rating"] == 4][:min_group]])
 
     def accuracy(self, df, params):
+        print(df)
         for i in range(1):
             logger.info(f'------------------ {i} ------------------')
             # test = df.groupby('userID', as_index=False).nth(i)

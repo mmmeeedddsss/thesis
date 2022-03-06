@@ -7,6 +7,6 @@ for file in tqdm(glob.glob("*.gzip")):
     dfs.append(pd.read_pickle(file))
     dfs[-1].drop(['style', 'vote', 'image'], axis=1, inplace=True)
 
-df = pd.concat(dfs[:3], ignore_index=True)
+df = pd.concat(dfs, ignore_index=True)
 print(df)
-df.to_pickle('Movies_and_TV_5_unified_02inc.gzip')
+df.to_pickle('Digital_Music_unified_1-2gram.gzip')
