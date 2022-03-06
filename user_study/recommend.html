@@ -11,6 +11,41 @@
         table, th, td {
             border: 1px solid black;
         }
+
+        .slidecontainer {
+            width: 10%;
+        }
+
+        .slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background-image: linear-gradient(to right, rgba(255, 0, 0, 0.7), rgba(0, 128, 0, 0.7));
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            -webkit-appearance: none;
+        }
+
+        .slider:hover {
+            background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(0, 128, 0, 1));
+        }
+
+        .slider::-webkit-slider-thumb {
+            width: 23px;
+            height: 24px;
+            border: 0;
+            background: url('contrasticon.png');
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 23px;
+            height: 24px;
+            border: 0;
+            background: url('contrasticon.png');
+            cursor: pointer;
+        }
     </style>
 
     <script>
@@ -128,7 +163,6 @@
             return columnSet;
         }
 
-
         $(window).on('load', function () {
             initialize_user();
             initialize_recommender();
@@ -159,9 +193,12 @@
                     let item_explanation_str = ''
                     for (let item_key in data['recommendations'][page]['explanations']) {
                         let item = data['recommendations'][page]['explanations'][item_key];
-                        console.log(item)
-                        item_explanation_str += '\"' + item['item_feature'].join(" ") + '\", ';
+
+                        item_explanation_str += '\"' + item['item_feature'].join(" ") + '\"';
+                        item_explanation_str += '(' + item['users_matching_interest'].join(" ") + '), ';
+
                     }
+
                     $('#explanations').append('<b>' + item_explanation_str + '</b>');
 
 
@@ -270,11 +307,19 @@
 
         <div id="recommendations_review">
             <form action="recommendations_review" id="usrform" method="post" target="dummyframe">
-                Rating to the recommended item([1,5]): <input type="number" id="recommendation_rating"
-                                                              name="recommendation_rating" min="1" max="500000">
+                Rating to the recommended item:
+                <div class="slidecontainer">
+                    <label for="recommendation_rating"></label><input type="range" min="1" max="100" value="50"
+                                                                      class="slider" id="recommendation_rating"
+                                                                      name="recommendation_rating">
+                </div>
                 <br/><br/>
-                Rating to the explanation words([1,5]): <input type="number" id="explanation_rating"
-                                                               name="explanation_rating" min="1" max="500000">
+                Rating to the explanation words:
+                <div class="slidecontainer">
+                    <label for="explanation_rating"></label><input type="range" min="1" max="100" value="50"
+                                                                   class="slider" id="explanation_rating"
+                                                                   name="explanation_rating">
+                </div>
                 <br/><br/>
                 <button><a id="prev_button" href="xd">Prev</a></button>
                 &nbsp;&nbsp;&nbsp;&nbsp;

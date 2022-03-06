@@ -16,7 +16,7 @@ class TopicExtractor:
         return self.extract_keywords(udf, kwargs)
 
     def extract_keywords(self, df, kwargs={}):
-        column_name = f'topics_{self.__class__.__name__}_1-2gram'
+        column_name = f'topics_{self.__class__.__name__}'
         df[column_name] = df['review']
         df[column_name] = df[column_name].swifter.apply(lambda x: self.model.extract_keywords(x, **kwargs))
         return df

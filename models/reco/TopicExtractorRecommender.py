@@ -187,12 +187,14 @@ class TopicExtractorRecommender:
             all_dists.sort()
             for i in range(min(5, len(all_dists))):
                 score = all_dists[i][0]
+                interest = all_dists[i][1]
                 feature = all_dists[i][2]
                 if f"{feature}" not in features:
                     ret.append(
                         {
                             'item_feature': feature,
-                            'score': score
+                            'score': score,
+                            'users_matching_interest': interest,
                         }
                     )
                     features[f"{feature}"] = 1
@@ -240,7 +242,6 @@ class TopicExtractorRecommender:
                 try:
                     return self.w2v_model.wv.distance(word1, word2)
                 except:
-                    logger.error(f'Key {word1} or {word2} is not present in any w2v models')
                     return 1
 
     def _calculate_distance(self, word1, word2):

@@ -50,7 +50,8 @@ class Recommender:
                 self.user_worker_mapping[user_id].terminate()
             except:
                 pass
-        self.user_worker_mapping[user_id] = RecommendationGeneratorWorker(user_id, self.recommender_own)
+        self.user_worker_mapping[user_id] = RecommendationGeneratorWorker(user_id, self.recommender_own,
+                                                                          self.keyword_extractor_name)
         self.user_worker_mapping[user_id].start()
 
     def get_recommendations_of(self, user_id):
@@ -65,9 +66,10 @@ class Recommender:
 
 
 class RecommendationGeneratorWorker:
-    def __init__(self, user_id, recommender_own):
+    def __init__(self, user_id, recommender_own, keyword_extractor):
         self.user_id = user_id
         self.recommender_own = recommender_own
+        self.keyword_extractor_name = keyword_extractor
         self.thread = None
 
     def start(self):
@@ -77,11 +79,12 @@ class RecommendationGeneratorWorker:
 
     def __do_generate(self):
         url = UserReviewLoader(self.user_id, self.recommender_own)
-        recommendations = url.get_top_n_recommendation(20)
+        recommendations = url.get_top_n_recommendation(20, self.keyword_extractor_name)
         for reco in recommendations['recommendations']:
             print(reco['asin'])
             reco['item_metadata'] = metadata_loader.get_item(reco['asin'])
-        with open(self.user_id + '_recommendations.json', 'w') as f:
+        filename = f'{self.keyword_extractor_name}_{self.user_id}_recommendations.json'
+        with open(filename, 'w') as f:
             json.dump(recommendations, f)
 
     def terminate(self):
@@ -127,13 +130,17 @@ class UserReviewLoader:
             dfs.append(pd.read_json(filename, lines=True, nrows=self.n_max_rows))
         return pd.concat(dfs)
 
-    def get_top_n_recommendation(self, n=20):
+    def get_top_n_recommendation(self, n=20, keyword_extractor_name='bert'):
         print('Starting to create recommendations')
-        YakeExtractor().extract_keywords(self.df)
-        KeyBERTExtractor().extract_keywords(self.df, {'top_n': 7, 'keyphrase_ngram_range': (1, 2)})
+        if keyword_extractor_name == 'yake':
+            print('Using Yake')
+            YakeExtractor().extract_keywords(self.df)
+        else:
+            print('Using KeyBERT')
+            KeyBERTExtractor().extract_keywords(self.df, {'top_n': 7, 'keyphrase_ngram_range': (1, 2)})
         property_map = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], }
         for _, row in self.df.iterrows():
-            topics = [(x[1], x[0]) for x in row['topics_YakeExtractor']]
+            topics = [(x[1], x[0]) for x in row['topics_YakeExtractor' if keyword_extractor_name == 'yake' else 'topics_KeyBERTExtractor']]
             r = row['rating']
             property_map[r] += topics
 
