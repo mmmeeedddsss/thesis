@@ -29,7 +29,7 @@ for i, df in enumerate(df_pieces):
 
     print(f'-------------- Starting {i} --------------')
 
-    df = KeyBERTExtractor().extract_keywords(df, {'top_n': 10, 'keyphrase_ngram_range': (1, 2)})
+    df = KeyBERTExtractor().extract_keywords(df, {'top_n': 10, 'keyphrase_ngram_range': (1, 1)})
 
     df = YakeExtractor().extract_keywords(df)
     df.to_pickle(current_part_path)

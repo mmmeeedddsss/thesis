@@ -43,8 +43,8 @@ logger = logging.getLogger(__name__)
 # so delete cache files if you change the split
 DATA_CACHE_FOLDER = f'{pathlib.Path(__file__).parent.parent.parent.absolute()}/cached_data'
 
-
 UNIQUE_WORD = 'hggf1fmasd2hb1a2dyawn1asdy21awe2nsd'
+
 
 class TopicExtractorRecommender:
     INVERSE_IDF_SCALING_CONSTANT = 1.75
@@ -104,14 +104,21 @@ class TopicExtractorRecommender:
 
     # also change explain method, shares logic
     def calculate_score(self, user_interests, item_features, verbose=False):
-        score = [[1], [1], [1], [1], [1], [1]]
+        score = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
+        mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
         for interest_rating, interests in user_interests.items():
             if len(interests) == 0:
                 continue
             for interest in interests:
+                interest_idf = self._get_idf_weight_reviews(interest, interest_rating)  # to scale a bit
+                if interest_idf >= mean_iidf:
+                    continue
                 for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
                     dists = []
                     for feature in features:
+                        feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
+                        if feature_idf >= mean_iidf:
+                            continue
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
                         if verbose:
@@ -124,7 +131,8 @@ class TopicExtractorRecommender:
                     score[interest_rating].append(distance)
 
         for i in range(6):
-            score[i] = np.min(score[i])
+            score[i].sort()
+            score[i] = np.mean(score[i])
 
         return score
 
@@ -139,6 +147,7 @@ class TopicExtractorRecommender:
 
     def explain_api(self, user_interests, item_features, verbose=False, explain=False,
                     verbose_context=False, user_rows=None, item_rows=None, return_dict=False):
+        mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
         all_dists = []
         for interest_rating, interests in user_interests.items():
             if interest_rating < 3:
@@ -151,7 +160,6 @@ class TopicExtractorRecommender:
                         feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
-                        mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
                         if verbose:
                             print(f'({interest}, {feature}, {interest_rating}) '
                                   f'-> '
@@ -274,9 +282,9 @@ class TopicExtractorRecommender:
         self.tfidf_review.fit(self.train_df['review'].append(
             pd.Series([UNIQUE_WORD, UNIQUE_WORD, UNIQUE_WORD]), ignore_index=True))
         self.idf_mean_review = np.mean(self.tfidf_review.idf_)
-        self.idf_min_review = self._get_idf_weight_reviews((UNIQUE_WORD, ), -1)
+        self.idf_min_review = self._get_idf_weight_reviews((UNIQUE_WORD,), -1)
 
-        print('Min idf value is :', 1/self.idf_min_review)
+        print('Min idf value is :', 1 / self.idf_min_review)
 
         """corpus = [None, [], [], [], [], []]
         for user_id, v in self.user_property_map.items():
@@ -339,7 +347,6 @@ class TopicExtractorRecommender:
             def filter_func(w):
                 w_tfidf = self._get_idf_weight_reviews(w, -1)
                 return self.idf_min_review <= w_tfidf <= (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
-
 
             property_map = {}
             for _, row in self.train_df.iterrows():
