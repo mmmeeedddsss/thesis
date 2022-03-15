@@ -19,18 +19,17 @@ df_all = amazon_dataloader.get_pandas_df()
 
 filename = AmazonDatasetLoader.filenames[0].split('/')[-1].split('.')[0]
 
-df_pieces = np.array_split(df_all, 20)
+df_pieces = np.array_split(df_all, 16)
 
 for i, df in enumerate(df_pieces):
-    current_part_path = f'{output_dir}/{filename}_{i}.gzip'
+    current_part_path = f'{output_dir}/{filename}_{i}_1grams.gzip'
     if os.path.exists(current_part_path):
         print(f'-------------- Skipping {i} --------------')
         continue
 
     print(f'-------------- Starting {i} --------------')
 
-    df = KeyBERTExtractor().extract_keywords(df, {'top_n': 10, 'keyphrase_ngram_range': (1, 1)})
-
+    df = KeyBERTExtractor().extract_keywords(df, {'top_n': 10, 'keyphrase_ngram_range': (1, 2)})
     df = YakeExtractor().extract_keywords(df)
     df.to_pickle(current_part_path)
 
