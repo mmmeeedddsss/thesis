@@ -113,3 +113,8 @@ Next meeting: ?? March 2022 - 12.00
 - make bert versus yake on user study with the same commands
 - change the ratings to sliders, look for likert scale
 
+
+
+Next meeting: 30 March 2022 - 12.00
+
+- use cds and vinyl dataset

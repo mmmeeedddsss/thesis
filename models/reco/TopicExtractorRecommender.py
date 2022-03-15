@@ -47,7 +47,7 @@ UNIQUE_WORD = 'hggf1fmasd2hb1a2dyawn1asdy21awe2nsd'
 
 
 class TopicExtractorRecommender:
-    INVERSE_IDF_SCALING_CONSTANT = 1.75
+    INVERSE_IDF_SCALING_CONSTANT = 1.80
 
     def __init__(self, dataset_name, params):
         self.dataset_name = dataset_name
@@ -126,12 +126,12 @@ class TopicExtractorRecommender:
                                   f'-> '
                                   f'pair_distance={pair_distance:<5}')
                         dists.append(pair_distance_sqr)
+                    dists.sort()
                     m = np.mean(dists) if len(dists) else 1
                     distance = m + np.mean((dists + [1, 1, 1])[:3])
                     score[interest_rating].append(distance)
 
         for i in range(6):
-            score[i].sort()
             score[i] = np.mean(score[i])
 
         return score
@@ -166,7 +166,7 @@ class TopicExtractorRecommender:
                                   f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
                                   f'mean_iidf={mean_iidf:<5}')
 
-                        if 0.6 > pair_distance and \
+                        if 0.4 > pair_distance and \
                                 interest_idf <= mean_iidf and feature_idf <= mean_iidf:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
                                               interest, feature, pair_distance_sqr, interest_idf, feature_idf))
@@ -179,7 +179,7 @@ class TopicExtractorRecommender:
                 pair_distance_sqr, interest_idf, feature_idf = tuple(all_dists[i][3:])
                 logger.info(f'**** User mentioned {interest}, item is {feature} ***')
                 logger.info(f'pair_distance_squared={pair_distance_sqr:<5}, interest_idf={interest_idf:<5}, '
-                            f'feature_idf={feature_idf:<5}, mean_iidf={(1 / self.idf_mean_review) * 3 / 2}')
+                            f'feature_idf={feature_idf:<5}, mean_iidf={(1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT}')
                 if verbose_context:
                     logger.info(f"User's context of mention(s):")
                     for comment in user_rows[user_rows['review'].str.contains(interest) == True]['review'].values:
@@ -485,7 +485,7 @@ class TopicExtractorRecommender:
         self.update_state_hash('10')
         print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('17')
+        self.update_state_hash('18')
         print('The best ML model')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
