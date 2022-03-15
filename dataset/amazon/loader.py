@@ -20,7 +20,7 @@ class AmazonDatasetLoader(DatasetLoader):
     processed_f5 = f'{pathlib.Path(__file__).parent.absolute()}/processed_1gram/Movies_and_TV_5_unified_02inc.gzip'
     processed_f6 = f'{pathlib.Path(__file__).parent.absolute()}/processed_parts/Digital_Music_unified_1-2gram.gzip'
 
-    filenames = [f2]
+    filenames = [f4]
 
     def read_recommender_data(self):
         df = self.df.rename(columns={'overall': 'rating', 'reviewerID': 'userID', 'asin': 'itemID'})

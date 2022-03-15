@@ -7,10 +7,10 @@ import pandas as pd
 class MetadataLoader:
     n_max_rows = 1000000000
 
-    def __init__(self):
+    def __init__(self, filename='meta_Digital_Music.json'):
         self.__df = None
         self.filename = f'{pathlib.Path(__file__).parent.parent.absolute()}' \
-                        f'/dataset/amazon/meta_Digital_Music.json'
+                        f'/dataset/amazon/{filename}'
         self.df
 
     @property
