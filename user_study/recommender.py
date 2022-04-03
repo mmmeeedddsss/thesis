@@ -32,7 +32,7 @@ class Recommender:
         amazon_dataloader = AmazonDatasetLoader()
         dataset_path, train_df = amazon_dataloader.get_processed_pandas_df()
         dataset_name = dataset_path.split('/')[-1].split('.')[0]
-        cached_obj_name = f'user_property_map__user_study_{keyword_extractor}'
+        cached_obj_name = f'user_property_map__user_study_{keyword_extractor}_{dataset_name}'
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'
         if not os.path.isfile(cached_file_location):
             self.recommender_own = get_recommender_own(dataset_name, fit=True, df_to_fit=train_df,

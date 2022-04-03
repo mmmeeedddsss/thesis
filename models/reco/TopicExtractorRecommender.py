@@ -67,7 +67,6 @@ class TopicExtractorRecommender:
 
         self.sentences = None
 
-        ngram = params['init']['ngram_n']
         self.tfidf_review = TfidfVectorizer(ngram_range=(1, 1))
         self.idf_mean_review = None
         self.idf_min_review = None

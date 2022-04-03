@@ -18,7 +18,8 @@ class AmazonDatasetLoader(DatasetLoader):
     processed_f3 = f'{pathlib.Path(__file__).parent.absolute()}/processed/Arts_Crafts_and_Sewing_5_with_extracted_topics.gzip'
     processed_f4 = f'{pathlib.Path(__file__).parent.absolute()}/processed_1gram/Digital_Music_5_with_extracted_topics.gzip'
     processed_f5 = f'{pathlib.Path(__file__).parent.absolute()}/processed_1gram/Movies_and_TV_5_unified_02inc.gzip'
-    processed_f6 = f'{pathlib.Path(__file__).parent.absolute()}/processed_parts/Digital_Music_unified_1-2gram.gzip'
+    processed_f6 = f'{pathlib.Path(__file__).parent.absolute()}/processed_parts/Digital_Music_unified_1-2gram.gzip' # gives nice results
+    processed_f7 = f'{pathlib.Path(__file__).parent.absolute()}/processed_1gram/CDs_and_Vinyl_5_with_extracted_topics.gzip'
 
     filenames = [f4]
 
@@ -46,4 +47,10 @@ class AmazonDatasetLoader(DatasetLoader):
         return df
 
     def get_processed_pandas_df(self):
+        return self.get_processed_pandas_df_cds_and_vinyls()
+
+    def get_processed_pandas_df_digital_music(self):
         return self.processed_f6, pd.read_pickle(self.processed_f6)
+
+    def get_processed_pandas_df_cds_and_vinyls(self):
+        return self.processed_f7, pd.read_pickle(self.processed_f7)

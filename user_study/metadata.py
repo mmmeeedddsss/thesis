@@ -56,4 +56,4 @@ class MetadataLoader:
         return x
 
 
-metadata_loader = MetadataLoader()
+metadata_loader = MetadataLoader('meta_CDs_and_Vinyl.json')

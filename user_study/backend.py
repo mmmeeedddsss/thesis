@@ -17,7 +17,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 app = Flask(__name__)
-
+app.logger.setLevel(logging.INFO)
 
 
 # The route() function of the Flask class is a decorator,
@@ -95,3 +95,4 @@ if __name__ == '__main__':
     # run() method of Flask class runs the application
     # on the local development server.
     app.run()
+
