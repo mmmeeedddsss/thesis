@@ -1,5 +1,6 @@
 import json
 import pathlib
+import sys
 from typing import Tuple
 
 import math
@@ -9,28 +10,15 @@ import re
 from collections import OrderedDict
 
 import mmh3
-import surprise
-from gensim.models.phrases import Phraser, Phrases, ENGLISH_CONNECTOR_WORDS
-from scipy import spatial
-from sklearn import tree
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import GridSearchCV
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from spacy.lang.en import STOP_WORDS
-from surprise import AlgoBase
-from surprise import Dataset
-from surprise.model_selection import cross_validate
 import numpy as np
 import pandas as pd
-from surprise import PredictionImpossible
-from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from tqdm import tqdm
 from pathlib import Path
-from models.nlp.KeyBERT import KeyBERTExtractor
-from models.nlp.yake import YakeExtractor
-from gensim.models import Word2Vec, FastText
+from gensim.models import Word2Vec
 import logging
 
 import gensim.downloader as api
@@ -47,7 +35,11 @@ UNIQUE_WORD = 'hggf1fmasd2hb1a2dyawn1asdy21awe2nsd'
 
 
 class TopicExtractorRecommender:
+    # Following was the best for the smaller dataset digital music as an upperboud.
     INVERSE_IDF_SCALING_CONSTANT = 1.80
+
+    MEAN_IIDF_UPPERBOUND = 0.325
+    MEAN_IIDF_LOWERBOUND = 0.105
 
     def __init__(self, dataset_name, params):
         self.dataset_name = dataset_name
@@ -101,22 +93,27 @@ class TopicExtractorRecommender:
             .replace(':', '_') \
             .replace(',', '__') + self.state_hash
 
+    all_features = set()
+
     # also change explain method, shares logic
     def calculate_score(self, user_interests, item_features, verbose=False):
         score = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
-        mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
+        #mean_iidf = TODO should I really delete the following: (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
         for interest_rating, interests in user_interests.items():
             if len(interests) == 0:
                 continue
             for interest in interests:
-                interest_idf = self._get_idf_weight_reviews(interest, interest_rating)  # to scale a bit
-                if interest_idf >= mean_iidf:
+                interest_idf = self._get_idf_weight_reviews(interest, interest_rating)
+                #print(f'interest: {interest},\tidf: {interest_idf},\tmean_idf: {mean_iidf},\t passed: {interest_idf >= mean_iidf}')
+                if not self.MEAN_IIDF_LOWERBOUND <= interest_idf <= self.MEAN_IIDF_UPPERBOUND:
                     continue
-                for feature_rating, features in item_features.items():  # omitting item ratings for its features ????
+                for feature_rating, features in item_features.items():
                     dists = []
                     for feature in features:
+                        for f in feature:
+                            self.all_features.add(f)
                         feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
-                        if feature_idf >= mean_iidf:
+                        if not self.MEAN_IIDF_LOWERBOUND <= feature_idf <= self.MEAN_IIDF_UPPERBOUND:
                             continue
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
@@ -146,7 +143,7 @@ class TopicExtractorRecommender:
 
     def explain_api(self, user_interests, item_features, verbose=False, explain=False,
                     verbose_context=False, user_rows=None, item_rows=None, return_dict=False):
-        mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
+        #mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
         all_dists = []
         for interest_rating, interests in user_interests.items():
             if interest_rating < 3:
@@ -162,11 +159,16 @@ class TopicExtractorRecommender:
                         if verbose:
                             print(f'({interest}, {feature}, {interest_rating}) '
                                   f'-> '
-                                  f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} '
-                                  f'mean_iidf={mean_iidf:<5}')
+                                  f'pair_distance={pair_distance:<5}, interest_idf={interest_idf:<5}, feature_idf={feature_idf:<5} ')
+
+                        """if not self.MEAN_IIDF_LOWERBOUND <= interest_idf <= self.MEAN_IIDF_UPPERBOUND:
+                            print(f'Not using \t{interest_idf:<8}:\t{interest}')
+                        if not self.MEAN_IIDF_LOWERBOUND <= feature_idf <= self.MEAN_IIDF_UPPERBOUND:
+                            print(f'Not using \t{feature_idf:<8}:\t{feature}')"""
 
                         if 0.4 > pair_distance and \
-                                interest_idf <= mean_iidf and feature_idf <= mean_iidf:
+                                self.MEAN_IIDF_LOWERBOUND <= interest_idf <= self.MEAN_IIDF_UPPERBOUND and \
+                                self.MEAN_IIDF_LOWERBOUND <= feature_idf <= self.MEAN_IIDF_UPPERBOUND:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
                                               interest, feature, pair_distance_sqr, interest_idf, feature_idf))
 
@@ -228,9 +230,7 @@ class TopicExtractorRecommender:
             self.idf_cache[0][word] = 1 / weight
         return self.idf_cache[0][word]
 
-    f1 = [0, 0]
-    f2 = [0, 0]
-    f3 = [0, 0]
+    rates = [0,0,0,0]
 
     def find_similarity_glove(self, word1, word2):
         return np.dot(self.glove_dict[word1], self.glove_dict[word2])
@@ -241,14 +241,18 @@ class TopicExtractorRecommender:
         # TODO self.pretrained_w2v.distance(word1, word2) might be 0
 
         try:
+            self.rates[0] += 1
             return self.pretrained_w2v.distance(word1, word2)
         except:
             try:
+                self.rates[1] += 1
                 return self.pretrained_w2v_2.distance(word1, word2)
             except:
                 try:
+                    self.rates[2] += 1
                     return self.w2v_model.wv.distance(word1, word2)
                 except:
+                    self.rates[3] += 1
                     return 1
 
     def _calculate_distance(self, word1, word2):
@@ -519,6 +523,15 @@ class TopicExtractorRecommender:
             score, est = self.estimate_api(user_interests, item_features)
             if est >= 4:
                 dists.append((np.mean(list(filter(lambda x: x > 0.0001, score[1:]))), item_asin))
+
+        try:
+            with open("idf_values.txt", "a+") as f:
+                original_stdout = sys.stdout
+                sys.stdout = f  # Change the standard output to the file we created.
+                print(self.idf_cache[0])
+                sys.stdout = original_stdout  # Reset the standard output to its original value
+        except Exception as e:
+            print(e)
 
         dists.sort()
         dists = dists[:n]

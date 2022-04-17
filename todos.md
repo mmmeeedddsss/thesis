@@ -118,3 +118,10 @@ Next meeting: ?? March 2022 - 12.00
 Next meeting: 30 March 2022 - 12.00
 
 - use cds and vinyl dataset
+
+
+
+Next meeting: 20 April 2022 - 12.00
+
+- Maybe force other words after getting a recommendation for one
+- Try applying thresholds from distributions of ids's. Maybe use log to make it more normal

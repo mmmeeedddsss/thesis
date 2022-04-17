@@ -155,10 +155,8 @@ class UserReviewLoader:
                 del property_map[rating]
 
         users_interests = property_map
-        print(users_interests)
-        sleep(10)
 
-        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 2)
+        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 3)
         item_recommendations = []
         for item_id in tqdm(item_ids):
             explanations = self.recommender_own.explain_api(users_interests,
@@ -174,6 +172,8 @@ class UserReviewLoader:
                 )
             if len(item_recommendations) >= 20:
                 break
+
+        print('Rates of w2v hits:', self.recommender_own.rates)
 
         return {'recommendations': item_recommendations, 'users_interests': users_interests}
 
