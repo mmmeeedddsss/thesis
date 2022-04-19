@@ -41,6 +41,29 @@ def get_item():
     return x
 
 
+@app.route('/test', methods=['GET'])
+def test():
+    r = recommenders['bert'].recommender_own
+    print(r.lower_bound_biased, r.upper_unbiased_freq, r.unbiased_freq_dict['ambrosia'])
+    print(r.xxd('ambrosia'))
+
+    d = {}
+    for word, idx in r.tfidf_review.vocabulary_.items():
+        weight = r.tfidf_review.idf_[idx]
+        d[word] = 1/weight
+
+    with open('idf_values_test.txt', 'a+') as f:
+        f.write(str(d))
+        f.flush()
+
+    return Response(status=200)
+
+@app.route('/test2', methods=['GET'])
+def test2():
+    p = request.args.get('q')
+    print(eval(p))
+    return Response(status=200)
+
 @app.route('/user_review', methods=['POST'])
 def user_review():
     data = request.form.to_dict()

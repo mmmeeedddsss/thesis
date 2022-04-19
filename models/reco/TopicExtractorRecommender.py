@@ -1,3 +1,4 @@
+import csv
 import json
 import pathlib
 import sys
@@ -35,11 +36,6 @@ UNIQUE_WORD = 'hggf1fmasd2hb1a2dyawn1asdy21awe2nsd'
 
 
 class TopicExtractorRecommender:
-    # Following was the best for the smaller dataset digital music as an upperboud.
-    INVERSE_IDF_SCALING_CONSTANT = 1.80
-
-    MEAN_IIDF_UPPERBOUND = 0.325
-    MEAN_IIDF_LOWERBOUND = 0.105
 
     def __init__(self, dataset_name, params):
         self.dataset_name = dataset_name
@@ -56,8 +52,6 @@ class TopicExtractorRecommender:
         self.lr_model = None
         self.ordinal_model = OrdinalClassifier()
         self.imputer = None
-
-        self.sentences = None
 
         self.tfidf_review = TfidfVectorizer(ngram_range=(1, 1))
         self.idf_mean_review = None
@@ -78,6 +72,9 @@ class TopicExtractorRecommender:
             3: {},
             4: {},
         }
+
+        self.unbiased_freq_dict = {}
+        self.upper_unbiased_freq = 0
 
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
@@ -103,18 +100,9 @@ class TopicExtractorRecommender:
             if len(interests) == 0:
                 continue
             for interest in interests:
-                interest_idf = self._get_idf_weight_reviews(interest, interest_rating)
-                #print(f'interest: {interest},\tidf: {interest_idf},\tmean_idf: {mean_iidf},\t passed: {interest_idf >= mean_iidf}')
-                if not self.MEAN_IIDF_LOWERBOUND <= interest_idf <= self.MEAN_IIDF_UPPERBOUND:
-                    continue
                 for feature_rating, features in item_features.items():
                     dists = []
                     for feature in features:
-                        for f in feature:
-                            self.all_features.add(f)
-                        feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
-                        if not self.MEAN_IIDF_LOWERBOUND <= feature_idf <= self.MEAN_IIDF_UPPERBOUND:
-                            continue
                         pair_distance = self._calculate_distance(interest, feature)
                         pair_distance_sqr = pair_distance * pair_distance
                         if verbose:
@@ -166,9 +154,7 @@ class TopicExtractorRecommender:
                         if not self.MEAN_IIDF_LOWERBOUND <= feature_idf <= self.MEAN_IIDF_UPPERBOUND:
                             print(f'Not using \t{feature_idf:<8}:\t{feature}')"""
 
-                        if 0.4 > pair_distance and \
-                                self.MEAN_IIDF_LOWERBOUND <= interest_idf <= self.MEAN_IIDF_UPPERBOUND and \
-                                self.MEAN_IIDF_LOWERBOUND <= feature_idf <= self.MEAN_IIDF_UPPERBOUND:
+                        if 0.4 > pair_distance:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
                                               interest, feature, pair_distance_sqr, interest_idf, feature_idf))
 
@@ -180,7 +166,7 @@ class TopicExtractorRecommender:
                 pair_distance_sqr, interest_idf, feature_idf = tuple(all_dists[i][3:])
                 logger.info(f'**** User mentioned {interest}, item is {feature} ***')
                 logger.info(f'pair_distance_squared={pair_distance_sqr:<5}, interest_idf={interest_idf:<5}, '
-                            f'feature_idf={feature_idf:<5}, mean_iidf={(1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT}')
+                            f'feature_idf={feature_idf:<5}')
                 if verbose_context:
                     logger.info(f"User's context of mention(s):")
                     for comment in user_rows[user_rows['review'].str.contains(interest) == True]['review'].values:
@@ -216,6 +202,9 @@ class TopicExtractorRecommender:
 
     def _get_idf_weight_reviews(self, word: Tuple[str], rating):
         return np.mean([self.__get_idf_weight_reviews(w, rating) for w in word])
+
+    def xxd(self, w):
+        return self.__get_idf_weight_reviews(w, -1)
 
     # Smaller distance means better correlation
     # Bigger idf means more unique so returning 1/idf
@@ -298,6 +287,32 @@ class TopicExtractorRecommender:
             self.tfidf_topics[i].fit(corpus[i])
             self.idf_mean_topics[i] = np.mean(self.tfidf_topics[i].idf_)"""
 
+    def can_use_words_in_explanation(self, words):
+        for w in words:
+            w_iidf = self.__get_idf_weight_reviews(w, -1)
+            if w_iidf > self.lower_bound_biased and w in self.unbiased_freq_dict and self.unbiased_freq_dict[
+                w] < self.upper_unbiased_freq:
+                return True  # Dont filter if at least one word satisfies condition
+        return False
+
+    def _generate_word_commonity_thresholds(self):
+        P_lower_biased = 98
+        P_upper_unbiased = 97
+
+
+        with open('dataset/unigram_freq.csv', mode='r') as csv_file:
+            csv_reader = csv.DictReader(csv_file, )
+            for row in csv_reader:
+                self.unbiased_freq_dict[row['word']] = int(row['freq'])
+
+        unbiased_freqs = [v for k, v in self.unbiased_freq_dict.items()]
+
+        self.upper_unbiased_freq = np.percentile(unbiased_freqs, P_upper_unbiased)
+
+        iidfs = [1/v for v in self.tfidf_review.idf_]
+
+        self.lower_bound_biased = np.percentile(iidfs, P_lower_biased)
+
     def _train_word_vectorizer(self, params):
         """logger.info('Importing glove vectors :')
         # https://nlp.stanford.edu/projects/glove/
@@ -307,9 +322,6 @@ class TopicExtractorRecommender:
                 word = values[0]
                 vector = np.asarray(values[1:], 'float32')
                 self.glove_dict[word] = vector"""
-
-        sentences = self.train_df['review'].tolist()
-        sentences = [x.split() for x in sentences]
 
         """if params['ngram_n'] > 1:
             ngrams = []
@@ -324,13 +336,14 @@ class TopicExtractorRecommender:
 
             sentences = sentences + ngrams
         """
-        self.sentences = sentences
-
         cached_model_name = self.serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_model_name}.model'
         # TODO check https://code.google.com/archive/p/word2vec/ for accuracy test of word2vec
         if not os.path.isfile(cached_file_location):
             logger.info("Training w2v")
+            sentences = self.train_df['review'].tolist()
+            sentences = [x.split() for x in sentences]
+
             self.w2v_model = Word2Vec(sentences=sentences, min_count=1, workers=6, **params['model'])
             self.w2v_model.save(cached_file_location)
         else:
@@ -347,10 +360,6 @@ class TopicExtractorRecommender:
         self.update_state_hash('14')
 
         def generate_map_from(col_name):
-            def filter_func(w):
-                w_tfidf = self._get_idf_weight_reviews(w, -1)
-                return self.idf_min_review <= w_tfidf <= (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
-
             property_map = {}
             for _, row in self.train_df.iterrows():
                 topics = [(x[1], x[0]) for x in row['topics']]
@@ -374,7 +383,7 @@ class TopicExtractorRecommender:
                         object_map[rating] = [x[1] for x in object_map[rating]]
                         object_map[rating] = list(OrderedDict.fromkeys(object_map[rating]))
                         object_map[rating] = [tuple(e.split(' ')) for e in object_map[rating]]
-                        object_map[rating] = list(filter(filter_func, object_map[rating]))
+                        object_map[rating] = list(filter(self.can_use_words_in_explanation, object_map[rating]))
                         object_map[rating] = object_map[rating][:params['num_features_in_dicts']]
                     else:
                         num_deleted += 1
@@ -486,11 +495,16 @@ class TopicExtractorRecommender:
         print('TfIdf fitting')
         self._train_tf_idf(params['tf-idf'])
         self.update_state_hash('10')
+        print('Generate word commonities')
+        self._generate_word_commonity_thresholds()
+        self.update_state_hash('2')
         print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
         self.update_state_hash('18')
         print('The best ML model')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
+
+        self.can_use_words_in_explanation(['ambrosia', 'album'])
 
         return self
 
@@ -523,15 +537,6 @@ class TopicExtractorRecommender:
             score, est = self.estimate_api(user_interests, item_features)
             if est >= 4:
                 dists.append((np.mean(list(filter(lambda x: x > 0.0001, score[1:]))), item_asin))
-
-        try:
-            with open("idf_values.txt", "a+") as f:
-                original_stdout = sys.stdout
-                sys.stdout = f  # Change the standard output to the file we created.
-                print(self.idf_cache[0])
-                sys.stdout = original_stdout  # Reset the standard output to its original value
-        except Exception as e:
-            print(e)
 
         dists.sort()
         dists = dists[:n]
