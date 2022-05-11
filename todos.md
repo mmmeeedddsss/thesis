@@ -125,3 +125,18 @@ Next meeting: 20 April 2022 - 12.00
 
 - Maybe force other words after getting a recommendation for one
 - Try applying thresholds from distributions of ids's. Maybe use log to make it more normal
+
+
+Next meeting: 11 May 2022 - 12.00
+
+- still use commonities for scoring instead of discarding
+- increase scale with more user cases
+- Maybe force other words after getting a recommendation for one
+
+
+
+
+
+
+
+

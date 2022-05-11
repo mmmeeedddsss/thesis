@@ -208,6 +208,19 @@
                     $('input#user_id').val(localStorage.getItem('user_id'));
                     $('input#asin').val(asin);
                     $('input#recommender').val(localStorage.getItem('recommender'));
+
+                    let item_metadata_json = jQuery.parseJSON((data['recommendations'][page]['item_metadata']))
+
+                    console.log(item_metadata_json);
+
+                    if (item_metadata_json[0] !== undefined && item_metadata_json[0]['imageURLHighRes'] !== undefined)
+                    {
+                        for (var i = 0; i < item_metadata_json[0]['imageURLHighRes'].length; i++) {
+                            item_metadata_json[0]['imageURLHighRes'][i] = '<img src=' + item_metadata_json[0]['imageURLHighRes'][i] + '>';
+                        }
+
+                        buildHtmlTable('#item_metadata', item_metadata_json);
+                    }
                 });
 
         });
@@ -286,10 +299,13 @@
             <br/>
         </center>
         <br/>
+        <!--
         <center>
             <iframe id='content_amazon_embed' width='80%' height='350px'
                     style='border:1px solid rgba(0, 0, 0, 0.12);max-width:'></iframe>
-        </center>
+        </center/>
+        -->
+        <div id="item_metadata"></div>
         <br/>
         <br/>
 

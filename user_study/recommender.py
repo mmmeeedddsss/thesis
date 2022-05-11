@@ -156,21 +156,31 @@ class UserReviewLoader:
 
         users_interests = property_map
 
-        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 3)
+        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 500)
         item_recommendations = []
+        recommended_based_on = {}
         for item_id in tqdm(item_ids):
             explanations = self.recommender_own.explain_api(users_interests,
                                                             self.recommender_own.item_property_map[item_id],
                                                             explain=True, return_dict=True)
             print(explanations)
-            if len(explanations) >= 2:
-                item_recommendations.append(
-                    {
-                        'asin': item_id,
-                        'explanations': explanations,
-                    }
-                )
-            if len(item_recommendations) >= 20:
+            if len(explanations) >= 1:
+                flag_to_recommend = False
+                for explanation in explanations:
+                    if explanation['users_matching_interest'] not in recommended_based_on:
+                        recommended_based_on[explanation['users_matching_interest']] = set()
+                    if len(recommended_based_on[explanation['users_matching_interest']]) < 3:
+                        flag_to_recommend = True
+                    recommended_based_on[explanation['users_matching_interest']].add(item_id)
+
+                if flag_to_recommend:
+                    item_recommendations.append(
+                        {
+                            'asin': item_id,
+                            'explanations': explanations,
+                        }
+                    )
+            if len(item_recommendations) >= 40:
                 break
 
         print('Rates of w2v hits:', self.recommender_own.rates)

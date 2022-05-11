@@ -142,7 +142,7 @@ class TopicExtractorRecommender:
                     for feature in features:
                         interest_idf = self._get_idf_weight_reviews(interest, interest_rating)  # to scale a bit
                         feature_idf = self._get_idf_weight_reviews(feature, feature_rating)
-                        pair_distance = self._calculate_distance(interest, feature)
+                        pair_distance = self._calculate_distance(interest, feature, skipw1=True)
                         pair_distance_sqr = pair_distance * pair_distance
                         if verbose:
                             print(f'({interest}, {feature}, {interest_rating}) '
@@ -224,34 +224,37 @@ class TopicExtractorRecommender:
     def find_similarity_glove(self, word1, word2):
         return np.dot(self.glove_dict[word1], self.glove_dict[word2])
 
-    def _calculate_distance_words(self, word1, word2):
+    def _calculate_distance_words(self, word1, word2, skipw1=False):
         # first try to calc distance on pretrained model, else go with the custom one
         # TODO check if the individual values are in the ranges we want
         # TODO self.pretrained_w2v.distance(word1, word2) might be 0
 
-        try:
-            self.rates[0] += 1
-            return self.pretrained_w2v.distance(word1, word2)
-        except:
+        if (skipw1 or self.can_use_word_in_explanation(word1)) and self.can_use_word_in_explanation(word2):
+
             try:
-                self.rates[1] += 1
-                return self.pretrained_w2v_2.distance(word1, word2)
+                self.rates[0] += 1
+                return self.pretrained_w2v.distance(word1, word2)
             except:
                 try:
-                    self.rates[2] += 1
-                    return self.w2v_model.wv.distance(word1, word2)
+                    self.rates[1] += 1
+                    return self.pretrained_w2v_2.distance(word1, word2)
                 except:
-                    self.rates[3] += 1
-                    return 1
+                    try:
+                        self.rates[2] += 1
+                        return self.w2v_model.wv.distance(word1, word2)
+                    except:
+                        self.rates[3] += 1
+                        return 1
+        return 1
 
-    def _calculate_distance(self, word1, word2):
+    def _calculate_distance(self, word1, word2, skipw1=False):
         d = []
         for w1 in word1:
-            dd = []
             for w2 in word2:
-                dd.append(self._calculate_distance_words(w1, w2))
-            d.append(np.min(dd))
-        return np.mean(d)
+                dist = self._calculate_distance_words(w1, w2, skipw1)
+                if dist < 1:
+                    d.append(dist)
+        return np.mean(d) if len(d) else 1
 
     def convert_score_to_x(self, score):
         return score[1:]
@@ -289,10 +292,15 @@ class TopicExtractorRecommender:
 
     def can_use_words_in_explanation(self, words):
         for w in words:
-            w_iidf = self.__get_idf_weight_reviews(w, -1)
-            if w_iidf > self.lower_bound_biased and w in self.unbiased_freq_dict and self.unbiased_freq_dict[
-                w] < self.upper_unbiased_freq:
-                return True  # Dont filter if at least one word satisfies condition
+            if self.can_use_word_in_explanation(w):
+                return True
+        return False
+
+    def can_use_word_in_explanation(self, w):
+        w_iidf = self.__get_idf_weight_reviews(w, -1)
+        if w_iidf > self.lower_bound_biased and w in self.unbiased_freq_dict and self.unbiased_freq_dict[
+            w] < self.upper_unbiased_freq:
+            return True  # Dont filter if at least one word satisfies condition
         return False
 
     def _generate_word_commonity_thresholds(self):
@@ -500,7 +508,7 @@ class TopicExtractorRecommender:
         self.update_state_hash('2')
         print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('18')
+        self.update_state_hash('19')
         print('The best ML model')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
 
