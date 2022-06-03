@@ -2,8 +2,9 @@ __pycache__
 .DS_Store
 .idea
 
-*.json
 *.gzip
+
+dataset/*/*.json
 
 *.pickle
 *.model

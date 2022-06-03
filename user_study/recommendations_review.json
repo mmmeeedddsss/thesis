@@ -1,0 +1,42 @@
+https://docs.google.com/spreadsheets/d/1omegKpqCKDnmqrWSvHXg3ZCVERkXVxAoi_FtVHfnhUg/edit#gid=0
+https://www.convertcsv.com/json-to-csv.htm
+
+[{"recommendation_rating": "29", "explanation_rating": "79", "authenticity_rating": "100", "asin": "B0091JQH7Q", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "50", "authenticity_rating": "100", "asin": "B00000DTZA", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "40", "explanation_rating": "74", "authenticity_rating": "100", "asin": "B0000037AG", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "22", "explanation_rating": "80", "authenticity_rating": "51", "asin": "B00R4MA3FY", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "62", "explanation_rating": "82", "authenticity_rating": "82", "asin": "B00000ADZQ", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B00004SUL9", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "79", "explanation_rating": "49", "authenticity_rating": "88", "asin": "B01ARYG0JS", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B0013PVGM2", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B003XIO6SS", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
+,{"recommendation_rating": "67", "explanation_rating": "71", "authenticity_rating": "83", "asin": "B00JX4IDL2", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "69", "explanation_rating": "32", "authenticity_rating": "76", "asin": "B00000291J", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "59", "explanation_rating": "63", "authenticity_rating": "74", "asin": "B00076ONU0", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "71", "explanation_rating": "92", "authenticity_rating": "95", "asin": "B000P6R6JW", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "69", "explanation_rating": "77", "authenticity_rating": "95", "asin": "B001RXB4DG", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "26", "explanation_rating": "25", "authenticity_rating": "100", "asin": "B003SPJ50U", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "94", "explanation_rating": "72", "authenticity_rating": "57", "asin": "B000003JAG", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "83", "explanation_rating": "59", "authenticity_rating": "56", "asin": "B001DZN5WG", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "75", "explanation_rating": "22", "authenticity_rating": "62", "asin": "B000BN3V8O", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert"}
+,{"recommendation_rating": "59", "explanation_rating": "89", "authenticity_rating": "67", "asin": "B000000SD4", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "67", "explanation_rating": "84", "authenticity_rating": "62", "asin": "B0000041MQ", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "63", "explanation_rating": "73", "authenticity_rating": "88", "asin": "B0000041MT", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "46", "explanation_rating": "60", "authenticity_rating": "68", "asin": "B00005IB57", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "66", "explanation_rating": "66", "authenticity_rating": "80", "asin": "B00000B9MR", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B000002RZ5", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "73", "explanation_rating": "86", "authenticity_rating": "87", "asin": "B000002RSC", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "68", "explanation_rating": "63", "authenticity_rating": "81", "asin": "B00000IIXM", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "46", "explanation_rating": "36", "authenticity_rating": "75", "asin": "B000005GMZ", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B00AY1T1XC", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "64", "explanation_rating": "30", "authenticity_rating": "66", "asin": "B000MGB3DK", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B00BDSRHB8", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "34", "explanation_rating": "76", "authenticity_rating": "93", "asin": "B01B1W2J9A", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "36", "explanation_rating": "31", "authenticity_rating": "100", "asin": "B000HKD9JW", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "65", "explanation_rating": "100", "authenticity_rating": "100", "asin": "B0007SME0E", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B00151HZYM", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "83", "explanation_rating": "79", "authenticity_rating": "100", "asin": "B000F3A7SW", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "69", "explanation_rating": "65", "authenticity_rating": "90", "asin": "B000002ZXV", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B00000073P", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+,{"recommendation_rating": "1", "explanation_rating": "1", "authenticity_rating": "1", "asin": "B00001ZT6M", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
+]{"recommendation_rating": "50", "explanation_rating": "50", "authenticity_rating": "50", "asin": "B00005IB57", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "bert"}
