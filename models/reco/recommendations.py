@@ -45,7 +45,7 @@ def SVD_model_evaluate(data, recommender):
 def get_recommender_own(dataset_name, fit=False, df_to_fit=None, keyword_extractor='bert') -> TopicExtractorRecommender:
     params = get_default_params()
     params['topic_extraction']['extracted_topic_col'] = \
-        'topics_KeyBERTExtractor_1-2gram' if keyword_extractor == 'bert' else 'topics_YakeExtractor_1-2gram'
+        'topics_KeyBERTExtractor_1gram' if keyword_extractor == 'bert' else 'topics_KeyBERTExtractor_1gram'
     params['user_item_maps_generation']['high_score_better'] = \
         True if keyword_extractor == 'bert' else False
     recommender = TopicExtractorRecommender(dataset_name, params)
@@ -55,7 +55,7 @@ def get_recommender_own(dataset_name, fit=False, df_to_fit=None, keyword_extract
 
 
 def baseline_recommendation_own(dataset_name, data):
-    recommender = get_recommender_own(dataset_name, fit=False)
+    recommender = get_recommender_own(dataset_name, fit=True)
     recommender.accuracy(data, get_default_params())
 
 

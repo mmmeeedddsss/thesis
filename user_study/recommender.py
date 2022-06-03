@@ -25,12 +25,17 @@ DATA_CACHE_FOLDER = f'{pathlib.Path(__file__).parent.parent.absolute()}/cached_d
 
 
 class Recommender:
-    def __init__(self, keyword_extractor):
+    def __init__(self, keyword_extractor, n_gram=2):
+        print(f"Initializing Recommender {keyword_extractor}_{n_gram}")
         self.user_worker_mapping = {}
         self.keyword_extractor_name = keyword_extractor
+        self.ngram = n_gram
 
         amazon_dataloader = AmazonDatasetLoader()
-        dataset_path, train_df = amazon_dataloader.get_processed_pandas_df()
+        if n_gram == 2:
+            dataset_path, train_df = amazon_dataloader.get_processed_pandas_df()
+        else:
+            dataset_path, train_df = amazon_dataloader.get_processed_pandas_df_1()
         dataset_name = dataset_path.split('/')[-1].split('.')[0]
         cached_obj_name = f'user_property_map__user_study_{keyword_extractor}_{dataset_name}'
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'
@@ -51,11 +56,12 @@ class Recommender:
             except:
                 pass
         self.user_worker_mapping[user_id] = RecommendationGeneratorWorker(user_id, self.recommender_own,
-                                                                          self.keyword_extractor_name)
+                                                                          self.keyword_extractor_name, self.ngram)
         self.user_worker_mapping[user_id].start()
 
     def get_recommendations_of(self, user_id):
-        filename = f'{self.keyword_extractor_name}_{user_id}_recommendations.json'
+        filename = f'{self.keyword_extractor_name}_{self.ngram}_{user_id}_recommendations.json'
+        print(filename)
         if os.path.isfile(filename):
             with open(filename, 'r') as f:
                 recommendations = json.load(f)
@@ -66,10 +72,11 @@ class Recommender:
 
 
 class RecommendationGeneratorWorker:
-    def __init__(self, user_id, recommender_own, keyword_extractor):
+    def __init__(self, user_id, recommender_own, keyword_extractor, ngram):
         self.user_id = user_id
         self.recommender_own = recommender_own
         self.keyword_extractor_name = keyword_extractor
+        self.ngram = ngram
         self.thread = None
 
     def start(self):
@@ -79,11 +86,11 @@ class RecommendationGeneratorWorker:
 
     def __do_generate(self):
         url = UserReviewLoader(self.user_id, self.recommender_own)
-        recommendations = url.get_top_n_recommendation(20, self.keyword_extractor_name)
+        recommendations = url.get_top_n_recommendation(20, self.keyword_extractor_name, self.ngram)
         for reco in recommendations['recommendations']:
             print(reco['asin'])
             reco['item_metadata'] = metadata_loader.get_item(reco['asin'])
-        filename = f'{self.keyword_extractor_name}_{self.user_id}_recommendations.json'
+        filename = f'{self.keyword_extractor_name}_{self.ngram}_{self.user_id}_recommendations.json'
         with open(filename, 'w') as f:
             json.dump(recommendations, f)
 
@@ -130,14 +137,14 @@ class UserReviewLoader:
             dfs.append(pd.read_json(filename, lines=True, nrows=self.n_max_rows))
         return pd.concat(dfs)
 
-    def get_top_n_recommendation(self, n=20, keyword_extractor_name='bert'):
+    def get_top_n_recommendation(self, n=20, keyword_extractor_name='bert', ngrams=2):
         print('Starting to create recommendations')
         if keyword_extractor_name == 'yake':
             print('Using Yake')
             YakeExtractor().extract_keywords(self.df)
         else:
             print('Using KeyBERT')
-            KeyBERTExtractor().extract_keywords(self.df, {'top_n': 7, 'keyphrase_ngram_range': (1, 2)})
+            KeyBERTExtractor().extract_keywords(self.df, {'top_n': 7, 'keyphrase_ngram_range': (1, ngrams)})
         property_map = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], }
         for _, row in self.df.iterrows():
             topics = [(x[1], x[0]) for x in row['topics_YakeExtractor' if keyword_extractor_name == 'yake' else 'topics_KeyBERTExtractor']]
@@ -190,5 +197,6 @@ class UserReviewLoader:
 
 recommenders = {
     'bert': Recommender('bert'),
+    'bert_1': Recommender('bert', 1),
     'yake': Recommender('yake'),
 }

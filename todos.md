@@ -138,5 +138,12 @@ Next meeting: 11 May 2022 - 12.00
 
 
 
+what is the point given to the explanations for the items that user liked
+
+did you liked the recommended item to you
+
+independent from tha above, what do you think about the explanation given for that item.
+
+maybe think about reviewing other's recommendations by others(X person can rate Y person's recommendations)
 
 

@@ -229,6 +229,8 @@
             let currentRecommender = localStorage.getItem('recommender');
             if (currentRecommender === 'bert')
                 localStorage.setItem('recommender', 'yake');
+            else if (currentRecommender === 'yake')
+                localStorage.setItem('recommender', 'bert_1')
             else
                 localStorage.setItem('recommender', 'bert')
             document.location.reload(true);
@@ -323,14 +325,14 @@
 
         <div id="recommendations_review">
             <form action="recommendations_review" id="usrform" method="post" target="dummyframe">
-                Rating to the recommended item:
+                How much did you like the recommended item?
                 <div class="slidecontainer">
                     <label for="recommendation_rating"></label><input type="range" min="1" max="100" value="50"
                                                                       class="slider" id="recommendation_rating"
                                                                       name="recommendation_rating">
                 </div>
                 <br/><br/>
-                Rating to the explanation words:
+                Independent from tha above, how good the explanation given for that item?
                 <div class="slidecontainer">
                     <label for="explanation_rating"></label><input type="range" min="1" max="100" value="50"
                                                                    class="slider" id="explanation_rating"

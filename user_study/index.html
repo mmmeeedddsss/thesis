@@ -184,6 +184,8 @@
             let currentRecommender = localStorage.getItem('recommender');
             if (currentRecommender === 'bert')
                 localStorage.setItem('recommender', 'yake');
+            else if (currentRecommender === 'yake')
+                localStorage.setItem('recommender', 'bert_1')
             else
                 localStorage.setItem('recommender', 'bert')
             document.location.reload(true);
