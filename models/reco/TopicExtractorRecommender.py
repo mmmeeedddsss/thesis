@@ -193,9 +193,6 @@ class TopicExtractorRecommender:
                         }
                     )
                     features[f"{feature}"] = 1
-            if len(all_dists) > 0:
-                logger.info('-----------')
-                logger.info('-----------')
             return ret
 
         return len(all_dists) >= 2

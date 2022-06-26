@@ -79,12 +79,18 @@
         }
 
         function initialize_user() {
-            let id = localStorage.getItem('user_id');
-            if (!id) {
-                id = broofa();
-                localStorage.setItem('user_id', id);
+            let id_from_params = params.user_id
+            if (id_from_params) {
+                localStorage.setItem('user_id', params.user_id);
             }
-            $('#user_info').text('You are the user ' + id);
+            else {
+                let id = localStorage.getItem('user_id');
+                if (!id) {
+                    id = broofa();
+                    localStorage.setItem('user_id', id);
+                }
+            }
+            $('#user_info').text('You are the user ' + localStorage.getItem('user_id'));
         }
 
         function initialize_recommender() {
@@ -195,7 +201,7 @@
                         let item = data['recommendations'][page]['explanations'][item_key];
 
                         item_explanation_str += '\"' + item['item_feature'].join(" ") + '\"';
-                        item_explanation_str += '(' + item['users_matching_interest'].join(" ") + '), ';
+                        //item_explanation_str += '(' + item['users_matching_interest'].join(" ") + '), ';
 
                     }
 
@@ -292,6 +298,10 @@
     <div id="content">
         <center>
             <h2> Here is what we found for you: </h2>
+            <a id="content_amazon_link" href="https://www.amazon.com/dp/xdd">Amazon Marketplace link of the recommended
+            item</a>
+            <br />
+            <br />
             <div id="explanations">
                 <i>
                     We thought that you might like the item since the properties of the item are similar to your taste:
@@ -311,8 +321,7 @@
         <br/>
         <br/>
 
-        <a id="content_amazon_link" href="https://www.amazon.com/dp/xdd">Amazon Marketplace link of the recommended
-            item</a>
+
 
 
     </div>

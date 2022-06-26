@@ -72,7 +72,7 @@ def user_review():
         f.write(json.dumps(data) + '\n')
     user_id = data['user_id']
     topic_extractor = data['recommender']
-    recommenders[topic_extractor].generate_recommendations_async(user_id)
+    #recommenders[topic_extractor].generate_recommendations_async(user_id, False)
     return Response(status=200)
 
 @app.route('/recommendations_review', methods=['POST'])
@@ -104,6 +104,8 @@ def recommend():
 def recommend_api():
     user_id = request.args.get('user_id')
     topic_extractor = request.args.get('recommender')
+    for _, recommender in recommenders.items():
+        recommender.get_recommendations_of(user_id, True)
     return recommenders[topic_extractor].get_recommendations_of(user_id)
 
 

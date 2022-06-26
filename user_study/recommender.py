@@ -49,7 +49,7 @@ class Recommender:
             with open(cached_file_location, 'rb') as handle:
                 self.recommender_own: TopicExtractorRecommender = pickle.load(handle)
 
-    def generate_recommendations_async(self, user_id):
+    def generate_recommendations_async(self, user_id, blocking):
         if user_id in self.user_worker_mapping:
             try:
                 self.user_worker_mapping[user_id].terminate()
@@ -57,9 +57,9 @@ class Recommender:
                 pass
         self.user_worker_mapping[user_id] = RecommendationGeneratorWorker(user_id, self.recommender_own,
                                                                           self.keyword_extractor_name, self.ngram)
-        self.user_worker_mapping[user_id].start()
+        self.user_worker_mapping[user_id].start(blocking)
 
-    def get_recommendations_of(self, user_id):
+    def get_recommendations_of(self, user_id, blocking=False):
         filename = f'{self.keyword_extractor_name}_{self.ngram}_{user_id}_recommendations.json'
         print(filename)
         if os.path.isfile(filename):
@@ -67,7 +67,7 @@ class Recommender:
                 recommendations = json.load(f)
             return json.dumps(recommendations)
         else:
-            self.generate_recommendations_async(user_id)
+            self.generate_recommendations_async(user_id, blocking)
             return '[]'
 
 
@@ -79,10 +79,13 @@ class RecommendationGeneratorWorker:
         self.ngram = ngram
         self.thread = None
 
-    def start(self):
-        thread = Thread(target=self.__do_generate)
-        thread.start()
-        self.thread = thread
+    def start(self, blocking=False):
+        if not blocking:
+            thread = Thread(target=self.__do_generate)
+            thread.start()
+            self.thread = thread
+        else:
+            self.__do_generate()
 
     def __do_generate(self):
         url = UserReviewLoader(self.user_id, self.recommender_own)
@@ -138,7 +141,7 @@ class UserReviewLoader:
         return pd.concat(dfs)
 
     def get_top_n_recommendation(self, n=20, keyword_extractor_name='bert', ngrams=2):
-        print('Starting to create recommendations')
+        print(f'Starting to create recommendations using {keyword_extractor_name}')
         if keyword_extractor_name == 'yake':
             print('Using Yake')
             YakeExtractor().extract_keywords(self.df)
@@ -162,21 +165,21 @@ class UserReviewLoader:
                 del property_map[rating]
 
         users_interests = property_map
+        print(f"User interests: {users_interests}")
 
-        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 500)
+        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 800)
         item_recommendations = []
         recommended_based_on = {}
         for item_id in tqdm(item_ids):
             explanations = self.recommender_own.explain_api(users_interests,
                                                             self.recommender_own.item_property_map[item_id],
-                                                            explain=True, return_dict=True)
-            print(explanations)
+                                                            explain=False, return_dict=True)
             if len(explanations) >= 1:
                 flag_to_recommend = False
                 for explanation in explanations:
                     if explanation['users_matching_interest'] not in recommended_based_on:
                         recommended_based_on[explanation['users_matching_interest']] = set()
-                    if len(recommended_based_on[explanation['users_matching_interest']]) < 3:
+                    if len(recommended_based_on[explanation['users_matching_interest']]) < 2:
                         flag_to_recommend = True
                     recommended_based_on[explanation['users_matching_interest']].add(item_id)
 
@@ -187,7 +190,7 @@ class UserReviewLoader:
                             'explanations': explanations,
                         }
                     )
-            if len(item_recommendations) >= 40:
+            if len(item_recommendations) >= 16:
                 break
 
         print('Rates of w2v hits:', self.recommender_own.rates)
