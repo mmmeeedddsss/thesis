@@ -2,6 +2,7 @@ import csv
 import json
 import pathlib
 import sys
+import time
 from typing import Tuple
 
 import math
@@ -11,8 +12,12 @@ import re
 from collections import OrderedDict
 
 import mmh3
+from sklearn import tree
+from sklearn.dummy import DummyClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, plot_confusion_matrix
 from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 import numpy as np
@@ -50,6 +55,7 @@ class TopicExtractorRecommender:
         self.state_hash = '42'
 
         self.lr_model = None
+        self.lr_model2 = None
         self.ordinal_model = OrdinalClassifier()
         self.imputer = None
 
@@ -76,6 +82,8 @@ class TopicExtractorRecommender:
         self.unbiased_freq_dict = {}
         self.upper_unbiased_freq = 0
 
+        self.class_weights = {False: 150, True: 1}
+
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
     def reset_state_hash(self, new_state):
@@ -92,31 +100,52 @@ class TopicExtractorRecommender:
 
     all_features = set()
 
+
+    def find_two_smallest(self, l):
+        s1 = 1
+        s2 = 1
+        for e in l:
+            if e < s2:
+                if e < s1:
+                    s2 = s1
+                    s1 = e
+                else:
+                    s2 = e
+        return [s1, s2]
+
     # also change explain method, shares logic
     def calculate_score(self, user_interests, item_features, verbose=False):
-        score = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
-        #mean_iidf = TODO should I really delete the following: (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
+        score = [[], [], ]
+        all_positive_interests = []
+        all_item_features = []
+
         for interest_rating, interests in user_interests.items():
-            if len(interests) == 0:
+            if len(interests) == 0 or interest_rating < 4:
                 continue
             for interest in interests:
-                for feature_rating, features in item_features.items():
-                    dists = []
-                    for feature in features:
-                        pair_distance = self._calculate_distance(interest, feature)
-                        pair_distance_sqr = pair_distance * pair_distance
-                        if verbose:
-                            print(f'({interest:<12}, {feature:<12}, {interest_rating}) '
-                                  f'-> '
-                                  f'pair_distance={pair_distance:<5}')
-                        dists.append(pair_distance_sqr)
-                    dists.sort()
-                    m = np.mean(dists) if len(dists) else 1
-                    distance = m + np.mean((dists + [1, 1, 1])[:3])
-                    score[interest_rating].append(distance)
+                if self.can_use_words_in_explanation(interest):
+                    all_positive_interests.append(interest)
 
+        for _, features in item_features.items():
+            for feature in features:
+                if self.can_use_words_in_explanation(feature):
+                    all_item_features.append(feature)
+
+        dists = []
+
+        for feature in all_item_features:
+            for interest in all_positive_interests:
+                pair_distance = self._calculate_distance(interest, feature)
+                dists.append(pair_distance)
+
+        print(dists)
+
+        """
         for i in range(6):
-            score[i] = np.mean(score[i])
+            score[i].sort()
+            score[i] = np.mean((score[i] + [1, 1])[:2])
+        """
+        score[1] = np.mean(self.find_two_smallest(dists))
 
         return score
 
@@ -131,7 +160,7 @@ class TopicExtractorRecommender:
 
     def explain_api(self, user_interests, item_features, verbose=False, explain=False,
                     verbose_context=False, user_rows=None, item_rows=None, return_dict=False):
-        #mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
+        # mean_iidf = (1 / self.idf_mean_review) * self.INVERSE_IDF_SCALING_CONSTANT
         all_dists = []
         for interest_rating, interests in user_interests.items():
             if interest_rating < 3:
@@ -216,10 +245,7 @@ class TopicExtractorRecommender:
             self.idf_cache[0][word] = 1 / weight
         return self.idf_cache[0][word]
 
-    rates = [0,0,0,0]
-
-    def find_similarity_glove(self, word1, word2):
-        return np.dot(self.glove_dict[word1], self.glove_dict[word2])
+    rates = [0, 0, 0, 0]
 
     def _calculate_distance_words(self, word1, word2, skipw1=False):
         # first try to calc distance on pretrained model, else go with the custom one
@@ -271,8 +297,20 @@ class TopicExtractorRecommender:
     def _train_tf_idf(self, params):
         logger.info(f'Training TF-IDF')
 
-        self.tfidf_review.fit(self.train_df['review'].append(
-            pd.Series([UNIQUE_WORD, UNIQUE_WORD, UNIQUE_WORD]), ignore_index=True))
+        cached_obj_name = self.serialize_param_dict(params, prefix=f'tfidf_{self.dataset_name}')
+        cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'
+        if not os.path.isfile(cached_file_location):
+            logger.info("Initializing tfidf")
+            self.tfidf_review.fit(self.train_df['review'].append(
+                pd.Series([UNIQUE_WORD, UNIQUE_WORD, UNIQUE_WORD]), ignore_index=True))
+            with open(cached_file_location, 'wb') as handle:
+                logger.info("Serializing tfidf")
+                pickle.dump(self.tfidf_review, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            logger.info("Loading tfidf from cache")
+            with open(cached_file_location, 'rb') as handle:
+                self.tfidf_review = pickle.load(handle)
+
         self.idf_mean_review = np.mean(self.tfidf_review.idf_)
         self.idf_min_review = self._get_idf_weight_reviews((UNIQUE_WORD,), -1)
 
@@ -304,7 +342,6 @@ class TopicExtractorRecommender:
         P_lower_biased = 98
         P_upper_unbiased = 97
 
-
         with open('dataset/unigram_freq.csv', mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, )
             for row in csv_reader:
@@ -314,7 +351,7 @@ class TopicExtractorRecommender:
 
         self.upper_unbiased_freq = np.percentile(unbiased_freqs, P_upper_unbiased)
 
-        iidfs = [1/v for v in self.tfidf_review.idf_]
+        iidfs = [1 / v for v in self.tfidf_review.idf_]
 
         self.lower_bound_biased = np.percentile(iidfs, P_lower_biased)
 
@@ -342,6 +379,8 @@ class TopicExtractorRecommender:
             sentences = sentences + ngrams
         """
         cached_model_name = self.serialize_param_dict(params, prefix=f'word2vec__{self.dataset_name}')
+        # TODO change this one obviously xd
+        cached_model_name = 'word2vec__CDs_and_Vinyl_1gram_combined_05model_epochs_100__vector_size_250__window_5__ngram_n_12047887974'
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_model_name}.model'
         # TODO check https://code.google.com/archive/p/word2vec/ for accuracy test of word2vec
         if not os.path.isfile(cached_file_location):
@@ -454,11 +493,9 @@ class TopicExtractorRecommender:
                 score = self.calculate_score(user_interests, item_features)
                 x = self.convert_score_to_x(score)
 
-                lr_X.append(x)
-                lr_y.append(row['rating'])
-
-            self.imputer = SimpleImputer(missing_values=0, strategy='mean')
-            lr_X = self.imputer.fit_transform(lr_X)
+                if x[0] != 1:
+                    lr_X.append(x)
+                    lr_y.append(row['rating'] >= 4)
 
             lr_X = np.asarray(lr_X, dtype=np.float32)
             lr_y = np.array(lr_y).ravel()
@@ -480,12 +517,13 @@ class TopicExtractorRecommender:
                       'splitter': ['best'],
                       'random_state': [1]}
 
-        self.imputer = SimpleImputer(missing_values=0, strategy='mean')
-        lr_X = self.imputer.fit_transform(lr_X)
+        print(f"Num rows: {len(lr_X)}, num empty rows: {((lr_X == 1).astype(int).sum(axis=1) == 3).sum()}")
 
-        self.lr_model = GridSearchCV(DecisionTreeClassifier(),
-                                     tree_param, cv=5, n_jobs=4, scoring='balanced_accuracy')
+        self.lr_model = DecisionTreeClassifier(random_state=42, class_weight=self.class_weights)
         self.lr_model = self.lr_model.fit(lr_X, lr_y)
+
+        self.lr_model2 = DummyClassifier(random_state=42, strategy='stratified')
+        self.lr_model2 = self.lr_model2.fit(lr_X, lr_y)
 
         # self.ordinal_model.fit(lr_X, lr_y)
 
@@ -505,24 +543,21 @@ class TopicExtractorRecommender:
         self.update_state_hash('2')
         print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('19')
+        self.update_state_hash('20_003')
         print('The best ML model')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
-
-        self.can_use_words_in_explanation(['ambrosia', 'album'])
-
         return self
 
     def baseline_5(self, u, i):
         # mean int of train ratings
-        return 5
+        return 1
 
     def estimate(self, u, i, verbose=False):
         try:
             user_interests = self.user_property_map[u]
             item_features = self.item_property_map[i]
         except:
-            return None, None
+            return None, None, None
 
         return self.estimate_api(user_interests, item_features, verbose)
 
@@ -531,15 +566,15 @@ class TopicExtractorRecommender:
 
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
-        X = self.imputer.transform(X)
+        #X = self.imputer.transform(X)
 
-        return x, self.lr_model.predict(X)
+        return X, self.lr_model.predict(X), self.lr_model2.predict(X)
 
     def get_top_n_recommendations_for_user(self, *, user_interests, n):
         print('get_top_n_recommendations_for_user')
         dists = []
         for item_asin, item_features in tqdm(self.item_property_map.items()):
-            score, est = self.estimate_api(user_interests, item_features)
+            score, est, _ = self.estimate_api(user_interests, item_features)
             if est >= 4:
                 dists.append((np.mean(list(filter(lambda x: x > 0.0001, score[1:]))), item_asin))
 
@@ -550,12 +585,12 @@ class TopicExtractorRecommender:
 
     def balance_test_set(self, test, params):
         self.update_state_hash(f'{params["max_group_size"]}')
-        min_group = params['max_group_size'] * 3
+        min_group = params['max_group_size'] * 4
         test = test.drop_duplicates(subset=['review'])
         for i in range(1, 6):
             min_group = min(min_group, len(test[test["rating"] == i]))
 
-        min_group = int(min_group * 0.33)
+        min_group = int(min_group) ## TODO ADD * 0.25
 
         return pd.concat([test[test["rating"] == 5][:min_group],
                           test[test["rating"] == 1][:min_group],
@@ -571,7 +606,7 @@ class TopicExtractorRecommender:
             df = df.sample(frac=1, random_state=42)
             self.reset_state_hash(f'42,{i}')
 
-            # test = df[:7500]
+            #test = df[:7500]
 
             test = self.balance_test_set(df, params['train_test_split'])
 
@@ -590,26 +625,66 @@ class TopicExtractorRecommender:
             baseline_mae = 0
             l = 0
             all_dists = []
+            pred_ys = []
+            pred_ys_2 = []
+            true_ys = []
+            sample_weights = []
 
             logger.info('Starting test')
             for _, row in test.iterrows():
-                score, est = self.estimate(row['userID'], row['itemID'])
-                if est is not None:
+                score, est, est_2 = self.estimate(row['userID'], row['itemID'])
+                #print(f'{score} -> real={row["rating"]}, est= {est[0]}, est2= {est_2[0]}')
+                print(score[0][0], row["rating"], est[0])
+                if est is not None or score[0][0] != 1:
+                    real_y = row['rating'] >= 4
                     dist = np.mean(score)
                     all_dists.append(dist)
-                    mae += abs(int(est[0]) - row['rating'])
-                    mse += (int(est[0]) - row['rating']) ** 2
 
-                    baseline_mae += abs(int(self.baseline_5(_, _)) - row['rating'])
-                    baseline_mse += (int(self.baseline_5(_, _)) - row['rating']) ** 2
+                    mae += abs(int(est[0]) - real_y)
+                    mse += (int(est[0]) - real_y) ** 2
+
+                    baseline_mae += abs(int(self.baseline_5(_, _)) - real_y)
+                    baseline_mse += (int(self.baseline_5(_, _)) - real_y) ** 2
 
                     l += 1
 
+                    pred_ys.append(est[0])
+                    true_ys.append(real_y)
+                    pred_ys_2.append(est_2[0])
+                    sample_weights.append(self.class_weights[real_y])
+
+            def my_confusion_matrix(y_trues, y_preds):
+                true = {True: 0, False: 0}
+                false = {True: 0, False: 0}
+                for i in range(len(y_trues)):
+                    y_true = y_trues[i]
+                    y_pred = y_preds[i]
+                    if y_true == y_pred:
+                        true[y_pred] += 1
+                    else:
+                        false[y_pred] += 1
+
+                print(f'Total Positive: {(true[True] + false[False])}')
+                print(f'Total Negative: {len(y_trues)-(true[True] + false[False])}')
+                print(f'True Positive: {true[True]}')
+                print(f'True Negative: {true[False]}')
+                print(f'False Positive: {false[True]}')
+                print(f'False Negative: {true[False]}')
+
+
+            print('Classifier 1:')
+            print(classification_report(y_true=true_ys, y_pred=pred_ys))
+            print(my_confusion_matrix(y_trues=true_ys, y_preds=pred_ys))
+            print(confusion_matrix(y_true=true_ys, y_pred=pred_ys))
+            #print(tree.export_text(self.lr_model))
+            print(f'Number of recommend signals {len(list(filter(lambda x: x, pred_ys)))}/{len(pred_ys)}')
+
+            print('Classifier 2:')
+            print(classification_report(y_true=true_ys, y_pred=pred_ys_2))
+            print(my_confusion_matrix(y_trues=true_ys, y_preds=pred_ys_2))
+            print(f'Number of recommend signals {len(list(filter(lambda x: x, pred_ys_2)))}/{len(pred_ys_2)}')
+
             print('during estimation with testset')
-            print(self.f1, self.f2, self.f3, end='\n')
-            self.f1 = [0, 0]
-            self.f2 = [0, 0]
-            self.f3 = [0, 0]
 
             mae /= l
             mse /= l
@@ -625,6 +700,8 @@ class TopicExtractorRecommender:
             logger.info(f'Baseline MAE for iter {i}: {baseline_mae}')
             logger.info(f'Baseline MSE for iter {i}: {baseline_mse}')
             logger.info(f'Baseline RMSE for iter {i}: {math.sqrt(baseline_mse)}')
+
+            exit(1)
 
             logger.info("Explaining the recommendations")
             num_good_examples = 0
@@ -687,3 +764,81 @@ class TopicExtractorRecommender:
                         num_bad_examples += 1
 
             print(f'Able to generate explanation for {all_num_explanation}/{l} rows of test')
+
+    # --------------------------------------------------------
+
+    def fit_no_predict(self, train_df, params):
+        print('Fitting ..')
+        self.update_state_hash('8')
+        self.train_df = train_df
+        print('Generating keywords and w2v')
+        self._generate_keywords(params['topic_extraction'])
+        self._train_word_vectorizer(params['word_vectorizer'])
+        self.update_state_hash('8')
+        print('TfIdf fitting')
+        self._train_tf_idf(params['tf-idf'])
+        self.update_state_hash('10')
+        print('Generate word commonities')
+        self._generate_word_commonity_thresholds()
+        self.update_state_hash('2')
+        print('user item maps are being generated')
+        self._generate_user_item_maps(params['user_item_maps_generation'])
+        return self
+
+    def score_map_no_predict(self, df, params):
+        print(df)
+
+
+        logger.info(f'------------------ BALANCED ------------------')
+        # test = df.groupby('userID', as_index=False).nth(i)
+        df = df.sample(frac=1, random_state=42)
+        self.reset_state_hash(f'42,{0}')
+
+        #test = df[:15000]
+
+        test = self.balance_test_set(df, params['train_test_split'])
+
+        test_indexes = test.index
+        train = df.loc[set(df.index) - set(test_indexes)]
+
+        self.calc_corr(train, test, params, 'balanced')
+
+
+
+        logger.info(f'------------------ RANDOM SAMPLE ------------------')
+        # test = df.groupby('userID', as_index=False).nth(i)
+        self.reset_state_hash(f'42,{0}')
+
+        test = df[:25000]
+
+        #test = self.balance_test_set(df, params['train_test_split'])
+
+        test_indexes = test.index
+        train = df.loc[set(df.index) - set(test_indexes)]
+
+        self.calc_corr(train, test, params, 'random')
+
+    def calc_corr(self, train, test, params, exp_name):
+        logger.info('Starting model fit')
+        logger.info(f'Train set size: {len(train)}')
+        logger.info(f'Test set size: {len(test)}')
+
+        self.fit_no_predict(train, params)
+
+        logger.info('Starting test')
+        ctime = int(time.time()*1000)
+        with open(f'exp_{ctime}_{exp_name}', 'w') as f:
+            for _, row in test.iterrows():
+                try:
+                    user_interests = self.user_property_map[row['userID']]
+                    item_features = self.item_property_map[row['itemID']]
+                except:
+                    continue
+
+                score = self.calculate_score(user_interests, item_features)
+
+                x = self.convert_score_to_x(score)
+                if x[0] != 1:
+                    print(x[0], row["rating"])
+                    f.write(f'{x[0]} {row["rating"]}\n')
+            f.flush()

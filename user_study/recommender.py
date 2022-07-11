@@ -41,7 +41,7 @@ class Recommender:
         cached_file_location = f'{DATA_CACHE_FOLDER}/{cached_obj_name}.pickle'
         if not os.path.isfile(cached_file_location):
             self.recommender_own = get_recommender_own(dataset_name, fit=True, df_to_fit=train_df,
-                                                       keyword_extractor=keyword_extractor)
+                                                       override_keyword_extractor=keyword_extractor)
             with open(cached_file_location, 'wb') as handle:
                 logger.info("Serializing user map")
                 pickle.dump(self.recommender_own, handle, protocol=pickle.HIGHEST_PROTOCOL)

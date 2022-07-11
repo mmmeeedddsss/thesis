@@ -36,11 +36,11 @@ def lda_on_review_comments(data):
 def train_test_split(df):
     df = df.sample(frac=1, random_state=42)
 
-    min_group = 500
+    min_group = 500 * 4
     for i in range(1, 6):
         min_group = min(min_group, len(df[df["rating"] == i]))
 
-    min_group = int(min_group * 0.33)
+    min_group = int(min_group * 0.25)
 
     test = pd.concat([df[df["rating"] == 1][:min_group],
                       df[df["rating"] == 2][:min_group],
