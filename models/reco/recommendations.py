@@ -57,9 +57,9 @@ def get_recommender_own(dataset_name, fit=False, df_to_fit=None, override_keywor
 
 def baseline_recommendation_own(dataset_name, df):
     recommender = get_recommender_own(dataset_name, fit=False, df_to_fit=df)
-    #recommender.accuracy(df, get_default_params())
+    recommender.accuracy(df, get_default_params())
 
-    recommender.score_map_no_predict(df, get_default_params())
+    #recommender.score_map_no_predict(df, get_default_params())
 
 
 def get_default_params():

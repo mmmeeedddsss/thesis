@@ -17,8 +17,10 @@ from sklearn.dummy import DummyClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, plot_confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, plot_confusion_matrix, \
+    plot_precision_recall_curve, average_precision_score, PrecisionRecallDisplay, precision_recall_curve
 from sklearn.model_selection import GridSearchCV
+from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 import numpy as np
 import pandas as pd
@@ -54,8 +56,8 @@ class TopicExtractorRecommender:
         # use saved lr_X and lr_y values.
         self.state_hash = '42'
 
-        self.lr_model = None
-        self.lr_model2 = None
+        self.lr_model: DecisionTreeClassifier = None
+        self.lr_model2: LinearSVC = None
         self.ordinal_model = OrdinalClassifier()
         self.imputer = None
 
@@ -82,7 +84,7 @@ class TopicExtractorRecommender:
         self.unbiased_freq_dict = {}
         self.upper_unbiased_freq = 0
 
-        self.class_weights = {False: 150, True: 1}
+        self.class_weights = {False: 1, True: 150}
 
         Path(DATA_CACHE_FOLDER).mkdir(parents=True, exist_ok=True)
 
@@ -100,7 +102,6 @@ class TopicExtractorRecommender:
 
     all_features = set()
 
-
     def find_two_smallest(self, l):
         s1 = 1
         s2 = 1
@@ -115,8 +116,9 @@ class TopicExtractorRecommender:
 
     # also change explain method, shares logic
     def calculate_score(self, user_interests, item_features, verbose=False):
-        score = [[], [], ]
+        score = [[], [], []]
         all_positive_interests = []
+        all_negative_interests = []
         all_item_features = []
 
         for interest_rating, interests in user_interests.items():
@@ -125,6 +127,13 @@ class TopicExtractorRecommender:
             for interest in interests:
                 if self.can_use_words_in_explanation(interest):
                     all_positive_interests.append(interest)
+
+        for interest_rating, interests in user_interests.items():
+            if len(interests) == 0 or interest_rating >= 4:
+                continue
+            for interest in interests:
+                if self.can_use_words_in_explanation(interest):
+                    all_negative_interests.append(interest)
 
         for _, features in item_features.items():
             for feature in features:
@@ -138,14 +147,16 @@ class TopicExtractorRecommender:
                 pair_distance = self._calculate_distance(interest, feature)
                 dists.append(pair_distance)
 
-        print(dists)
+        score[1] = np.mean(dists) if len(dists) else 1
 
-        """
-        for i in range(6):
-            score[i].sort()
-            score[i] = np.mean((score[i] + [1, 1])[:2])
-        """
-        score[1] = np.mean(self.find_two_smallest(dists))
+        dists = []
+
+        for feature in all_item_features:
+            for interest in all_negative_interests:
+                pair_distance = self._calculate_distance(interest, feature)
+                dists.append(pair_distance)
+
+        score[2] = np.mean(dists) if len(dists) else 1
 
         return score
 
@@ -522,7 +533,7 @@ class TopicExtractorRecommender:
         self.lr_model = DecisionTreeClassifier(random_state=42, class_weight=self.class_weights)
         self.lr_model = self.lr_model.fit(lr_X, lr_y)
 
-        self.lr_model2 = DummyClassifier(random_state=42, strategy='stratified')
+        self.lr_model2 = LinearSVC(random_state=42)
         self.lr_model2 = self.lr_model2.fit(lr_X, lr_y)
 
         # self.ordinal_model.fit(lr_X, lr_y)
@@ -543,7 +554,7 @@ class TopicExtractorRecommender:
         self.update_state_hash('2')
         print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('20_003')
+        self.update_state_hash('20_004')
         print('The best ML model')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
         return self
@@ -566,7 +577,7 @@ class TopicExtractorRecommender:
 
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
-        #X = self.imputer.transform(X)
+        # X = self.imputer.transform(X)
 
         return X, self.lr_model.predict(X), self.lr_model2.predict(X)
 
@@ -590,7 +601,7 @@ class TopicExtractorRecommender:
         for i in range(1, 6):
             min_group = min(min_group, len(test[test["rating"] == i]))
 
-        min_group = int(min_group) ## TODO ADD * 0.25
+        min_group = int(min_group * 0.25)
 
         return pd.concat([test[test["rating"] == 5][:min_group],
                           test[test["rating"] == 1][:min_group],
@@ -600,41 +611,128 @@ class TopicExtractorRecommender:
 
     def accuracy(self, df, params):
         print(df)
-        for i in range(1):
-            logger.info(f'------------------ {i} ------------------')
-            # test = df.groupby('userID', as_index=False).nth(i)
-            df = df.sample(frac=1, random_state=42)
-            self.reset_state_hash(f'42,{i}')
 
-            #test = df[:7500]
+        exp_name = 'mean_of_all'
 
-            test = self.balance_test_set(df, params['train_test_split'])
+        logger.info(f'------------------ BALANCED ------------------')
+        # test = df.groupby('userID', as_index=False).nth(i)
+        df = df.sample(frac=1, random_state=42)
+        self.reset_state_hash(f'42,{0}')
 
-            test_indexes = test.index
-            train = df.loc[set(df.index) - set(test_indexes)]
+        # test = df[:7500]
 
-            logger.info('Starting model fit')
-            logger.info(f'Train set size: {len(train)}')
-            logger.info(f'Test set size: {len(test)}')
+        test = self.balance_test_set(df, params['train_test_split'])
 
-            self.fit(train, params)
+        test_indexes = test.index
+        train = df.loc[set(df.index) - set(test_indexes)]
 
-            mae = 0
-            mse = 0
-            baseline_mse = 0
-            baseline_mae = 0
-            l = 0
-            all_dists = []
-            pred_ys = []
-            pred_ys_2 = []
-            true_ys = []
-            sample_weights = []
+        self.calc_ml_score(test, train, params, exp_name, 'balanced')
 
-            logger.info('Starting test')
+        logger.info(f'------------------ RANDOM ------------------')
+        # test = df.groupby('userID', as_index=False).nth(i)
+        self.reset_state_hash(f'42,{0}')
+
+        test = df[:15000]
+
+        # test = self.balance_test_set(df, params['train_test_split'])
+
+        test_indexes = test.index
+        train = df.loc[set(df.index) - set(test_indexes)]
+
+        self.calc_ml_score(test, train, params, exp_name, 'random')
+
+        """
+        logger.info("Explaining the recommendations")
+        num_good_examples = 0
+        num_bad_examples = 0
+        num_total = 50
+
+        all_num_explanation = 0
+
+        pd.set_option('display.max_colwidth', None)
+        all_dists.sort()
+        for _, row in test.iterrows():
+            score, est = self.estimate(row['userID'], row['itemID'])
+            if est is not None:
+                dist = np.mean(score)
+                # TODO there is distance low high times est good bad cases(4 cases)
+                all_num_explanation += int(self.explain(row['userID'], row['itemID']))
+                if int(est[0]) - row['rating'] < mae and num_total > 0 and row['rating'] > 3:
+
+                    if self.explain(row['userID'], row['itemID']):
+                        num_total -= 1 if self.explain(row['userID'], row['itemID'], explain=True, verbose=False,
+                                                       user_rows=df.loc[df['userID'] == row['userID']][
+                                                           ['userID', 'itemID', 'review']],
+                                                       item_rows=df.loc[df['itemID'] == row['itemID']][
+                                                           ['userID', 'itemID', 'review']],
+                                                       verbose_context=False,
+                                                       ) == 1 else 0
+                    else:
+                        continue
+
+                    user_interests = self.user_property_map[row['userID']]
+                    item_features = self.item_property_map[row['itemID']]
+                    logger.info(f'--------------------------------')
+                    logger.info(
+                        f"Generated a good prediction on the following (est: {int(est[0])}, reality:{row['rating']}):")
+                    logger.info(
+                        f"Similarity order is {all_dists.index(dist)}")
+                    # logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                    # logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                    logger.info(f'User: {user_interests}')
+                    logger.info(f'Item: {item_features}')
+                    logger.info(f'--------------------------------')
+                    logger.info('')
+                    num_good_examples += 1
+                if False and abs(
+                        int(est[0]) - row['rating']) > mae and num_bad_examples < num_total and dist in all_dists[
+                                                                                                        -num_total * 3:]:
+                    logger.info(f'--------------------------------')
+                    user_interests = self.user_property_map[row['userID']]
+                    item_features = self.item_property_map[row['itemID']]
+                    logger.info(
+                        f"Generated a bad prediction on following (est: {int(est[0])}, reality:{row['rating']}): ")
+                    logger.info(
+                        f"Similarity order is -{len(all_dists) - all_dists.index(dist)}")
+                    # logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                    # logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
+                    logger.info(f'User: {user_interests}')
+                    logger.info(f'Item: {item_features}')
+                    logger.info(f'--------------------------------')
+                    logger.info('')
+                    num_bad_examples += 1
+
+        print(f'Able to generate explanation for {all_num_explanation}/{l} rows of test')
+        """
+
+    def calc_ml_score(self, test, train, params, exp_name, exp_type):
+        logger.info('Starting model fit')
+        logger.info(f'Train set size: {len(train)}')
+        logger.info(f'Test set size: {len(test)}')
+
+        self.fit(train, params)
+
+        mae = 0
+        mse = 0
+        baseline_mse = 0
+        baseline_mae = 0
+        l = 0
+        all_dists = []
+        pred_ys = []
+        pred_ys_2 = []
+        true_ys = []
+        sample_weights = []
+
+        x_test = []
+        y_test = []
+
+        logger.info('Starting test')
+        with open(f'ml_exp_{exp_name}_{exp_type}', 'w') as f:
             for _, row in test.iterrows():
                 score, est, est_2 = self.estimate(row['userID'], row['itemID'])
-                #print(f'{score} -> real={row["rating"]}, est= {est[0]}, est2= {est_2[0]}')
-                print(score[0][0], row["rating"], est[0])
+                x_test.append(score[0])
+                y_test.append(row['rating'] >= 4)
+                f.write(f'{score[0][0]} {row["rating"]} {est[0]} {est_2[0]}\n')
                 if est is not None or score[0][0] != 1:
                     real_y = row['rating'] >= 4
                     dist = np.mean(score)
@@ -665,24 +763,53 @@ class TopicExtractorRecommender:
                         false[y_pred] += 1
 
                 print(f'Total Positive: {(true[True] + false[False])}')
-                print(f'Total Negative: {len(y_trues)-(true[True] + false[False])}')
+                print(f'Total Negative: {len(y_trues) - (true[True] + false[False])}')
                 print(f'True Positive: {true[True]}')
                 print(f'True Negative: {true[False]}')
                 print(f'False Positive: {false[True]}')
-                print(f'False Negative: {true[False]}')
-
+                print(f'False Negative: {false[False]}')
 
             print('Classifier 1:')
             print(classification_report(y_true=true_ys, y_pred=pred_ys))
+            f.write(classification_report(y_true=true_ys, y_pred=pred_ys) + '\n')
             print(my_confusion_matrix(y_trues=true_ys, y_preds=pred_ys))
-            print(confusion_matrix(y_true=true_ys, y_pred=pred_ys))
-            #print(tree.export_text(self.lr_model))
+            f.write(str(confusion_matrix(y_true=true_ys, y_pred=pred_ys)) + '\n')
+            # print(tree.export_text(self.lr_model))
             print(f'Number of recommend signals {len(list(filter(lambda x: x, pred_ys)))}/{len(pred_ys)}')
+
+            display = PrecisionRecallDisplay.from_estimator(
+                self.lr_model, x_test, y_test, name="Decision Tree 1"
+            )
+            _ = display.ax_.set_title(f"Precision-Recall {exp_name}-{exp_type}")
+
+            precision, recall, thresholds = precision_recall_curve(y_test, [prob[1] for prob in self.lr_model.predict_proba(x_test)])
+            f.write(str(list(precision)) + '\n')
+            f.write(str(list(recall)) + '\n')
+            f.write(str(list(thresholds)) + '\n')
+
+            print(str(list(precision)), '\n', str(list(recall)), '\n', str(list(thresholds)))
+
 
             print('Classifier 2:')
             print(classification_report(y_true=true_ys, y_pred=pred_ys_2))
+            f.write(classification_report(y_true=true_ys, y_pred=pred_ys_2) + '\n')
             print(my_confusion_matrix(y_trues=true_ys, y_preds=pred_ys_2))
+            f.write(str(confusion_matrix(y_true=true_ys, y_pred=pred_ys_2)) + '\n')
             print(f'Number of recommend signals {len(list(filter(lambda x: x, pred_ys_2)))}/{len(pred_ys_2)}')
+
+            display = PrecisionRecallDisplay.from_estimator(
+                self.lr_model2, x_test, y_test, name="Decision Tree 2"
+            )
+            _ = display.ax_.set_title(f"Precision-Recall {exp_name}-{exp_type}")
+
+            precision, recall, thresholds = precision_recall_curve(y_test, self.lr_model2.decision_function(x_test))
+            f.write(str(list(precision)) + '\n')
+            f.write(str(list(recall)) + '\n')
+            f.write(str(list(thresholds)) + '\n')
+
+            print(str(list(precision)), '\n', str(list(recall)), '\n', str(list(thresholds)))
+
+
 
             print('during estimation with testset')
 
@@ -692,78 +819,15 @@ class TopicExtractorRecommender:
             baseline_mse /= l
             baseline_mae /= l
 
-            logger.info(f'Able to generate recommendations for {l} cases({l / len(test)})')
-            logger.info(f'MAE for iter {i}: {mae}')
-            logger.info(f'MSE for iter {i}: {mse}')
-            logger.info(f'RMSE for iter {i}: {math.sqrt(mse)}')
-            logger.info(f'-----------------------------------------')
-            logger.info(f'Baseline MAE for iter {i}: {baseline_mae}')
-            logger.info(f'Baseline MSE for iter {i}: {baseline_mse}')
-            logger.info(f'Baseline RMSE for iter {i}: {math.sqrt(baseline_mse)}')
-
-            exit(1)
-
-            logger.info("Explaining the recommendations")
-            num_good_examples = 0
-            num_bad_examples = 0
-            num_total = 50
-
-            all_num_explanation = 0
-
-            pd.set_option('display.max_colwidth', None)
-            all_dists.sort()
-            for _, row in test.iterrows():
-                score, est = self.estimate(row['userID'], row['itemID'])
-                if est is not None:
-                    dist = np.mean(score)
-                    # TODO there is distance low high times est good bad cases(4 cases)
-                    all_num_explanation += int(self.explain(row['userID'], row['itemID']))
-                    if int(est[0]) - row['rating'] < mae and num_total > 0 and row['rating'] > 3:
-
-                        if self.explain(row['userID'], row['itemID']):
-                            num_total -= 1 if self.explain(row['userID'], row['itemID'], explain=True, verbose=False,
-                                                           user_rows=df.loc[df['userID'] == row['userID']][
-                                                               ['userID', 'itemID', 'review']],
-                                                           item_rows=df.loc[df['itemID'] == row['itemID']][
-                                                               ['userID', 'itemID', 'review']],
-                                                           verbose_context=False,
-                                                           ) == 1 else 0
-                        else:
-                            continue
-
-                        user_interests = self.user_property_map[row['userID']]
-                        item_features = self.item_property_map[row['itemID']]
-                        logger.info(f'--------------------------------')
-                        logger.info(
-                            f"Generated a good prediction on the following (est: {int(est[0])}, reality:{row['rating']}):")
-                        logger.info(
-                            f"Similarity order is {all_dists.index(dist)}")
-                        # logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
-                        # logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
-                        logger.info(f'User: {user_interests}')
-                        logger.info(f'Item: {item_features}')
-                        logger.info(f'--------------------------------')
-                        logger.info('')
-                        num_good_examples += 1
-                    if False and abs(
-                            int(est[0]) - row['rating']) > mae and num_bad_examples < num_total and dist in all_dists[
-                                                                                                            -num_total * 3:]:
-                        logger.info(f'--------------------------------')
-                        user_interests = self.user_property_map[row['userID']]
-                        item_features = self.item_property_map[row['itemID']]
-                        logger.info(
-                            f"Generated a bad prediction on following (est: {int(est[0])}, reality:{row['rating']}): ")
-                        logger.info(
-                            f"Similarity order is -{len(all_dists) - all_dists.index(dist)}")
-                        # logger.info(f'User rows: {df[df["userID"] == row["userID"]][["userID", "topics_KeyBERTExtractor", "review"]].to_string()}')
-                        # logger.info(f'Item rows: {df[df["itemID"] == row["itemID"]][["itemID", "topics_KeyBERTExtractor", "review"]].to_string()}')
-                        logger.info(f'User: {user_interests}')
-                        logger.info(f'Item: {item_features}')
-                        logger.info(f'--------------------------------')
-                        logger.info('')
-                        num_bad_examples += 1
-
-            print(f'Able to generate explanation for {all_num_explanation}/{l} rows of test')
+            print(f'Able to generate recommendations for {l} cases({l / len(test)})')
+            print(f'MAE: {mae}')
+            print(f'MSE: {mse}')
+            print(f'RMSE: {math.sqrt(mse)}')
+            print(f'-----------------------------------------')
+            print(f'Baseline MAE: {baseline_mae}')
+            print(f'Baseline MSE: {baseline_mse}')
+            print(f'Baseline RMSE: {math.sqrt(baseline_mse)}')
+            f.flush()
 
     # --------------------------------------------------------
 
@@ -788,22 +852,21 @@ class TopicExtractorRecommender:
     def score_map_no_predict(self, df, params):
         print(df)
 
+        exp_name = 'mean of all'.replace(' ', '_')
 
         logger.info(f'------------------ BALANCED ------------------')
         # test = df.groupby('userID', as_index=False).nth(i)
         df = df.sample(frac=1, random_state=42)
         self.reset_state_hash(f'42,{0}')
 
-        #test = df[:15000]
+        # test = df[:15000]
 
         test = self.balance_test_set(df, params['train_test_split'])
 
         test_indexes = test.index
         train = df.loc[set(df.index) - set(test_indexes)]
 
-        self.calc_corr(train, test, params, 'balanced')
-
-
+        self.calc_corr(train, test, params, exp_name, 'balanced')
 
         logger.info(f'------------------ RANDOM SAMPLE ------------------')
         # test = df.groupby('userID', as_index=False).nth(i)
@@ -811,14 +874,14 @@ class TopicExtractorRecommender:
 
         test = df[:25000]
 
-        #test = self.balance_test_set(df, params['train_test_split'])
+        # test = self.balance_test_set(df, params['train_test_split'])
 
         test_indexes = test.index
         train = df.loc[set(df.index) - set(test_indexes)]
 
-        self.calc_corr(train, test, params, 'random')
+        self.calc_corr(train, test, params, exp_name, 'random')
 
-    def calc_corr(self, train, test, params, exp_name):
+    def calc_corr(self, train, test, params, exp_name, exp_type):
         logger.info('Starting model fit')
         logger.info(f'Train set size: {len(train)}')
         logger.info(f'Test set size: {len(test)}')
@@ -826,8 +889,7 @@ class TopicExtractorRecommender:
         self.fit_no_predict(train, params)
 
         logger.info('Starting test')
-        ctime = int(time.time()*1000)
-        with open(f'exp_{ctime}_{exp_name}', 'w') as f:
+        with open(f'exp_{exp_name}_{exp_type}', 'w') as f:
             for _, row in test.iterrows():
                 try:
                     user_interests = self.user_property_map[row['userID']]

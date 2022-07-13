@@ -12,3 +12,7 @@ dataset/*/*.json
 *.out
 *.txt
 
+
+score_functions/data/*
+
+*.log
