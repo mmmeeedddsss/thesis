@@ -538,7 +538,7 @@ class TopicExtractorRecommender:
 
         # self.ordinal_model.fit(lr_X, lr_y)
 
-    def fit(self, train_df, params):
+    def fit(self, train_df, params, is_validation=False):  # validation set is new and defaults to test
         print('Fitting ..')
         self.update_state_hash('8')
         self.train_df = train_df
@@ -551,7 +551,9 @@ class TopicExtractorRecommender:
         self.update_state_hash('10')
         print('Generate word commonities')
         self._generate_word_commonity_thresholds()
-        self.update_state_hash('2')
+        self.update_state_hash('2_001')
+        if is_validation:
+            self.update_state_hash('1')
         print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
         self.update_state_hash('20_004')
@@ -594,7 +596,7 @@ class TopicExtractorRecommender:
 
         return [x[1] for x in dists]
 
-    def balance_test_set(self, test, params):
+    def balance_test_set(self, test, params, is_validation=False):
         self.update_state_hash(f'{params["max_group_size"]}')
         min_group = params['max_group_size'] * 4
         test = test.drop_duplicates(subset=['review'])
@@ -602,6 +604,13 @@ class TopicExtractorRecommender:
             min_group = min(min_group, len(test[test["rating"] == i]))
 
         min_group = int(min_group * 0.25)
+
+        if is_validation:
+            return pd.concat([test[test["rating"] == 5][-min_group:],
+                              test[test["rating"] == 1][-min_group:],
+                              test[test["rating"] == 2][-min_group:],
+                              test[test["rating"] == 3][-min_group:],
+                              test[test["rating"] == 4][-min_group:]])
 
         return pd.concat([test[test["rating"] == 5][:min_group],
                           test[test["rating"] == 1][:min_group],
@@ -612,34 +621,34 @@ class TopicExtractorRecommender:
     def accuracy(self, df, params):
         print(df)
 
-        exp_name = 'mean_of_all'
+        is_validation = True
+        exp_name = 'mean_of_all_bert1'
 
         logger.info(f'------------------ BALANCED ------------------')
         # test = df.groupby('userID', as_index=False).nth(i)
         df = df.sample(frac=1, random_state=42)
         self.reset_state_hash(f'42,{0}')
 
-        # test = df[:7500]
-
-        test = self.balance_test_set(df, params['train_test_split'])
+        test = self.balance_test_set(df, params['train_test_split'], is_validation)
 
         test_indexes = test.index
         train = df.loc[set(df.index) - set(test_indexes)]
 
-        self.calc_ml_score(test, train, params, exp_name, 'balanced')
+        self.calc_ml_score(test, train, params, exp_name, 'balanced', is_validation)
 
         logger.info(f'------------------ RANDOM ------------------')
         # test = df.groupby('userID', as_index=False).nth(i)
         self.reset_state_hash(f'42,{0}')
 
-        test = df[:15000]
+        if is_validation:
+            test = df[-15000:]
 
         # test = self.balance_test_set(df, params['train_test_split'])
 
         test_indexes = test.index
         train = df.loc[set(df.index) - set(test_indexes)]
 
-        self.calc_ml_score(test, train, params, exp_name, 'random')
+        self.calc_ml_score(test, train, params, exp_name, 'random', is_validation)
 
         """
         logger.info("Explaining the recommendations")
@@ -705,12 +714,12 @@ class TopicExtractorRecommender:
         print(f'Able to generate explanation for {all_num_explanation}/{l} rows of test')
         """
 
-    def calc_ml_score(self, test, train, params, exp_name, exp_type):
+    def calc_ml_score(self, test, train, params, exp_name, exp_type, is_validation):
         logger.info('Starting model fit')
         logger.info(f'Train set size: {len(train)}')
         logger.info(f'Test set size: {len(test)}')
 
-        self.fit(train, params)
+        self.fit(train, params, is_validation)
 
         mae = 0
         mse = 0
@@ -730,6 +739,8 @@ class TopicExtractorRecommender:
         with open(f'ml_exp_{exp_name}_{exp_type}', 'w') as f:
             for _, row in test.iterrows():
                 score, est, est_2 = self.estimate(row['userID'], row['itemID'])
+                if score is None:
+                    continue
                 x_test.append(score[0])
                 y_test.append(row['rating'] >= 4)
                 f.write(f'{score[0][0]} {row["rating"]} {est[0]} {est_2[0]}\n')
@@ -889,7 +900,7 @@ class TopicExtractorRecommender:
         self.fit_no_predict(train, params)
 
         logger.info('Starting test')
-        with open(f'exp_{exp_name}_{exp_type}', 'w') as f:
+        with open(f'exp_{exp_name}_{exp_type}.log', 'w') as f:
             for _, row in test.iterrows():
                 try:
                     user_interests = self.user_property_map[row['userID']]

@@ -63,7 +63,7 @@ def baseline_recommendation_own(dataset_name, df):
 
 
 def get_default_params():
-    use_yake = True
+    use_yake = False
     return {
         'train_test_split': {
             'max_group_size': 500,

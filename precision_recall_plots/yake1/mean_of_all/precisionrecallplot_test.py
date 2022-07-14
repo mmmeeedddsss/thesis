@@ -62,9 +62,9 @@ axs['tholds'].text(0.0, 1.0, 'thresholds', transform=axs['tholds'].transAxes + t
             fontsize='medium', verticalalignment='top', fontfamily='serif',
             bbox=dict(facecolor='0.7', edgecolor='none', pad=3.0))
 
-axs['balanced'].axvspan(0.3, 0.4, color='#ffd152', alpha=0.3)
-axs['random'].axvspan(0.3, 0.4, color='#ffd152', alpha=0.3)
-axs['tholds'].axvspan(0.3, 0.4, color='#ffd152', alpha=0.3)
+axs['balanced'].axvspan(0.15, 0.20, color='#ffd152', alpha=0.3)
+axs['random'].axvspan(0.15, 0.20, color='#ffd152', alpha=0.3)
+axs['tholds'].axvspan(0.15, 0.20, color='#ffd152', alpha=0.3)
 
 
 plt.show()
