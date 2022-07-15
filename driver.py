@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # df = YakeExtractor().extract_keywords_of_items(amazon_dataloader.get_pandas_df())
     # print(df)
 
-    dataset_path, df = amazon_dataloader.get_processed_pandas_df_1()
+    dataset_path, df = amazon_dataloader.get_processed_pandas_df()
 
     # SVD_driver(df)
 

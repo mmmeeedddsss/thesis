@@ -622,7 +622,9 @@ class TopicExtractorRecommender:
         print(df)
 
         is_validation = True
-        exp_name = 'mean_of_all_bert1'
+        exp_name = 'mean_of_all_bert2'
+
+        print(f'Is validation: {is_validation}, exp_name={exp_name} !!')
 
         logger.info(f'------------------ BALANCED ------------------')
         # test = df.groupby('userID', as_index=False).nth(i)
@@ -642,6 +644,8 @@ class TopicExtractorRecommender:
 
         if is_validation:
             test = df[-15000:]
+        else:
+            test = df[:15000]
 
         # test = self.balance_test_set(df, params['train_test_split'])
 
