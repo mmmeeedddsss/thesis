@@ -621,7 +621,7 @@ class TopicExtractorRecommender:
     def accuracy(self, df, params):
         print(df)
 
-        is_validation = True
+        is_validation = False
         exp_name = 'mean_of_all_bert2'
 
         print(f'Is validation: {is_validation}, exp_name={exp_name} !!')
