@@ -16,3 +16,7 @@ dataset/*/*.json
 score_functions/data/*
 
 *.log
+
+*.png
+
+ml_exp*

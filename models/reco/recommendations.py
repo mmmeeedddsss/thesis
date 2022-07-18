@@ -1,13 +1,18 @@
 from surprise import accuracy, SVD
-from surprise.model_selection import KFold, GridSearchCV, cross_validate
+from surprise.model_selection import KFold, GridSearchCV, cross_validate, RandomizedSearchCV
 
 from models.reco.TopicExtractorRecommender import TopicExtractorRecommender
 
 
 def baseline_optimization_recommendation(data, recommender):
-    param_grid = {'n_factors': [100], 'n_epochs': [30], 'lr_all': [0.01],
-                  'reg_all': [0.02]}
-    gs = GridSearchCV(recommender, param_grid, measures=['rmse', 'mae'], cv=3, joblib_verbose=True, n_jobs=6)
+    #n_factors=250, n_epochs=200, lr_all=0.01, reg_all=0.02
+    param_grid = {'n_factors': [250], 'n_epochs': [200], 'lr_all': [0.01],
+                  'reg_all': [0.02], 'random_state':[42], }
+    gs = RandomizedSearchCV(recommender, param_grid, measures=['rmse', 'mae'], cv=3,
+                            joblib_verbose=True, n_jobs=6, random_state=42, n_iter=1)
+
+    gs = GridSearchCV(recommender, param_grid, measures=['rmse', 'mae'], cv=3,
+                            joblib_verbose=True, n_jobs=6)
 
     gs.fit(data)
 
@@ -17,7 +22,7 @@ def baseline_optimization_recommendation(data, recommender):
     # n_factors=100, n_epochs=30, lr_all=0.01, reg_all=0.02
     params = gs.best_params['rmse']
     svdtuned = SVD(n_factors=params['n_factors'], n_epochs=params['n_epochs'], lr_all=params['lr_all'],
-                   reg_all=params['reg_all'])
+                   reg_all=params['reg_all'], random_state=42)
 
     print(f"n_factors={params['n_factors']}, n_epochs={params['n_epochs']}, "
           f"lr_all={params['lr_all']}, reg_all={params['reg_all']}")
@@ -63,7 +68,7 @@ def baseline_recommendation_own(dataset_name, df):
 
 
 def get_default_params():
-    use_yake = False
+    use_yake = True
     return {
         'train_test_split': {
             'max_group_size': 500,
@@ -85,6 +90,7 @@ def get_default_params():
             'high_score_better': False if use_yake else True,  # True for bert & tfidf, false for yake
         },
         'score_rating_mapper_model': {
+            'threshold': 0.99
         },
         'tf-idf': {
             'enabled': True,

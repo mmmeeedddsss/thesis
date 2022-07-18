@@ -114,7 +114,6 @@ class TopicExtractorRecommender:
                     s2 = e
         return [s1, s2]
 
-    # also change explain method, shares logic
     def calculate_score(self, user_interests, item_features, verbose=False):
         score = [[], [], []]
         all_positive_interests = []
@@ -533,8 +532,8 @@ class TopicExtractorRecommender:
         self.lr_model = DecisionTreeClassifier(random_state=42, class_weight=self.class_weights)
         self.lr_model = self.lr_model.fit(lr_X, lr_y)
 
-        self.lr_model2 = LinearSVC(random_state=42)
-        self.lr_model2 = self.lr_model2.fit(lr_X, lr_y)
+        self.lr_model2: LinearSVC = LinearSVC(random_state=42)
+        self.lr_model2: LinearSVC = self.lr_model2.fit(lr_X, lr_y)
 
         # self.ordinal_model.fit(lr_X, lr_y)
 
@@ -556,7 +555,7 @@ class TopicExtractorRecommender:
             self.update_state_hash('1')
         print('user item maps are being generated')
         self._generate_user_item_maps(params['user_item_maps_generation'])
-        self.update_state_hash('20_004')
+        self.update_state_hash('20_005') # change it to 004
         print('The best ML model')
         self._train_score_rating_mapper(params['score_rating_mapper_model'])
         return self
@@ -565,23 +564,24 @@ class TopicExtractorRecommender:
         # mean int of train ratings
         return 1
 
-    def estimate(self, u, i, verbose=False):
+    def estimate(self, u, i, verbose=False, threshold=0.5):
         try:
             user_interests = self.user_property_map[u]
             item_features = self.item_property_map[i]
         except:
             return None, None, None
 
-        return self.estimate_api(user_interests, item_features, verbose)
+        return self.estimate_api(user_interests, item_features, verbose, threshold)
 
-    def estimate_api(self, user_interests, item_features, verbose=False):
+    def estimate_api(self, user_interests, item_features, verbose=False, threshold=0.5):
         score = self.calculate_score(user_interests, item_features, verbose=verbose)
 
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
-        # X = self.imputer.transform(X)
 
-        return X, self.lr_model.predict(X), self.lr_model2.predict(X)
+        model2_prediction = self.lr_model2.decision_function(X) > threshold
+
+        return X, self.lr_model.predict(X), model2_prediction
 
     def get_top_n_recommendations_for_user(self, *, user_interests, n):
         print('get_top_n_recommendations_for_user')
@@ -622,7 +622,7 @@ class TopicExtractorRecommender:
         print(df)
 
         is_validation = False
-        exp_name = 'mean_of_all_bert2'
+        exp_name = 'mean_of_all_yake1'
 
         print(f'Is validation: {is_validation}, exp_name={exp_name} !!')
 
@@ -742,7 +742,8 @@ class TopicExtractorRecommender:
         logger.info('Starting test')
         with open(f'ml_exp_{exp_name}_{exp_type}', 'w') as f:
             for _, row in test.iterrows():
-                score, est, est_2 = self.estimate(row['userID'], row['itemID'])
+                score, est, est_2 = self.estimate(row['userID'], row['itemID'], False,
+                                                  params['score_rating_mapper_model']['threshold'])
                 if score is None:
                     continue
                 x_test.append(score[0])
@@ -867,7 +868,7 @@ class TopicExtractorRecommender:
     def score_map_no_predict(self, df, params):
         print(df)
 
-        exp_name = 'mean of all'.replace(' ', '_')
+        exp_name = 'three smallest yake2'.replace(' ', '_')
 
         logger.info(f'------------------ BALANCED ------------------')
         # test = df.groupby('userID', as_index=False).nth(i)

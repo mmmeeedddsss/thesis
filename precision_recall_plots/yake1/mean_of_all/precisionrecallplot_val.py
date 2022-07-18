@@ -25,7 +25,7 @@ import matplotlib.transforms as mtransforms
 fig, axs = plt.subplot_mosaic([['balanced'], ['random'], ['tholds']],
                               constrained_layout=True)
 
-fig.suptitle('Presicion-Recall Curve For exp/mean_of_all')
+fig.suptitle('True Class Presicion-Recall Curve on Validation Set \n Keyword Extractor: Yake1, Scoring: Mean of All')
 trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, fig.dpi_scale_trans)
 
 

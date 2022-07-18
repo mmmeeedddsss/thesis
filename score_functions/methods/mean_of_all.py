@@ -1,4 +1,3 @@
-# also change explain method, shares logic
 def calculate_score(self, user_interests, item_features, verbose=False):
     score = [[], [], []]
     all_positive_interests = []
