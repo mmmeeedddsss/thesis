@@ -218,9 +218,9 @@ class TopicExtractorRecommender:
         if return_dict:
             ret = []
             features = {}
-            all_dists.sort()
+            all_dists.sort(key=lambda x: x[3])
             for i in range(min(5, len(all_dists))):
-                score = all_dists[i][0]
+                score = all_dists[i][3]
                 interest = all_dists[i][1]
                 feature = all_dists[i][2]
                 if f"{feature}" not in features:

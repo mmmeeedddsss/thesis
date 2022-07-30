@@ -144,7 +144,7 @@ class UserReviewLoader:
         print(f'Starting to create recommendations using {keyword_extractor_name}')
         if keyword_extractor_name == 'yake':
             print('Using Yake')
-            YakeExtractor().extract_keywords(self.df)
+            YakeExtractor(n=ngrams).extract_keywords(self.df)
         else:
             print('Using KeyBERT')
             KeyBERTExtractor().extract_keywords(self.df, {'top_n': 7, 'keyphrase_ngram_range': (1, ngrams)})
