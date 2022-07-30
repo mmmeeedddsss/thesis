@@ -182,12 +182,12 @@
 
         function toggleRecommender() {
             let currentRecommender = localStorage.getItem('recommender');
-            if (currentRecommender === 'bert')
+            if (currentRecommender === 'yake_1')
                 localStorage.setItem('recommender', 'yake');
             else if (currentRecommender === 'yake')
                 localStorage.setItem('recommender', 'bert_1')
             else
-                localStorage.setItem('recommender', 'bert')
+                localStorage.setItem('recommender', 'yake_1')
             document.location.reload(true);
         }
 

@@ -58,6 +58,8 @@ axs['random'].text(0.0, 1.0, 'random', transform=axs['random'].transAxes + trans
             fontsize='medium', verticalalignment='top', fontfamily='serif',
             bbox=dict(facecolor='0.7', edgecolor='none', pad=3.0))
 
+tholds = [thresholds[0]] + thresholds
+tholds_balanced = [thresholds[0]] + thresholds2
 
 axs['tholds'].plot(recall, thresholds)
 axs['tholds'].plot(recall2, thresholds2)
@@ -76,3 +78,5 @@ axs['tholds'].axvspan(0.15, 0.20, color='#ffd152', alpha=0.3)
 fig.set_size_inches(6, 10, forward=True)
 plt.savefig(f'pr_{dataset_type.lower()}_{keyword_extractor.lower()}_{scoring.lower()}_figures.png', 
             bbox_inches='tight', dpi=200)
+
+plt.show()

@@ -167,10 +167,12 @@ class UserReviewLoader:
         users_interests = property_map
         print(f"User interests: {users_interests}")
 
-        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 800)
+        item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 800,
+                                                                           th=recommender_thresholds[keyword_extractor_name][ngrams])
+        print('Num recommend: ' + str(len(item_ids)))
         item_recommendations = []
         recommended_based_on = {}
-        for item_id in tqdm(item_ids):
+        for recommender_score, item_id in item_ids:
             explanations = self.recommender_own.explain_api(users_interests,
                                                             self.recommender_own.item_property_map[item_id],
                                                             explain=False, return_dict=True)
@@ -179,7 +181,7 @@ class UserReviewLoader:
                 for explanation in explanations:
                     if explanation['users_matching_interest'] not in recommended_based_on:
                         recommended_based_on[explanation['users_matching_interest']] = set()
-                    if len(recommended_based_on[explanation['users_matching_interest']]) < 2:
+                    if len(recommended_based_on[explanation['users_matching_interest']]) < 1:
                         flag_to_recommend = True
                     recommended_based_on[explanation['users_matching_interest']].add(item_id)
 
@@ -188,9 +190,10 @@ class UserReviewLoader:
                         {
                             'asin': item_id,
                             'explanations': explanations,
+                            'recommender_score': recommender_score,
                         }
                     )
-            if len(item_recommendations) >= 16:
+            if len(item_recommendations) >= 8:
                 break
 
         print('Rates of w2v hits:', self.recommender_own.rates)
@@ -199,7 +202,19 @@ class UserReviewLoader:
 
 
 recommenders = {
-    'bert': Recommender('bert'),
-    #'bert_1': Recommender('bert', 1),
-    #'yake': Recommender('yake'),
+    #'bert': Recommender('bert'),
+    'bert_1': Recommender('bert', 1),
+    'yake_1': Recommender('yake', 1),
+    'yake': Recommender('yake'),
+}
+
+recommender_thresholds = {
+    'bert': {
+        1: 0.99,
+        2: 0.99,
+    },
+    'yake': {
+        1: 0.99,
+        2: 0.99,
+    },
 }

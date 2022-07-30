@@ -193,7 +193,7 @@ class TopicExtractorRecommender:
                         if not self.MEAN_IIDF_LOWERBOUND <= feature_idf <= self.MEAN_IIDF_UPPERBOUND:
                             print(f'Not using \t{feature_idf:<8}:\t{feature}')"""
 
-                        if 0.4 > pair_distance:
+                        if 0.6 > pair_distance:
                             all_dists.append((pair_distance_sqr * interest_idf * feature_idf,
                                               interest, feature, pair_distance_sqr, interest_idf, feature_idf))
 
@@ -579,22 +579,32 @@ class TopicExtractorRecommender:
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
 
-        model2_prediction = self.lr_model2.decision_function(X) > threshold
+        model2_prediction = self.lr_model2.decision_function(X)[0] > threshold
 
         return X, self.lr_model.predict(X), model2_prediction
 
-    def get_top_n_recommendations_for_user(self, *, user_interests, n):
+    def estimate_api_raw(self, user_interests, item_features, verbose=False, threshold=0.5):
+        score = self.calculate_score(user_interests, item_features, verbose=verbose)
+
+        x = self.convert_score_to_x(score)
+        X = np.asarray(x, dtype=np.float32).reshape(1, -1)
+
+        model2_raw_prediction = self.lr_model2.decision_function(X)[0]
+
+        return model2_raw_prediction, model2_raw_prediction > threshold
+
+    def get_top_n_recommendations_for_user(self, *, user_interests, n, th):
         print('get_top_n_recommendations_for_user')
         dists = []
         for item_asin, item_features in tqdm(self.item_property_map.items()):
-            score, est, _ = self.estimate_api(user_interests, item_features)
-            if est >= 4:
-                dists.append((np.mean(list(filter(lambda x: x > 0.0001, score[1:]))), item_asin))
+            est_raw, should_recommend = self.estimate_api_raw(user_interests, item_features, threshold=th)
+            if should_recommend:
+                dists.append( (est_raw, item_asin) )
 
-        dists.sort()
+        dists.sort(reverse=True)
         dists = dists[:n]
 
-        return [x[1] for x in dists]
+        return dists
 
     def balance_test_set(self, test, params, is_validation=False):
         self.update_state_hash(f'{params["max_group_size"]}')

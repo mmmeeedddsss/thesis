@@ -1,6 +1,104 @@
 https://docs.google.com/spreadsheets/d/1omegKpqCKDnmqrWSvHXg3ZCVERkXVxAoi_FtVHfnhUg/edit#gid=0
 https://www.convertcsv.com/json-to-csv.htm
 
+        1. grup - yake1
+-----
+
+Açıklama: calming
+Müzik: https://www.youtube.com/watch?v=IIm8KtWE_Uw
+60, 80
+
+
+Açıklama: reminds, ballad
+Müzik: https://www.youtube.com/watch?v=UocN_FLb3To
+98, 99
+
+
+Açıklama: soothing, relaxing, inspiring
+Müzik: https://www.youtube.com/watch?v=euACk_YF9hs
+75, 70
+
+
+Açıklama: reminds, terrific
+Müzik: https://www.youtube.com/watch?v=NHv6VrHXXdQ
+85, 70
+
+
+Açıklama: reminds, notch
+Müzik: https://www.youtube.com/watch?v=6ipFdbrKyuE
+50, 30
+
+
+Açıklama: reminds, liking, sings, nonsense
+Müzik: https://www.youtube.com/watch?v=28hYBf1A2yk
+75, 50
+
+
+2. grup - yake
+-----
+
+Açıklama: quality reminds
+Muzik: https://www.youtube.com/watch?v=skCYAnFcQu8
+65, 50
+
+Açıklama: fantastic reminds, reminds, real drummer
+Müzik: https://www.youtube.com/watch?v=KaTAEovoT3s
+45, 10
+
+Açıklama: relaxing lounge, simply relaxing, perfect relaxing, terrific background
+Müzik: https://www.youtube.com/watch?v=edhXNNJDPpk
+85, 40
+
+Açıklama: sampled, relaxing nice, find relaxing
+Müzik: https://www.youtube.com/watch?v=p1UzTa0zgxQ
+75, 15
+
+Açıklama: album reminds, quality reminds, notch, top notch
+Müzik: https://www.youtube.com/watch?v=WfUzoOl4O2g
+40, 15
+
+Açıklama: calming, mild refreshing, friends celebrating, celebrating life
+Müzik: https://www.youtube.com/watch?v=RNBB2aIwUR8
+35, 30
+
+Açıklama: beautiful calming, calming voice, warming comforting, hymns honestly
+Müzik: https://www.youtube.com/watch?v=90VX7DOWsmU
+75, 85
+
+
+3. grup - bert1
+-----
+
+Açıklama: calming, relaxing, asleep
+Müzik: https://www.youtube.com/watch?v=5bqKwKEsX94
+30, 90
+
+
+Açıklama: calming, soothing, inspirational
+Müzik: https://www.youtube.com/watch?v=AaaUitFs7x8
+70, 85
+
+
+Açıklama: calming, soothing, relaxing, sung
+Müzik: https://www.youtube.com/watch?v=edfwnITsqT0
+60, 85
+
+
+Açıklama: calming, classy
+Müzik: https://www.youtube.com/watch?v=NUJVcUj_VQA
+50, 75
+
+
+Açıklama: soothing, memorable
+Müzik: https://www.youtube.com/watch?v=jmoM0lSP2l8
+65, 80
+
+Açıklama: calming, soothing, relaxing, strokes
+Müzik: https://www.youtube.com/watch?v=DESuJZXdGWg
+80, 95
+
+
+
 [{"recommendation_rating": "29", "explanation_rating": "79", "authenticity_rating": "100", "asin": "B0091JQH7Q", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
 ,{"recommendation_rating": "1", "explanation_rating": "50", "authenticity_rating": "100", "asin": "B00000DTZA", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
 ,{"recommendation_rating": "40", "explanation_rating": "74", "authenticity_rating": "100", "asin": "B0000037AG", "user_id": "189cd91e-ffd9-43f6-a432-fa903142bde7", "recommender": "bert"}
@@ -110,3 +208,69 @@ https://www.convertcsv.com/json-to-csv.htm
 ,{"recommendation_rating": "28", "explanation_rating": "100", "authenticity_rating": "90", "asin": "B00005Y7I2", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert_1"}
 ,{"recommendation_rating": "85", "explanation_rating": "98", "authenticity_rating": "76", "asin": "B000007177", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert_1"}
 ]
+-- here the new pipeline starts
+{"recommendation_rating": "100", "explanation_rating": "100", "authenticity_rating": "68", "asin": "B01BW5B29Y", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake_1"}
+{"recommendation_rating": "17", "explanation_rating": "39", "authenticity_rating": "98", "asin": "B0002Y69ZO", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake_1"}
+{"recommendation_rating": "88", "explanation_rating": "93", "authenticity_rating": "100", "asin": "B00S2XHDHU", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake_1"}
+{"recommendation_rating": "71", "explanation_rating": "100", "authenticity_rating": "100", "asin": "B00003L4FC", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake_1"}
+{"recommendation_rating": "27", "explanation_rating": "64", "authenticity_rating": "94", "asin": "B001DSNG54", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake_1"}
+{"recommendation_rating": "26", "explanation_rating": "56", "authenticity_rating": "18", "asin": "B00UDUL3WQ", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake_1"}
+{"recommendation_rating": "100", "explanation_rating": "100", "authenticity_rating": "66", "asin": "B01BW5B29Y", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake"}
+{"recommendation_rating": "72", "explanation_rating": "82", "authenticity_rating": "92", "asin": "B00AMEZDTC", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake"}
+{"recommendation_rating": "19", "explanation_rating": "100", "authenticity_rating": "98", "asin": "B0012OSGB8", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake"}
+{"recommendation_rating": "15", "explanation_rating": "71", "authenticity_rating": "100", "asin": "B000P9QAM8", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake"}
+{"recommendation_rating": "15", "explanation_rating": "67", "authenticity_rating": "100", "asin": "B004H9ULRW", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake"}
+{"recommendation_rating": "63", "explanation_rating": "9", "authenticity_rating": "94", "asin": "B00JP02R3O", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "yake"}
+{"recommendation_rating": "100", "explanation_rating": "100", "authenticity_rating": "80", "asin": "B01BW5B29Y", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert_1"}
+{"recommendation_rating": "84", "explanation_rating": "78", "authenticity_rating": "56", "asin": "B00Y0LB7OI", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert_1"}
+{"recommendation_rating": "64", "explanation_rating": "85", "authenticity_rating": "100", "asin": "B00U7S2GOI", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert_1"}
+{"recommendation_rating": "17", "explanation_rating": "82", "authenticity_rating": "75", "asin": "B001G5ZNPK", "user_id": "5c676900-f6be-490c-b220-d9f86a49432a", "recommender": "bert_1"}
+{"recommendation_rating": "8", "explanation_rating": "8", "authenticity_rating": "93", "asin": "B014167RY0", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "19", "explanation_rating": "87", "authenticity_rating": "86", "asin": "B00BRY1YBC", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "52", "explanation_rating": "78", "authenticity_rating": "76", "asin": "B004G6TCY4", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "75", "explanation_rating": "21", "authenticity_rating": "78", "asin": "B0012GMVW6", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "9", "explanation_rating": "89", "authenticity_rating": "95", "asin": "B000002ARK", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "80", "explanation_rating": "100", "authenticity_rating": "78", "asin": "B00CHEWH4Y", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "11", "explanation_rating": "1", "authenticity_rating": "100", "asin": "B001FSKDP8", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "21", "explanation_rating": "76", "authenticity_rating": "100", "asin": "B001BWQAL4", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "93", "explanation_rating": "72", "authenticity_rating": "27", "asin": "B01G67O9UC", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "8", "explanation_rating": "68", "authenticity_rating": "48", "asin": "B000002MDG", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "65", "explanation_rating": "23", "authenticity_rating": "80", "asin": "B00AKV1LV6", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "33", "explanation_rating": "76", "authenticity_rating": "56", "asin": "B00P7PKEY0", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "4", "explanation_rating": "90", "authenticity_rating": "65", "asin": "B000UVRL7O", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "8", "explanation_rating": "74", "authenticity_rating": "51", "asin": "B000002Q89", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "40", "explanation_rating": "76", "authenticity_rating": "54", "asin": "B00000HXEQ", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "bert_1"}
+{"recommendation_rating": "33", "explanation_rating": "63", "authenticity_rating": "72", "asin": "B0051LVYQW", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake_1"}
+{"recommendation_rating": "16", "explanation_rating": "80", "authenticity_rating": "74", "asin": "B000002W2Y", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake_1"}
+{"recommendation_rating": "12", "explanation_rating": "78", "authenticity_rating": "43", "asin": "B000UZ4CV8", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake_1"}
+{"recommendation_rating": "4", "explanation_rating": "92", "authenticity_rating": "100", "asin": "B0000037AG", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake_1"}
+{"recommendation_rating": "76", "explanation_rating": "74", "authenticity_rating": "77", "asin": "B000089CF6", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake_1"}
+{"recommendation_rating": "19", "explanation_rating": "87", "authenticity_rating": "86", "asin": "B00BRY1YBC", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "52", "explanation_rating": "78", "authenticity_rating": "76", "asin": "B004G6TCY4", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "71", "explanation_rating": "53", "authenticity_rating": "78", "asin": "B0012GMVW6", "user_id": "4fe5f0dd-c95c-4ded-a21d-da3f321f5be6", "recommender": "yake"}
+{"recommendation_rating": "17", "explanation_rating": "94", "authenticity_rating": "97", "asin": "B005SKTGSE", "user_id": "d55ea694-aa9f-485b-95d7-57e0de77bcae", "recommender": "yake_1"}
+{"recommendation_rating": "79", "explanation_rating": "99", "authenticity_rating": "95", "asin": "B000KHN5PK", "user_id": "d55ea694-aa9f-485b-95d7-57e0de77bcae", "recommender": "yake"}
+{"recommendation_rating": "71", "explanation_rating": "83", "authenticity_rating": "66", "asin": "B0017TJ7VG", "user_id": "d55ea694-aa9f-485b-95d7-57e0de77bcae", "recommender": "bert_1"}
+{"recommendation_rating": "74", "explanation_rating": "85", "authenticity_rating": "71", "asin": "B00F1FVHYW", "user_id": "d55ea694-aa9f-485b-95d7-57e0de77bcae", "recommender": "bert_1"}
+
+{"recommendation_rating": "89", "explanation_rating": "49", "authenticity_rating": "71", "asin": "B000060P7W", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "yake_1"}
+{"recommendation_rating": "36", "explanation_rating": "85", "authenticity_rating": "100", "asin": "B001BN1IX8", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "yake_1"}
+{"recommendation_rating": "71", "explanation_rating": "36", "authenticity_rating": "82", "asin": "B01DZEFSAO", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "yake_1"}
+{"recommendation_rating": "71", "explanation_rating": "88", "authenticity_rating": "88", "asin": "B000003T3Y", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "yake_1"}
+{"recommendation_rating": "73", "explanation_rating": "27", "authenticity_rating": "50", "asin": "B001KNUQ4G", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "yake_1"}
+{"recommendation_rating": "72", "explanation_rating": "47", "authenticity_rating": "46", "asin": "B00002MPKC", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "yake_1"}
+{"recommendation_rating": "35", "explanation_rating": "67", "authenticity_rating": "100", "asin": "B000003INJ", "user_id": "d230fb4c-ff96-46df-ba4b-3a4729342db5", "recommender": "yake_1"}
+{"recommendation_rating": "38", "explanation_rating": "17", "authenticity_rating": "100", "asin": "B00000395Z", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "68", "explanation_rating": "65", "authenticity_rating": "98", "asin": "B000NIW05C", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "62", "explanation_rating": "51", "authenticity_rating": "72", "asin": "B000005U3C", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "68", "explanation_rating": "69", "authenticity_rating": "70", "asin": "B00005NW0P", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "67", "explanation_rating": "68", "authenticity_rating": "72", "asin": "B00005B8DE", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "54", "explanation_rating": "58", "authenticity_rating": "80", "asin": "B0007GAEVM", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "80", "explanation_rating": "36", "authenticity_rating": "82", "asin": "B000J3AF2G", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "65", "explanation_rating": "3", "authenticity_rating": "85", "asin": "B000008HA5", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake_1"}
+{"recommendation_rating": "69", "explanation_rating": "63", "authenticity_rating": "81", "asin": "B009T9SLPO", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake"}
+{"recommendation_rating": "75", "explanation_rating": "65", "authenticity_rating": "78", "asin": "B00005NW0P", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake"}
+{"recommendation_rating": "72", "explanation_rating": "94", "authenticity_rating": "68", "asin": "B000001P0Y", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake"}
+{"recommendation_rating": "77", "explanation_rating": "55", "authenticity_rating": "63", "asin": "B00004ZD6U", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake"}
+{"recommendation_rating": "53", "explanation_rating": "18", "authenticity_rating": "77", "asin": "B004VPHPQ2", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake"}
+{"recommendation_rating": "78", "explanation_rating": "4", "authenticity_rating": "69", "asin": "B000008LOM", "user_id": "9508f51a-c339-4528-92f0-0390a6e149e4", "recommender": "yake"}

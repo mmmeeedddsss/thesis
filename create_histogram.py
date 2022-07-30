@@ -48,10 +48,11 @@ print(lower, np.average(values))
 print(f'Have {c} words')
 
 
+exit(0)
+
 bins = 500
 hist, bin_edges = np.histogram(values, bins=bins)
 
-exit(0)
 
 plt.plot(hist)
 plt.axvline(x=upper, color='r')
