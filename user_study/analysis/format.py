@@ -98,9 +98,9 @@ print(len(yake_2))
 bert_1.insert(3, np.mean(bert_1))
 yake_1.insert(4, np.mean(yake_1))
 
-d_histogram(bert_1, 'Bert 1 - Mean Rating to the recommended item per user')
-d_histogram(yake_1, 'Yake 1 - Mean Rating to the recommended item per user')
-d_histogram(yake_2, 'Yake 2 - Mean Rating to the recommended item per user')
+d_histogram(bert_1, 'Bert 1 - Mean Rating of the recommended item per user')
+d_histogram(yake_1, 'Yake 1 - Mean Rating of the recommended item per user')
+d_histogram(yake_2, 'Yake 2 - Mean Rating of the recommended item per user')
 
 
 from scipy import stats
@@ -114,9 +114,9 @@ yake_2 = sql("select avg_exp_rate from df_t where recommender == 'Yake 2'").valu
 bert_1.insert(3, np.mean(bert_1))
 yake_1.insert(4, np.mean(yake_1))
 
-d_histogram(bert_1, 'Bert 1 - Mean Rating to the explanation per user')
-d_histogram(yake_1, 'Yake 1 - Mean Rating to the explanation per user')
-d_histogram(yake_2, 'Yake 2 - Mean Rating to the explanation per user')
+d_histogram(bert_1, 'Bert 1 - Mean Rating of the explanation per user')
+d_histogram(yake_1, 'Yake 1 - Mean Rating of the explanation per user')
+d_histogram(yake_2, 'Yake 2 - Mean Rating of the explanation per user')
 
 # Q, p
 print(stats.friedmanchisquare(bert_1, yake_1, yake_2))
