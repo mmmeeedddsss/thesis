@@ -200,8 +200,9 @@
                     for (let item_key in data['recommendations'][page]['explanations']) {
                         let item = data['recommendations'][page]['explanations'][item_key];
 
-                        item_explanation_str += '\"' + item['item_feature'].join(" ") + '\"';
-                        item_explanation_str += '(' + item['users_matching_interest'].join(" ") + '), ';
+                        item_explanation_str += '' + item['item_feature'].join(" ") + ', ';
+                        //item_explanation_str += '\"' + item['item_feature'].join(" ") + '\"';
+                        //item_explanation_str += '(' + item['users_matching_interest'].join(" ") + '), ';
 
                     }
 

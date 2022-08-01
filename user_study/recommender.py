@@ -169,7 +169,7 @@ class UserReviewLoader:
 
         item_ids = self.recommender_own.get_top_n_recommendations_for_user(user_interests=users_interests, n=n * 800,
                                                                            th=recommender_thresholds[keyword_extractor_name][ngrams])
-        print('Num recommend: ' + str(len(item_ids)))
+        print('Num recommend: ' + str(len(item_ids))) # maxes at n*800
         item_recommendations = []
         recommended_based_on = {}
         for recommender_score, item_id in item_ids:

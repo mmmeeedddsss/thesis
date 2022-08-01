@@ -4,7 +4,6 @@ from sklearn.metrics import classification_report, precision_recall_curve
 from surprise import Reader, Dataset, SVD, accuracy, Prediction
 
 from dataset.amazon.loader import AmazonDatasetLoader
-from dataset.yelp.loader import YelpDatasetLoader
 
 from sklearn.decomposition import LatentDirichletAllocation
 
@@ -134,7 +133,6 @@ def SVD_driver(df, test_sample_type='balanced'):
 
 if __name__ == '__main__':
     amazon_dataloader = AmazonDatasetLoader()
-    yelp_dataloader = YelpDatasetLoader()
 
     # df = YakeExtractor().extract_keywords_of_items(amazon_dataloader.get_pandas_df())
     # print(df)

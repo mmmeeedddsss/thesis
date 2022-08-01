@@ -114,7 +114,7 @@ class TopicExtractorRecommender:
                     s2 = e
         return [s1, s2]
 
-    def calculate_score(self, user_interests, item_features, verbose=False):
+    def calculate_score(self, user_interests, item_features, verbose=False, skip_w1=False):
         score = [[], [], []]
         all_positive_interests = []
         all_negative_interests = []
@@ -583,8 +583,8 @@ class TopicExtractorRecommender:
 
         return X, self.lr_model.predict(X), model2_prediction
 
-    def estimate_api_raw(self, user_interests, item_features, verbose=False, threshold=0.5):
-        score = self.calculate_score(user_interests, item_features, verbose=verbose)
+    def estimate_api_raw(self, user_interests, item_features, verbose=False, threshold=0.5, skip_w1=False):
+        score = self.calculate_score(user_interests, item_features, verbose=verbose, skip_w1=skip_w1)
 
         x = self.convert_score_to_x(score)
         X = np.asarray(x, dtype=np.float32).reshape(1, -1)
@@ -597,9 +597,9 @@ class TopicExtractorRecommender:
         print('get_top_n_recommendations_for_user')
         dists = []
         for item_asin, item_features in tqdm(self.item_property_map.items()):
-            est_raw, should_recommend = self.estimate_api_raw(user_interests, item_features, threshold=th)
+            est_raw, should_recommend = self.estimate_api_raw(user_interests, item_features, threshold=th, skip_w1=True)
             if should_recommend:
-                dists.append( (est_raw, item_asin) )
+                dists.append((est_raw, item_asin))
 
         dists.sort(reverse=True)
         dists = dists[:n]

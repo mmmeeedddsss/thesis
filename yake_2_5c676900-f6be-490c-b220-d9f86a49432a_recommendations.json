@@ -1,1 +1,370 @@
-{"recommendations": [{"asin": "B01BW5B29Y", "explanations": [{"item_feature": ["relaxing"], "score": 0.0046653369517606225, "users_matching_interest": ["relaxing", "pieces"]}], "recommender_score": 1.9783943334156953, "item_metadata": "[{\"category\":[\"CDs & Vinyl\",\"Jazz\"],\"description\":[\"The release of the movie MILES AHEAD, Don Cheadle's wildly entertaining and moving exploration of Miles Davis, will be accompanied by this new soundtrack featuring musical highlights from Miles' career and new recordings overseen by Grammy Award-winning jazz\\/hip-hop artist Robert Glasper.<br><br>This is a perfect primer on Davis' career for the new fan and a brilliant audio keepsake of the film for those who've studied his works inside and out. The album features 11 tracks from across Miles' catalogue from 1956 to 1981, select dialogue from the film featuring Cheadle in character, and five original compositions written, co-written, produced or performed exclusively for MILES AHEAD by Robert Glasper. These cues include &#34;What's Wrong with That?&#34; a jam that closes the movie imagining Cheadle as Miles playing in the present day with guest performers Glasper, Herbie Hancock, Wayne Shorter, Gary Clark, Jr. and Esperanza Spalding; plus &#34;Gone 2015,&#34; an end-credits song featuring guest verses from rapper Pharoahe Monch. Cheadle also pens new liner notes for the album discussing the selection and creation of the songs on the soundtrack.\"],\"title\":\"Miles Ahead Soundtrack\",\"brand\":\"Miles Davis\",\"rank\":\"107,843 in CDs & Vinyl (\",\"asin\":\"B01BW5B29Y\",\"imageURLHighRes\":[\"https:\\/\\/images-na.ssl-images-amazon.com\\/images\\/I\\/51z0SUFmlVL.jpg\"],\"details\":{\"Audio CD\":\"(April 1, 2016)\",\"Original Release Date:\":\"April 1, 2016\",\"Number of Discs:\":\"1\",\"Label:\":\"Sony Legacy\",\"Run Time:\":\"76 minutes\",\"ASIN:\":\"B01BW5B29Y\"}}]"}, {"asin": "B00AMEZDTC", "explanations": [{"item_feature": ["relaxing"], "score": 0.0046653369517606225, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["enjoyable"], "score": 0.0072856294067126185, "users_matching_interest": ["interesting"]}, {"item_feature": ["enjoyable", "music"], "score": 0.011926090372432077, "users_matching_interest": ["interesting"]}], "recommender_score": 1.7736684459506074, "item_metadata": "[]"}, {"asin": "B0012OSGB8", "explanations": [{"item_feature": ["relaxing"], "score": 0.0046653369517606225, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["chill"], "score": 0.0053932051462234395, "users_matching_interest": ["nice"]}, {"item_feature": ["relaxing", "music"], "score": 0.008933438378779562, "users_matching_interest": ["relaxing", "pieces"]}], "recommender_score": 1.738904154177177, "item_metadata": "[]"}, {"asin": "B0012OSG9U", "explanations": [{"item_feature": ["relaxing"], "score": 0.0046653369517606225, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["beautiful", "relaxing"], "score": 0.006164699983084966, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["relaxing", "music"], "score": 0.008933438378779562, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["stay", "awake"], "score": 0.011750999688308079, "users_matching_interest": ["perfect"]}], "recommender_score": 1.6709208267213413, "item_metadata": "[]"}, {"asin": "B001AIG42O", "explanations": [{"item_feature": ["relaxing"], "score": 0.0046653369517606225, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["relaxing", "forever"], "score": 0.005036634786888087, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["droning", "electric"], "score": 0.006813153166741053, "users_matching_interest": ["monotonous"]}, {"item_feature": ["enjoyable"], "score": 0.0072856294067126185, "users_matching_interest": ["interesting"]}, {"item_feature": ["piano", "droning"], "score": 0.007603851411014098, "users_matching_interest": ["monotonous"]}], "recommender_score": 1.5648011839332483, "item_metadata": "[]"}, {"asin": "B000RLB4MK", "explanations": [{"item_feature": ["relaxing", "spa"], "score": 0.0037213366227022717, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["relaxing"], "score": 0.0046653369517606225, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["stress", "melt"], "score": 0.00777369851181327, "users_matching_interest": ["pieces", "inside"]}, {"item_feature": ["fall", "asleep"], "score": 0.008980431641810059, "users_matching_interest": ["relaxing", "pieces"]}], "recommender_score": 1.5120057324128497, "item_metadata": "[]"}, {"asin": "B001FAQXAU", "explanations": [{"item_feature": ["studying", "relaxing"], "score": 0.004011722158915408, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["relaxing"], "score": 0.0046653369517606225, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["relaxing", "music"], "score": 0.008933438378779562, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["eclectic"], "score": 0.00933978170377877, "users_matching_interest": ["experimental"]}], "recommender_score": 1.4992145159040713, "item_metadata": "[]"}, {"asin": "B000268A2C", "explanations": [{"item_feature": ["relaxing", "sunday"], "score": 0.004493213531473282, "users_matching_interest": ["relaxing", "pieces"]}, {"item_feature": ["parents", "listened"], "score": 0.022732880959147644, "users_matching_interest": ["interesting", "album"]}], "recommender_score": 1.4431247447710212, "item_metadata": "[]"}], "users_interests": {"2": [["love"], ["Bruckner"], ["love", "Bruckner"]], "4": [["pieces", "inside"], ["Miles"], ["Davis"], ["interesting"], ["experimental"], ["pieces"], ["album"], ["interesting", "album"], ["experimental", "pieces"], ["Miles", "Davis"]], "5": [["monotonous"], ["relaxing", "pieces"], ["great", "pieces"], ["composed", "great"], ["cool", "jazz"], ["album"], ["pieces"], ["perfect"], ["nice"], ["Great"]]}}
+{
+  "recommendations": [
+    {
+      "asin": "B01BW5B29Y",
+      "explanations": [
+        {
+          "item_feature": [
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        }
+      ],
+      "recommender_score": 1.9783943334156953,
+      "item_metadata": "[{\"category\":[\"CDs & Vinyl\",\"Jazz\"],\"description\":[\"The release of the movie MILES AHEAD, Don Cheadle's wildly entertaining and moving exploration of Miles Davis, will be accompanied by this new soundtrack featuring musical highlights from Miles' career and new recordings overseen by Grammy Award-winning jazz\\/hip-hop artist Robert Glasper.<br><br>This is a perfect primer on Davis' career for the new fan and a brilliant audio keepsake of the film for those who've studied his works inside and out. The album features 11 tracks from across Miles' catalogue from 1956 to 1981, select dialogue from the film featuring Cheadle in character, and five original compositions written, co-written, produced or performed exclusively for MILES AHEAD by Robert Glasper. These cues include &#34;What's Wrong with That?&#34; a jam that closes the movie imagining Cheadle as Miles playing in the present day with guest performers Glasper, Herbie Hancock, Wayne Shorter, Gary Clark, Jr. and Esperanza Spalding; plus &#34;Gone 2015,&#34; an end-credits song featuring guest verses from rapper Pharoahe Monch. Cheadle also pens new liner notes for the album discussing the selection and creation of the songs on the soundtrack.\"],\"title\":\"Miles Ahead Soundtrack\",\"brand\":\"Miles Davis\",\"rank\":\"107,843 in CDs & Vinyl (\",\"asin\":\"B01BW5B29Y\",\"imageURLHighRes\":[\"https:\\/\\/images-na.ssl-images-amazon.com\\/images\\/I\\/51z0SUFmlVL.jpg\"],\"details\":{\"Audio CD\":\"(April 1, 2016)\",\"Original Release Date:\":\"April 1, 2016\",\"Number of Discs:\":\"1\",\"Label:\":\"Sony Legacy\",\"Run Time:\":\"76 minutes\",\"ASIN:\":\"B01BW5B29Y\"}}]"
+    },
+    {
+      "asin": "B00AMEZDTC",
+      "explanations": [
+        {
+          "item_feature": [
+            "enjoyable",
+            "music"
+          ],
+          "score": 0.15607476056533542,
+          "users_matching_interest": [
+            "interesting"
+          ]
+        },
+        {
+          "item_feature": [
+            "enjoyable"
+          ],
+          "score": 0.15607476056533542,
+          "users_matching_interest": [
+            "interesting"
+          ]
+        },
+        {
+          "item_feature": [
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        }
+      ],
+      "recommender_score": 1.7736684459506074,
+      "item_metadata": "[]"
+    },
+    {
+      "asin": "B0012OSGB8",
+      "explanations": [
+        {
+          "item_feature": [
+            "chill"
+          ],
+          "score": 0.13860882042445155,
+          "users_matching_interest": [
+            "nice"
+          ]
+        },
+        {
+          "item_feature": [
+            "relaxing",
+            "music"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        }
+      ],
+      "recommender_score": 1.738904154177177,
+      "item_metadata": "[]"
+    },
+    {
+      "asin": "B000003IUB",
+      "explanations": [
+        {
+          "item_feature": [
+            "relaxing",
+            "music"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "slow",
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "releasing",
+            "tension"
+          ],
+          "score": 0.19791933585068833,
+          "users_matching_interest": [
+            "album"
+          ]
+        }
+      ],
+      "recommender_score": 1.603047658631212,
+      "item_metadata": "[]"
+    },
+    {
+      "asin": "B000P9QAM8",
+      "explanations": [
+        {
+          "item_feature": [
+            "enjoyable"
+          ],
+          "score": 0.15607476056533542,
+          "users_matching_interest": [
+            "interesting"
+          ]
+        },
+        {
+          "item_feature": [
+            "tedious",
+            "household"
+          ],
+          "score": 0.15610782313075688,
+          "users_matching_interest": [
+            "monotonous"
+          ]
+        },
+        {
+          "item_feature": [
+            "relaxing",
+            "background"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        }
+      ],
+      "recommender_score": 1.5247678335743995,
+      "item_metadata": "[]"
+    },
+    {
+      "asin": "6741415041",
+      "explanations": [
+        {
+          "item_feature": [
+            "relaxing",
+            "music"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "wide",
+            "awake"
+          ],
+          "score": 0.2983292389190959,
+          "users_matching_interest": [
+            "perfect"
+          ]
+        }
+      ],
+      "recommender_score": 1.458982147652259,
+      "item_metadata": "[]"
+    },
+    {
+      "asin": "B000P46QI6",
+      "explanations": [
+        {
+          "item_feature": [
+            "relaxing"
+          ],
+          "score": 0.15981564709163282,
+          "users_matching_interest": [
+            "relaxing",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "refreshed",
+            "everytime"
+          ],
+          "score": 0.273084667927723,
+          "users_matching_interest": [
+            "pieces",
+            "inside"
+          ]
+        }
+      ],
+      "recommender_score": 1.4437984310521406,
+      "item_metadata": "[]"
+    },
+    {
+      "asin": "B00MI4Q64U",
+      "explanations": [
+        {
+          "item_feature": [
+            "glorious",
+            "sons"
+          ],
+          "score": 0.35387457303672765,
+          "users_matching_interest": [
+            "great",
+            "pieces"
+          ]
+        },
+        {
+          "item_feature": [
+            "glorious"
+          ],
+          "score": 0.35387457303672765,
+          "users_matching_interest": [
+            "great",
+            "pieces"
+          ]
+        }
+      ],
+      "recommender_score": 1.4138256305452965,
+      "item_metadata": "[]"
+    }
+  ],
+  "users_interests": {
+    "2": [
+      [
+        "love"
+      ],
+      [
+        "Bruckner"
+      ],
+      [
+        "love",
+        "Bruckner"
+      ]
+    ],
+    "4": [
+      [
+        "pieces",
+        "inside"
+      ],
+      [
+        "Miles"
+      ],
+      [
+        "Davis"
+      ],
+      [
+        "interesting"
+      ],
+      [
+        "experimental"
+      ],
+      [
+        "pieces"
+      ],
+      [
+        "album"
+      ],
+      [
+        "interesting",
+        "album"
+      ],
+      [
+        "experimental",
+        "pieces"
+      ],
+      [
+        "Miles",
+        "Davis"
+      ]
+    ],
+    "5": [
+      [
+        "monotonous"
+      ],
+      [
+        "relaxing",
+        "pieces"
+      ],
+      [
+        "great",
+        "pieces"
+      ],
+      [
+        "composed",
+        "great"
+      ],
+      [
+        "cool",
+        "jazz"
+      ],
+      [
+        "album"
+      ],
+      [
+        "pieces"
+      ],
+      [
+        "perfect"
+      ],
+      [
+        "nice"
+      ],
+      [
+        "Great"
+      ]
+    ]
+  }
+}

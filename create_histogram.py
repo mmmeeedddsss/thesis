@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 P_lower = 98
+P_upper = 97
 
 """
 with open('idf_values.txt', 'r') as f:
@@ -26,7 +27,7 @@ with open('dataset/unigram_freq.csv', mode='r') as csv_file:
 
 unbiased_freqs = [v for k, v in unbiased_freq_dict.items()]
 
-upper_unbiased_freqs = np.percentile(unbiased_freqs, 97)
+upper_unbiased_freqs = np.percentile(unbiased_freqs, P_upper)
 
 print(upper_unbiased_freqs)
 
