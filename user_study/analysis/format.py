@@ -8,6 +8,17 @@ import matplotlib.pyplot as plt
 
 sql = lambda q: sqldf(q, globals())
 
+def d_histogram(ls, label, color=None):
+    ls = [int(x) for x in ls]
+    plt.clf()
+    if color:
+        plt.hist(ls, bins=10, range=(0, 100), color="#f5a214")
+    else:
+        plt.hist(ls, bins=10, range=(0, 100))
+    plt.title(label)
+    plt.savefig(f"{label.replace(' ', '_')}.png", bbox_inches='tight')
+
+
 with open("ratings.json", "r") as f:
     ratings = json.load(f)
 
@@ -61,6 +72,51 @@ per_user_recommender = sql("SELECT recommender, user_id, avg(recommendation_rati
 print(per_user_recommender)
 
 print()
+print("Num high ratings")
+num_high_ratings = sql("SELECT count(*) FROM df where explanation_rating>=65 group by recommender order by recommender")
+print(num_high_ratings)
+
+print()
+print("Num all ratings")
+num_high_ratings = sql("SELECT count(*) FROM df group by recommender order by recommender")
+print(num_high_ratings)
+
+print()
+print("Ratings per user per recommender")
+per_recommender_individual = sql("SELECT recommender, recommendation_rating FROM df order by recommender")
+
+per_recommender_individual = per_recommender_individual.set_index('recommender')
+
+print(per_recommender_individual)
+
+bert_1 = sql("SELECT recommendation_rating FROM per_recommender_individual where recommender = 'Bert 1'").values.flatten().tolist()
+yake_1 = sql("SELECT recommendation_rating FROM per_recommender_individual where recommender = 'Yake 1'").values.flatten().tolist()
+yake_2 = sql("SELECT recommendation_rating FROM per_recommender_individual where recommender = 'Yake 2'").values.flatten().tolist()
+
+d_histogram(bert_1, 'Bert 1 - Rating distribution for the recommended items')
+d_histogram(yake_1, 'Yake 1 - Rating distribution for the recommended items')
+d_histogram(yake_2, 'Yake 2 - Rating distribution for the recommended items')
+
+
+print()
+print("Explanation ratings per user per recommender")
+per_recommender_individual = sql("SELECT recommender, explanation_rating FROM df order by recommender")
+
+per_recommender_individual = per_recommender_individual.set_index('recommender')
+
+print(per_recommender_individual)
+
+bert_1 = sql("SELECT explanation_rating FROM per_recommender_individual where recommender = 'Bert 1'").values.flatten().tolist()
+yake_1 = sql("SELECT explanation_rating FROM per_recommender_individual where recommender = 'Yake 1'").values.flatten().tolist()
+yake_2 = sql("SELECT explanation_rating FROM per_recommender_individual where recommender = 'Yake 2'").values.flatten().tolist()
+
+d_histogram(bert_1, 'Bert 1 - Rating distribution for the explanations', color=True)
+d_histogram(yake_1, 'Yake 1 - Rating distribution for the explanations', color=True)
+d_histogram(yake_2, 'Yake 2 - Rating distribution for the explanations', color=True)
+
+
+
+print()
 print("Num of average rating per recommender")
 per_recommender = sql("SELECT recommender, avg(recommendation_rating) as `Average rating given of recommendations [0-100]`, avg(explanation_rating) as `Average rating given of explanations [0-100]` FROM df group by recommender order by recommender")
 print(per_recommender)
@@ -78,13 +134,6 @@ print(df_t)
 plt.clf()
 
 
-def d_histogram(ls, label):
-    plt.clf()
-    plt.hist(ls, bins=10, range=(0, 100))
-    plt.title(label)
-    plt.savefig(f"{label.replace(' ', '_')}.png", bbox_inches='tight')
-
-
 bert_1 = sql("select avg_reco_rate from df_t where recommender == 'Bert 1'").values.flatten().tolist()
 yake_1 = sql("select avg_reco_rate from df_t where recommender == 'Yake 1'").values.flatten().tolist()
 yake_2 = sql("select avg_reco_rate from df_t where recommender == 'Yake 2'").values.flatten().tolist()
@@ -95,8 +144,8 @@ print(len(bert_1))
 print(len(yake_1))
 print(len(yake_2))
 
-bert_1.insert(3, np.mean(bert_1))
-yake_1.insert(4, np.mean(yake_1))
+bert_1.insert(7, np.mean(bert_1))
+yake_1.insert(8, np.mean(yake_1))
 
 d_histogram(bert_1, 'Bert 1 - Mean Rating of the recommended item per user')
 d_histogram(yake_1, 'Yake 1 - Mean Rating of the recommended item per user')
@@ -111,12 +160,12 @@ bert_1 = sql("select avg_exp_rate from df_t where recommender == 'Bert 1'").valu
 yake_1 = sql("select avg_exp_rate from df_t where recommender == 'Yake 1'").values.flatten().tolist()
 yake_2 = sql("select avg_exp_rate from df_t where recommender == 'Yake 2'").values.flatten().tolist()
 
-bert_1.insert(3, np.mean(bert_1))
-yake_1.insert(4, np.mean(yake_1))
+bert_1.insert(7, np.mean(bert_1))
+yake_1.insert(8, np.mean(yake_1))
 
-d_histogram(bert_1, 'Bert 1 - Mean Rating of the explanation per user')
-d_histogram(yake_1, 'Yake 1 - Mean Rating of the explanation per user')
-d_histogram(yake_2, 'Yake 2 - Mean Rating of the explanation per user')
+d_histogram(bert_1, 'Bert 1 - Mean Rating of the explanation per user', color=True)
+d_histogram(yake_1, 'Yake 1 - Mean Rating of the explanation per user', color=True)
+d_histogram(yake_2, 'Yake 2 - Mean Rating of the explanation per user', color=True)
 
 # Q, p
 print(stats.friedmanchisquare(bert_1, yake_1, yake_2))
