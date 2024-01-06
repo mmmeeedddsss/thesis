@@ -1,7 +1,7 @@
 ## Description 
 
 Mert Tunc Thesis work
-
+Access the written thesis from https://open.metu.edu.tr/handle/11511/99455
 
 ## Usage - Plain development
 
